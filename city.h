@@ -28,6 +28,8 @@ public:
   // If hero has MEDIC attribute, set all disease_counters to 0.
   bool has_research_centre(); // Returns true if the City has a research centre.
   int get_disease_id(); // Returns the disease_id of this city.
+  void arrive_hero(int hero_id);
+  void depart_hero(int hero_id);
 private:
   int city_id; // Identifier for the city.
   int disease_id; // Disease 1 is blue, 2 is yellow, 3 is black, 4 is red.
