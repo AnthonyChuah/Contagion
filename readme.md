@@ -32,7 +32,7 @@ Design of the objects in this program:
 * City has various functions to enable gameplay that are not enumerated here
 * Remember that World::cities is a list of City objects
 
-** Hero **
+**Hero**
 
 * Hero represents the player character moving around saving the world, and Hero has functions that correspond to what players can do in Pandemic:
     * Move to adjacent cities
@@ -42,12 +42,12 @@ Design of the objects in this program:
 * Hero also contains a list of Cards in their hand, representing the player cards in a player's hand
 * Remember that World::heroes is a list of Hero objects
 
-** Player Card **
+**Player Card**
 
 * PCard represents player cards, and are found in the two stack of PCards data structures in World
 * PCard can also be taken into a player's hands
 * PCard can also be an Epidemic Card, which triggers the World::epidemic function and then disappears from the game
 
-** Infection Card **
+**Infection Card**
 
 * ICard represents infection cards, and are found in the two stack of ICards data structures in World
