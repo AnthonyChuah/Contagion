@@ -30,7 +30,7 @@ private:
   int x_coord; // X and Y coordinates for where the city is on the map (for rendering purposes).
   int y_coord;
   char shortname[4]; // 4-letter short name for the city to use in ASCII rendering of the world.
-  int disease_id; // Disease 0 is blue, 1 is yellow, 2 is black, 3 is red.
+  int disease_id; // Disease 0 is yellow, 1 is red, 2 is blue, 3 is black.
   int disease_counters[4]; // Counts the number of disease counters for each disease: from 0 to 3.
   bool research_centre; // Indicates if a research centre exists in that city.
   vector<int> neighbours; // Vector containing the IDs of neighbouring cities.
