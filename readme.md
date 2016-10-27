@@ -4,23 +4,31 @@ Pandemic's rules are found here: http://www.zmangames.com/uploads/4/7/1/7/471709
 
 This repository contains a .jpg file which shows the Pandemic board. It is useful to refer to it when programming this game.
 
+Developers: jsoikkeli and anthonychuah - it is by random chance that the repo is hosted on anthonychuah's GitHub.
+
 
 Design of the objects in this program:
 
 **World**
 
 * World represents a single on-going game, similar to the board in Pandemic, and contains:
-    * A list of Hero objects, which will be generated from a text data file
-    * A list of City objects, which will be generated from a text data file
-    * 2 stacks of PCard objects, one is the player card pile and one is the discard pile
-    * 2 stacks of ICard objects, one is the infection card pile and one is the discard pile
+    * A collection of Hero objects, which will be generated from a text data file
+    * A collection of City objects, which will be generated from a text data file
+    * 2 collections of PCard objects, one is the player card pile and one is the discard pile
+    * 2 collections of ICard objects, one is the infection card pile and one is the discard pile
     * A counter showing how many more research centres (RCs) can be built
     * The statuses of the four diseases in the world
     * The number of disease blocks not yet placed upon cities
     * Number of outbreaks that have happened so far
     * The infection rate at the moment
+* Note: all collections are std::vector
 * The World can take as a parameter the number of epidemics in the PCard deck: this sets the difficulty
-* World also has many functions to enable gameplay, there are too many to enumerate here
+* World also has many functions:
+    * Shuffling decks of cards on the board
+    * Loading game data, initializing the game board
+    * Playing event cards (which can be played from any player's hand regardless of turn)
+    * Trigger epidemics
+    * Visual rendering of the World
 
 **City**
 
