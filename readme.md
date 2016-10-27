@@ -61,15 +61,4 @@ Design of the objects in this program:
 * ICard represents infection cards, and are found in the two stack of ICards data structures in World
 
 
-====================================
-Suggested changes (Jukka)
-====================================
-+ Hero as an abstract class, with a virtual function "power" or "function" that is implemented (overridden) in
-  subclasses representing each hero type
-+ PCard and ICard as subclasses of an abstract class Card? (but it may not be necessary,
-  as the roles of the cards are very different)
-+ Adding a Disease class, which would directly track each disease? This would make World a bit simpler,
-  and allow the creation of different diseases (if needed), without changing World
-
-
 
