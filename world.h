@@ -33,8 +33,9 @@ public:
   void load_city_data(char filename[]); // Loads the initial city data from a data file.
   // Note: Atlanta should be the first city in the list, and Atlanta must start with a research centre.
   // Note: infection card data is drawn from the city data file.
-  void load_pcards_data(char filename[]); // Loads the initial player cards data from a data file.
+  void load_eventcards_data(char filename[]); // Loads the event cards.
   void load_hero_data(char filename[]); // Loads the initial hero data from a data file.
+  void setup(); // Set up the world according to the rules.
   // CHECK if we need to initialize the cards by providing a starting hand to players.
   void render_world_ascii(); // Renders the world in ASCII, for debugging.
   void render_world_gui(); // Renders the world graphically.
