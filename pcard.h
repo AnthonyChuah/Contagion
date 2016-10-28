@@ -1,6 +1,9 @@
 #ifndef PCARD_H
 #define PCARD_H
 
+#include <string>
+using namespace std;
+
 /*
 Header file for PCard class. A Player Card can be:
 1. A city card.

@@ -5,6 +5,21 @@
 Header file for City class.
 */
 
+
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// --------------------------- MACROS ----------------------------------- //
+// Disease ID (type)
+//#define YELLOW 0
+//#define RED 1
+//#define BLUE 2
+//#define BLACK 3
+// ---------------------------------------------------------------------- //
+
+
 class City
 {
 public:

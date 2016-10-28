@@ -20,6 +20,6 @@ class Medic: public Hero {
   }
 
   
-}
+};
 
 #endif

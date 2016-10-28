@@ -1,6 +1,18 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include <vector>
+
+using namespace std;
+
+// --------------------------- MACROS ----------------------------------- //
+// Disease status
+//#define UNCURED 0
+//#define CURED 1
+//#define ERADICATED 2
+// ---------------------------------------------------------------------- //
+
+
 /*
 Header file for World class.
 The World object should contain everything we need:
@@ -44,6 +56,9 @@ public:
   void draw_player_deck(Hero& hero); // Deals to player card from the player deck: discard cards above 7.
   void epidemic(); // An epidemic occurs: see game rules.
   void play_event_card(Hero& hero); // Plays event card from hero's hand.
+
+
+  
   vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
   vector<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
   vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.
