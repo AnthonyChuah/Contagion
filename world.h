@@ -74,6 +74,8 @@ public:
   int calculate_infection_rate(); // Calculate infection rate.
   int infection_rate_base; // A base value for infection rate, used to calculate the infection rate.
   int num_epidemics; // Number of epidemics to be inserted into player card deck.
+private:
+  void init();
 };
 
 #endif
