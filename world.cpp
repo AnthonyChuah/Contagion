@@ -42,12 +42,19 @@ void World::load_city_data(char filename[])
   string cityname;
   int city_id, d_id, x_coord, y_coord;
   // First line of data file is just headers, drop them.
+  getline(ins, rowdata);
   while(ins.good())
     {
       std::cout << "DEBUG: reading row data.\n";
       getline(ins, rowdata);
       // If rowdata is simply empty (last line) then continue.
+      if (rowdata.empty()) continue;
       // Split by comma delimiter to get data, split neighbours by colon delimiter.
+      stringstream ss(rowdata);
+      string item;
+      vector<string> inline_elements;
+      while (getline(ss, item, ','))
+	inline_elements.push_back(item);
       // Call constructor for City object and push into back or front of vector<City> on World.
       // Call constructor for ICard and PCard and push them into respective vectors too.
     }
