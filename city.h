@@ -28,6 +28,7 @@ public:
   ~City();
   City(const City& copy_from); // Copy constructor to ensure good behaviour with STL data structures.
   City& operator =(const City& assign_from); // Overloaded assignment operator needed to make the Big 3.
+
   void outbreak(int d_id);
   // Contagion is triggered, infecting neighbouring cities. This can trigger contagions in neighbours.
   bool has_research_centre(); // Returns true if the City has a research centre.

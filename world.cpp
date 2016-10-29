@@ -64,12 +64,14 @@ void World::load_city_data(char _filename[])
       getline(ins, rowdata);
       // If rowdata is simply empty (last line) then continue.
       if (rowdata.empty()) continue;
+
       // Split by comma delimiter to get data, split neighbours by colon delimiter.
       stringstream ss(rowdata);
       string item;
       vector<string> elems;
       while (getline(ss, item, ','))
         elems.push_back(item);
+
       // CityID,CityName,XCoordinate,YCoordinate,DiseaseID,Neighbours
       // 0,Atlanta,236,524,2,4:8:10
       // Call constructor for City object and push into back or front of vector<City> on World.
@@ -87,6 +89,7 @@ void World::load_city_data(char _filename[])
 	cityneighbours.push_back(subitem);
       City a_city(cityid,cityname,xcoord,ycoord,did,cityneighbours,this,has_rc);
       cities.push_back(a_city);
+
       // Call constructor for ICard and PCard and push them into respective vectors too.
       ICard an_icard(cityname,cityid);
       infection_deck.push_back(an_icard);
@@ -205,7 +208,7 @@ void World::setup()
 	ICard chosen_card = infection_deck.back();
 	infection_deck.pop_back();
 	int cid_to_infect = chosen_card.city_id;
-	infect(cities[cid_to_infect], cities[cid_to_infect].get_disease_id(), i);
+	cities[cid_to_infect].infect(cities[cid_to_infect].get_disease_id(), i);
 	infection_discard.push_back(chosen_card);
       }
   // Now determine whose turn it is. Technically the rules require it's player with highest pop city in hand.
@@ -231,14 +234,37 @@ void World::draw_infection_deck()
       ICard chosen_card = infection_deck.back();
       infection_deck.pop_back();
       int cid_to_infect = chosen_card.city_id;
-      infect(cities[cid_to_infect], cities[cid_to_infect].get_disease_id(), 1);
+      cities[cid_to_infect].infect(cities[cid_to_infect].get_disease_id(), 1);
       infection_discard.push_back(chosen_card);
     }
 }
 
-bool World::draw_player_deck(Hero& hero)
+int World::calculate_infection_rate()
 {
-  // Draw 2 cards.
+  if (infection_rate_base <= 2) return 2;
+  else if (infection_rate_base >= 3 && infection_rate_base <= 4) return 3;
+  else return 4;
+}
+
+void World::epidemic()
+{
+  infection_rate_base++;
+  int infection_rate = calculate_infection_rate();
+  int cid_target = infection_deck.front().city_id;
+  infection_discard.push_back(infection_deck.front());
+  infection_deck.pop_front();
+  cities[cid_target].infect(cities[cid_target].get_disease_id(), 3);
+  std::random_shuffle(infection_discard.begin(), infection_discard.end());
+  while (infection_discard.size > 0)
+    {
+      infection_deck.push_back(infection_discard.back());
+      infection_discard.pop_back();
+    }
+}
+
+void World::play_event_card(Hero& hero)
+{
+  // Use iterator to find the relevant card in the player's hand, then pop it, then make the event happen.
 }
 
 void World::init()

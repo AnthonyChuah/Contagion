@@ -45,7 +45,7 @@ private:
   World* ptr_world; //pointer to the World
   City* ptr_city; // Pointer to a city.
   string spec; // Medic, Dispatcher, Researcher, Quarantine, Scientist, Operations
-  std::list<PCard> hand;
+  list<PCard> hand;
 
   virtual void spec_action()=0; //pure virtual function for special actions 
 };
