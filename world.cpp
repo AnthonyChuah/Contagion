@@ -15,6 +15,13 @@ Implementation file for the World class.
 #include "city.h"
 #include "hero.h"
 // Include Jukka's specializations header file.
+#include "contPlanner.h"
+#include "Dispatcher.h"
+#include "Medic.h"
+#include "OpExpert.h"
+#include "QSpecialist.h"
+#include "Researcher.h"
+#include "Scientist.h"
 #include "world.h"
 
 World::World()
@@ -150,6 +157,10 @@ void World::load_hero_data(char filename[]);
 	OpExpert a_hero(ptr_atlanta,this,hero_spec);
       else if (hero_spec == "Quarantine Specialist")
 	QSpecialist a_hero(ptr_atlanta,this,hero_spec);
+      else if (hero_spec == "Researcher")
+	Researcher a_hero(ptr_atlanta,this,hero_spec);
+      else if (hero_spec == "Scientist")
+	Scientist a_hero(ptr_atlanta,this,hero_spec);
       // Hero a_hero = Hero(ptr_atlanta,this,hero_spec);
       heroes.push_back(a_hero);
     }
@@ -162,11 +173,13 @@ void World::setup()
   // Do the steps according to the rules in the rulebook.
   // Check how many players there are and record this in World::num_players.
   num_players = heroes.size();
+  num_cities = cities.size();
   if (num_players > 4) {std::cout << "You cannot have more than 4 players.\n"; exit(1)}
   else if (num_players < 2) {std::cout << "You cannot have fewer than 2 players.\n"; exit(1)}
   int starting_hand = 6 - num_players; // 4 for 2 players, 3 for 3 players, 2 for 4 players.
   // First shuffle the PCard deck. Make sure this includes event cards.
   std::random_shuffle(player_deck.begin(),player_deck.end()); // <algorithm>'s function shuffles cards.
+  // Note: do not use draw_player_deck because that will perform 2 draws and discard cards above 7.
   for (int i = 0; i < num_players; i++)
     for (int j = 0; j < starting_hand; j++)
       {
@@ -180,7 +193,23 @@ void World::setup()
       player_deck.push_back(an_epidemic);
     }
   std::random_shuffle(player_deck.begin(),player_deck.end());
+  // NOTE: this algorithm can lead to concentrations of epidemics, which is not good.
+  // TO UPDATE: follow the rules and split into N piles and insert the N epidemics into each and shuffle each,
+  // then put them back together.
   // Now shuffle the infection deck and begin infecting cities.
+  std::random_shuffle(infection_deck.begin(),infection_deck.end());
+  // First 3 cities get 3 cubes each. Next 3 get 2, next 3 get 1.
+  for (int i = 3; i > 0; i--)
+    for (int j = 0; j < 3; j++)
+      {
+	ICard chosen_card = infection_deck.back();
+	infection_deck.pop_back();
+	int cid_to_infect = chosen_card.city_id;
+	infect(cities[cid_to_infect], cities[cid_to_infect].get_disease_id(), i);
+	infection_discard.push_back(chosen_card);
+      }
+  // Now determine whose turn it is. Technically the rules require it's player with highest pop city in hand.
+  players_turn = 0;
 }
 
 void World::render_world_ascii()
@@ -193,19 +222,23 @@ void World::render_world_gui()
   // We do not yet know how exactly we will render the world graphically.
 }
 
-void World::shuffle_deck(vector<PCard>& deck)
-{
-  // Call random_shuffle on the vector of PCards.
-}
-
-void World::shuffle_deck(vector<ICard>& deck)
-{
-  // Call random_shuffle on the vector of ICards. Needs overloading due to different input type.
-}
-
 void World::draw_infection_deck()
 {
-  // Pop off the front or back of the infection deck. Read city ID. Call the city's infection function accordingly.
+  // Pop off the front or back of the infection deck. Read city ID. Call the infection function accordingly.
+  int ncards = calculate_infection_rate();
+  for (int i = 0; i < ncards; n++)
+    {
+      ICard chosen_card = infection_deck.back();
+      infection_deck.pop_back();
+      int cid_to_infect = chosen_card.city_id;
+      infect(cities[cid_to_infect], cities[cid_to_infect].get_disease_id(), 1);
+      infection_discard.push_back(chosen_card);
+    }
+}
+
+bool World::draw_player_deck(Hero& hero)
+{
+  // Draw 2 cards.
 }
 
 void World::init()

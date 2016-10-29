@@ -28,12 +28,7 @@ public:
   ~City();
   City(const City& copy_from); // Copy constructor to ensure good behaviour with STL data structures.
   City& operator =(const City& assign_from); // Overloaded assignment operator needed to make the Big 3.
-  void infect(City& city, int d_id, int num_cubes);
-  // Attempts to infect the city with this disease.
-  // If corresponding disease counter == 3, trigger contagion() method.
-  // Else increment disease counter by 1. Some exceptions: see game rules.
-  // num_cubes should be 1 except during world initialization and epidemics.
-  void contagion(int d_id);
+  void outbreak(int d_id);
   // Contagion is triggered, infecting neighbouring cities. This can trigger contagions in neighbours.
   bool has_research_centre(); // Returns true if the City has a research centre.
   int get_disease_id(); // Returns the disease_id of this city.

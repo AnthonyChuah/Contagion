@@ -51,15 +51,18 @@ public:
   // CHECK if we need to initialize the cards by providing a starting hand to players.
   void render_world_ascii(); // Renders the world in ASCII, for debugging.
   void render_world_gui(); // Renders the world graphically.
-  void shuffle_deck(vector<PCard>& deck); // Shuffles a deck of infection cards (stack data structure).
-  void shuffle_deck(vector<ICard>& deck); // Same shuffle_deck but overloaded for stack of player cards.
   void draw_infection_deck(); // Draws 2 to 4 cards from the infection deck.
-  void draw_player_deck(Hero& hero); // Deals to player card from the player deck: discard cards above 7.
+  bool draw_player_deck(Hero& hero); // Deals to player card from the player deck: discard cards above 7.
+  void prompt_discard_7(Hero& hero); // Prompts the player to choose cards to discard after drawing.
   void epidemic(); // An epidemic occurs: see game rules.
   void play_event_card(Hero& hero); // Plays event card from hero's hand.
-
+  void infect(City& city, int d_id, int num_cubes);
+  // Attempts to infect the city with this disease.
+  // If corresponding disease counter == 3, trigger contagion() method.
+  // Else increment disease counter by 1. Some exceptions: see game rules.
+  // num_cubes should be 1 except during world initialization and epidemics.
   vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
-  vector<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
+  deque<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
   vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.
   vector<PCard> player_deck; // Vector containing the player cards, populated at the start of the game.
   vector<PCard> player_discard; // Player discard pile, initially empty.
