@@ -18,7 +18,7 @@ Header file for Hero class.
 class Hero {
 public:
   Hero(City* _ptr_city, World* _ptr_world, string _spec) : ptr_city(_ptr_city), ptr_world(_ptr_world), spec(_spec) {}
-  // NOTE: Hero's City pointer should be set to Atlanta at initialization - to be done in setup file.
+  // NOTE: Hero's City pointer should be set to Atlanta at initialization.
   Hero(const Hero& copy_from); // Copy constructor to ensure good behaviour with STL data structures.
   ~Hero() {}
 
@@ -45,7 +45,7 @@ private:
   World* ptr_world; //pointer to the World
   City* ptr_city; // Pointer to a city.
   string spec; // Medic, Dispatcher, Researcher, Quarantine, Scientist, Operations
-  std::vector<PCard> hand;
+  std::list<PCard> hand;
 
   virtual void spec_action()=0; //pure virtual function for special actions 
 };

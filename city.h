@@ -24,7 +24,7 @@ class City
 {
 public:
   City();
-  City(int city_id, string city_name, int d_id, int x_coord, int y_coord, const vector<int>& neighbour);
+  City(int _id, string _name, int _d_id, int _xcoord, int _ycoord, const vector<int>& _neighbour, World* _worldptr, bool _has_rc);
   ~City();
   City(const City& copy_from); // Copy constructor to ensure good behaviour with STL data structures.
   City& operator =(const City& assign_from); // Overloaded assignment operator needed to make the Big 3.

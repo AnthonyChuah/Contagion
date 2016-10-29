@@ -58,8 +58,6 @@ public:
   void epidemic(); // An epidemic occurs: see game rules.
   void play_event_card(Hero& hero); // Plays event card from hero's hand.
 
-
-  
   vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
   vector<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
   vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.
@@ -76,7 +74,7 @@ public:
   int infection_rate_base; // A base value for infection rate, used to calculate the infection rate.
   int num_epidemics; // Number of epidemics to be inserted into player card deck.
 private:
-  void init();
+  void init(); // Helper function for constructors.
 };
 
 #endif

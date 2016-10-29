@@ -7,7 +7,6 @@
 #define CURED 1
 #define ERADICATED 2
 
-
 // Disease ID (type)
 #define YELLOW 0
 #define RED 1
