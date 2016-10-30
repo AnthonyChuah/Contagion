@@ -46,7 +46,7 @@ World::World(int epidemics)
   num_epidemics = epidemics;
 }
 
-void World::load_city_data(char _filename[])
+void World::load_city_data(std::string _filename)
 {
   ifstream ins;
   ins.open(_filename);
@@ -55,27 +55,27 @@ void World::load_city_data(char _filename[])
       std::cout << "Failed to open city input file.\n";
       exit(1);
     }
-  string rowdata;
+  std::string rowdata;
   // First line of data file is just headers, drop them.
-  getline(ins, rowdata);
+  std::getline(ins, rowdata);
   while(ins.good())
     {
       std::cout << "DEBUG: reading row data.\n";
-      getline(ins, rowdata);
+      std::getline(ins, rowdata);
       // If rowdata is simply empty (last line) then continue.
       if (rowdata.empty()) continue;
 
       // Split by comma delimiter to get data, split neighbours by colon delimiter.
-      stringstream ss(rowdata);
-      string item;
-      vector<string> elems;
-      while (getline(ss, item, ','))
+      std::stringstream ss(rowdata);
+      std::string item;
+      std::vector<string> elems;
+      while (std::getline(ss, item, ','))
         elems.push_back(item);
 
       // CityID,CityName,XCoordinate,YCoordinate,DiseaseID,Neighbours
       // 0,Atlanta,236,524,2,4:8:10
       // Call constructor for City object and push into back or front of vector<City> on World.
-      string cityname;
+      std::string cityname;
       int cityid, did, xcoord, ycoord;
       bool has_rc = false; // Only Atlanta begins with a RC.
       cityid = std::stoi(elems[0]); cityname = elems[1];
@@ -83,9 +83,9 @@ void World::load_city_data(char _filename[])
       if (cityid == 0) has_rc = true;
       did = std::stoi(elems[4]);
       vector<int> cityneighbours;
-      stringstream sss(elems[5]);
-      string subitem;
-      while (getline(sss, subitem, ':'))
+      std::stringstream sss(elems[5]);
+      std::string subitem;
+      while (std::getline(sss, subitem, ':'))
 	cityneighbours.push_back(subitem);
       City a_city(cityid,cityname,xcoord,ycoord,did,cityneighbours,this,has_rc);
       cities.push_back(a_city);
@@ -101,21 +101,21 @@ void World::load_city_data(char _filename[])
   // Remember to inspect the vectors.
 }
 
-void World::load_eventcards_data(char filename[])
+void World::load_eventcards_data(std::string _filename)
 {
   ifstream ins;
-  ins.open(filename);
+  ins.open(_filename);
   if (ins.fail())
     {
       std::cout << "Failed to open event cards input file.\n";
       exit(1);
     }
-  string rowdata;
-  string eventname;
+  std::string rowdata;
+  std::string eventname;
   while (ins.good())
     {
       std::cout << "DEBUG: reading event row data.\n";
-      getline(ins, rowdata);
+      std::getline(ins, rowdata);
       // rowdata should simply be the event name, unless it read a blank row (end of file).
       if (rowdata.empty()) continue;
       // If string is not empty, record it directly in eventname.
@@ -129,21 +129,21 @@ void World::load_eventcards_data(char filename[])
   // Remember to inspect the vector.
 }
 
-void World::load_hero_data(char filename[]);
+void World::load_hero_data(std::string _filename);
 {
   ifstream ins;
-  ins.open(filename);
+  ins.open(_filename);
   if (ins.fail())
     {
       std::cout << "Failed to open heroes input file.\n";
       exit(1);
     }
-  string rowdata;
-  string hero_spec;
+  std::string rowdata;
+  std::string hero_spec;
   while (ins.good())
     {
       std::cout << "DEBUG: reading hero row data.\n";
-      getline(ins, rowdata);
+      std::getline(ins, rowdata);
       // rowdata should simply be the hero's specialization, unless it is just a blank.
       if (rowdata.empty()) continue;
       hero_spec = rowdata;
@@ -227,15 +227,24 @@ void World::render_world_gui()
 
 void World::draw_infection_deck()
 {
-  // Pop off the front or back of the infection deck. Read city ID. Call the infection function accordingly.
-  int ncards = calculate_infection_rate();
-  for (int i = 0; i < ncards; n++)
+  // If One Quiet Night event card has been played, do nothing and set skip_next_infect_cities back to false.
+  if (skip_next_infect_cities)
     {
-      ICard chosen_card = infection_deck.back();
-      infection_deck.pop_back();
-      int cid_to_infect = chosen_card.city_id;
-      cities[cid_to_infect].infect(cities[cid_to_infect].get_disease_id(), 1);
-      infection_discard.push_back(chosen_card);
+      skip_next_infect_cities = false;
+      return;
+    }
+  else
+    {
+      // Pop off the front or back of the infection deck. Read city ID. Call the infection function accordingly.
+      int ncards = calculate_infection_rate();
+      for (int i = 0; i < ncards; n++)
+	{
+	  ICard chosen_card = infection_deck.back();
+	  infection_deck.pop_back();
+	  int cid_to_infect = chosen_card.city_id;
+	  cities[cid_to_infect].infect(cities[cid_to_infect].get_disease_id(), 1);
+	  infection_discard.push_back(chosen_card);
+	}
     }
 }
 
@@ -262,9 +271,125 @@ void World::epidemic()
     }
 }
 
-void World::play_event_card(Hero& hero)
+bool World::play_event_card(Hero& _hero, string _event, std::string _arguments)
 {
   // Use iterator to find the relevant card in the player's hand, then pop it, then make the event happen.
+  if (_event == "Government Grant")
+    {
+      // Check that hero's hand contains that card.
+      PCard govgrant("Government Grant", -1, true, false);
+      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), govgrant);
+      if (iter != _hero.hand.end())
+	{
+	  // Call event_grant function: if it returns true, it's worked, so return true here too.
+	  if (event_grant(_arguments))
+	    {
+	      int index_to_delete = iter - _hero.hand.begin();
+	      _hero.hand.erase(_hero.hand.begin() + index_to_delete);
+	      return true;
+	    }
+	  else
+	    return false;
+	}
+      else
+	{
+	  std::cout << "No Government Grant event card in that hero's hand.\n";
+	  return false;
+	}
+    }
+  else if (_event == "One Quiet Night")
+    {
+      if (skip_next_infect_cities)
+	{
+	  std::cout << "We are already skipping the next infect cities.\n";
+	  return false;
+	}
+      else
+	skip_next_infect_cities = true;
+    }
+  else if (_event == "Forecast")
+    {
+      PCard forecast("Forecast", -1, true, false);
+      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), forecast);
+      if (iter != _hero.hand.end())
+	{
+	  event_forecast();
+	  int index_to_delete = iter - _hero.hand.begin();
+	  _hero.hand.erase(_hero.hand.begin() + index_to_delete);
+	  return true;
+	}
+      else
+	{
+	  std::cout << "No Forecast event card in that hero's hand.\n";
+	  return false;
+	}
+      event_forecast(); // This is INTERACTIVE:
+      // Show players the top 6 (or N if remaining cards are N < 6) cards of infection deck.
+      // Allow them to re-arrange the cards.
+    }
+  else if (_event == "Resilient Population")
+    {
+      PCard resilpop("Resilient Population", -1, true, false);
+      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), resilpop);
+      /* std::string string_name = _event;
+	 iter = std::find_if(infection_discard.begin(), infection_discard.end(),
+	 [&string_name] (const PCard& obj) {return obj.name == string_name}); 
+	 This code above does something very smart: it passes a lambda (anonymous function) into find_if that
+	 can find the iterator matching Resilient Population.
+	 But it's easier at the moment to use std::find() since I have an overloaded == operator for PCard.
+      */
+      if (iter != _hero.hand.end())
+	{
+	  // Call event_resilient function:
+	  if (event_resilient(_arguments))
+	    {
+	      int index_to_delete = iter - _hero.hand.begin();
+	      _hero.hand.erase(_hero.hand.begin() + index_to_delete);
+	      return true;
+	    }
+	  else
+	    return false;
+	}
+      else
+	{
+	  std::cout << "No Resilient Population event card in that hero's hand.\n";
+	  return false;
+	}
+    }
+  else if (_event == "Airlift")
+    {
+      // Arguments should look like this: 0:0 means move hero 0 to Atlanta, which is city_id 0.
+      PCard airlift("Airlift", -1, true, false);
+      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), airlift);
+      if (iter != _hero.hand.end())
+	{
+	  event_airlift(_arguments);
+	  return true;
+	}
+      else
+	return false;
+    }
+  else
+    {
+      std::cout << "Event is not recognized.";
+      return false;
+    }
+}
+
+bool World::event_grant(string _arguments)
+{
+  int cid = std::stoi(_arguments);
+  // Now get the city in question from the cities vector.
+  if (cities[cid].has_rc())
+    {
+      std::cout << "City already has a research centre.\n";
+      return false;
+    }
+  else
+    {
+      cities[cid].build_rc();
+      return true;
+    }
 }
 
 void World::init()
@@ -272,6 +397,7 @@ void World::init()
   centres_remaining = 5;
   outbreaks = 0;
   infection_rate_base = 0;
+  skip_next_infect_cities = false;
   for (int i = 0; i < 4; i++)
     {
       disease_status[i] = UNCURED; // UNCURED is defined to be 0 by preprocessor directive.

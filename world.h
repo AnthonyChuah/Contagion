@@ -2,8 +2,8 @@
 #define WORLD_H
 
 #include <vector>
-
-using namespace std;
+#include <string>
+#include <deque>
 
 // --------------------------- MACROS ----------------------------------- //
 // Disease status
@@ -42,11 +42,11 @@ class World
 public:
   World();
   World(int epidemics);
-  void load_city_data(char filename[]); // Loads the initial city data from a data file.
+  void load_city_data(std::string _filename); // Loads the initial city data from a data file.
   // Note: Atlanta should be the first city in the list, and Atlanta must start with a research centre.
   // Note: infection card data is drawn from the city data file.
-  void load_eventcards_data(char filename[]); // Loads the event cards.
-  void load_hero_data(char filename[]); // Loads the initial hero data from a data file.
+  void load_eventcards_data(std::string _filename); // Loads the event cards.
+  void load_hero_data(std::string _filename); // Loads the initial hero data from a data file.
   void setup(); // Set up the world according to the rules.
   // CHECK if we need to initialize the cards by providing a starting hand to players.
   void render_world_ascii(); // Renders the world in ASCII, for debugging.
@@ -55,18 +55,20 @@ public:
   bool draw_player_deck(Hero& hero); // Deals to player card from the player deck: discard cards above 7.
   void prompt_discard_7(Hero& hero); // Prompts the player to choose cards to discard after drawing.
   void epidemic(); // An epidemic occurs: see game rules.
-  void play_event_card(Hero& hero); // Plays event card from hero's hand.
-  void infect(City& city, int d_id, int num_cubes);
+  bool play_event_card(Hero& hero); // Plays event card from hero's hand.
+  bool event_grant(std::string _arguments); // Playing the Government Grant event card.
+  void event_forecast(); // Forecast Event card, allows players to re-arrange infection deck.
+  void event_airlift(std::string _arguments);
   // Attempts to infect the city with this disease.
   // If corresponding disease counter == 3, trigger contagion() method.
   // Else increment disease counter by 1. Some exceptions: see game rules.
   // num_cubes should be 1 except during world initialization and epidemics.
-  vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
-  deque<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
-  vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.
-  vector<PCard> player_deck; // Vector containing the player cards, populated at the start of the game.
-  vector<PCard> player_discard; // Player discard pile, initially empty.
-  vector<City> cities; // Vector of cities in the world.
+  std::vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
+  std::deque<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
+  std::vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.
+  std::vector<PCard> player_deck; // Vector containing the player cards, populated at the start of the game.
+  std::vector<PCard> player_discard; // Player discard pile, initially empty.
+  std::vector<City> cities; // Vector of cities in the world.
   int centres_remaining; // How many more research centres can be built.
   int outbreaks; // Counts the number of outbreaks: you lose once outbreaks >= 8.
   int disease_status[4]; // Shows each disease's status: 0 for uncured, 1 for cured, 2 for eradicated.

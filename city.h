@@ -31,12 +31,14 @@ public:
 
   void outbreak(int d_id);
   // Contagion is triggered, infecting neighbouring cities. This can trigger contagions in neighbours.
-  bool has_research_centre(); // Returns true if the City has a research centre.
+  bool has_rc(); // Returns true if the City has a research centre.
+  void build_rc();
   int get_disease_id(); // Returns the disease_id of this city.
   void arrive_hero(int hero_id); // Adds hero to the list of heroes in this city.
   void depart_hero(int hero_id); // Removes hero from the list of heroes in this city.
 private:
   World* world_ptr; // Pointer to the world the city is in.
+  bool skip_next_infect_cities;
   int city_id; // Identifier for the city.
   int x_coord; // X and Y coordinates for where the city is on the map (for rendering purposes).
   int y_coord;

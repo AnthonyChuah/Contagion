@@ -27,3 +27,12 @@ void PCard::operator =(const PCard& _assign_from)
   event = _assign_from.event;
   epidemic = _assign_from.epidemic;
 }
+
+bool PCard::operator ==(const PCard& _compare)
+{
+  if (name == _compare.name && city_id == _compare.city_id &&
+      event == _compare.event && epidemic == _compare.epidemic)
+    return true;
+  else
+    return false;
+}
