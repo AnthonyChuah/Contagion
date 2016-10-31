@@ -36,6 +36,7 @@ public:
   int get_disease_id(); // Returns the disease_id of this city.
   void arrive_hero(int hero_id); // Adds hero to the list of heroes in this city.
   void depart_hero(int hero_id); // Removes hero from the list of heroes in this city.
+  std::string name;
 private:
   World* world_ptr; // Pointer to the world the city is in.
   bool skip_next_infect_cities;

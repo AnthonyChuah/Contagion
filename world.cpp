@@ -30,25 +30,25 @@ World::World()
   num_epidemics = 4; // By default, we set it to the easiest level of 4 epidemics. 6 is the hardest.
 }
 
-World::World(int epidemics)
+World::World(int _epidemics)
 {
-  if (epidemics < 4)
+  if (_epidemics < 4)
     {
       std::cout << "You cannot have fewer than 4 epidemics: that would be too easy!\n";
       exit(1);
     }
-  if (epidemics > 6)
+  if (_epidemics > 6)
     {
       std::cout << "I applaud your insanity, but you cannot have more than 6 epidemics: that would be too hard!\n";
       exit(1);
     }
   init();
-  num_epidemics = epidemics;
+  num_epidemics = _epidemics;
 }
 
 void World::load_city_data(std::string _filename)
 {
-  ifstream ins;
+  std::ifstream ins;
   ins.open(_filename);
   if (ins.fail())
     {
@@ -82,7 +82,7 @@ void World::load_city_data(std::string _filename)
       xcoord = std::stoi(elems[2]); ycoord = std::stoi(elems[3]);
       if (cityid == 0) has_rc = true;
       did = std::stoi(elems[4]);
-      vector<int> cityneighbours;
+      std::vector<int> cityneighbours;
       std::stringstream sss(elems[5]);
       std::string subitem;
       while (std::getline(sss, subitem, ':'))
@@ -103,7 +103,7 @@ void World::load_city_data(std::string _filename)
 
 void World::load_eventcards_data(std::string _filename)
 {
-  ifstream ins;
+  std::ifstream ins;
   ins.open(_filename);
   if (ins.fail())
     {
@@ -131,7 +131,7 @@ void World::load_eventcards_data(std::string _filename)
 
 void World::load_hero_data(std::string _filename);
 {
-  ifstream ins;
+  std::ifstream ins;
   ins.open(_filename);
   if (ins.fail())
     {
@@ -313,7 +313,7 @@ bool World::play_event_card(Hero& _hero, string _event, std::string _arguments)
       std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), forecast);
       if (iter != _hero.hand.end())
 	{
-	  event_forecast();
+	  event_forecast(); // INTERACTIVE function, tricky to program.
 	  int index_to_delete = iter - _hero.hand.begin();
 	  _hero.hand.erase(_hero.hand.begin() + index_to_delete);
 	  return true;
@@ -323,9 +323,6 @@ bool World::play_event_card(Hero& _hero, string _event, std::string _arguments)
 	  std::cout << "No Forecast event card in that hero's hand.\n";
 	  return false;
 	}
-      event_forecast(); // This is INTERACTIVE:
-      // Show players the top 6 (or N if remaining cards are N < 6) cards of infection deck.
-      // Allow them to re-arrange the cards.
     }
   else if (_event == "Resilient Population")
     {
@@ -340,7 +337,6 @@ bool World::play_event_card(Hero& _hero, string _event, std::string _arguments)
       */
       if (iter != _hero.hand.end())
 	{
-	  // Call event_resilient function:
 	  if (event_resilient(_arguments))
 	    {
 	      int index_to_delete = iter - _hero.hand.begin();
@@ -363,6 +359,8 @@ bool World::play_event_card(Hero& _hero, string _event, std::string _arguments)
       std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), airlift);
       if (iter != _hero.hand.end())
 	{
+	  int index_to_delete = iter - _hero.hand.begin();
+	  _hero.hand.erase(_hero.hand.begin() + index_to_delete);
 	  event_airlift(_arguments);
 	  return true;
 	}
@@ -376,7 +374,7 @@ bool World::play_event_card(Hero& _hero, string _event, std::string _arguments)
     }
 }
 
-bool World::event_grant(string _arguments)
+bool World::event_grant(std::string _arguments)
 {
   int cid = std::stoi(_arguments);
   // Now get the city in question from the cities vector.
@@ -390,6 +388,35 @@ bool World::event_grant(string _arguments)
       cities[cid].build_rc();
       return true;
     }
+}
+
+void World::event_forecast()
+{
+  // Tricky to implement, but you need to show players the top 6 infection deck cards and let them rearrange.
+}
+
+bool World::event_resilient(std::string _arguments)
+{
+  // Arguments should be a number referring to the city_id.
+  int cid = std::stoi(_arguments);
+  std::string cardname = cities[cid].name;
+  // Make a copy of the infection card you want to destroy from infection discard pile.
+  ICard to_remove(cardname, cid);
+  // Note: since this event card rarely happens, happy to keep infection_discard a vector despite slow deletion.
+  std::vector<ICard>::iterator iter = std::find(infection_discard.begin(), infection_discard.end(), to_remove);
+  if (iter != infection_discard.end())
+    {
+      int index_to_delete = iter - infection_deck.begin();
+      infection_deck.erase(infection_deck.begin() + index_to_delete);
+      return true;
+    }
+  else
+    return false;
+}
+
+void World::event_airlift(std::string _arguments)
+{
+  // Transport the hero in question to the city in question. Arguments syntax is 3:0 for hero 3 to Atlanta.
 }
 
 void World::init()

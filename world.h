@@ -41,7 +41,7 @@ class World
 {
 public:
   World();
-  World(int epidemics);
+  World(int _epidemics);
   void load_city_data(std::string _filename); // Loads the initial city data from a data file.
   // Note: Atlanta should be the first city in the list, and Atlanta must start with a research centre.
   // Note: infection card data is drawn from the city data file.
@@ -58,6 +58,7 @@ public:
   bool play_event_card(Hero& hero); // Plays event card from hero's hand.
   bool event_grant(std::string _arguments); // Playing the Government Grant event card.
   void event_forecast(); // Forecast Event card, allows players to re-arrange infection deck.
+  bool event_resilient(std::string _arguments);
   void event_airlift(std::string _arguments);
   // Attempts to infect the city with this disease.
   // If corresponding disease counter == 3, trigger contagion() method.
