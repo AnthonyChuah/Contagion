@@ -13,7 +13,7 @@ class OpExpert: public Hero {
  private:
   // Function to implement the Operations Expert specialist action:
   // - fly from a research station to any city by discarding any city card
-  virtual void action();
-}
+  virtual void spec_action();
+};
 
 #endif

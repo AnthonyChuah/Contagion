@@ -68,7 +68,7 @@ void Hero::build_centre(City& city) {
   if(ptr_world->centres_remaining>0 && city.research_centre==false) {
     //Check if a city in hand matches city to build in
     for(it=hand.begin(); it!=hand.end(); it++) {
-      if(it->city_id==to_city.city_id) {
+      if(it->city_id==city.city_id) {
 	hand.erase(it); //remove the card from hand
 	city.research_centre==true;
 	ptr_world->centres_remaining--;
