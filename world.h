@@ -49,8 +49,6 @@ public:
   void load_hero_data(std::string _filename); // Loads the initial hero data from a data file.
   void setup(); // Set up the world according to the rules.
   // CHECK if we need to initialize the cards by providing a starting hand to players.
-  void render_world_ascii(); // Renders the world in ASCII, for debugging.
-  void render_world_gui(); // Renders the world graphically.
   void draw_infection_deck(); // Draws 2 to 4 cards from the infection deck.
   bool draw_player_deck(Hero& hero); // Deals to player card from the player deck: discard cards above 7.
   void prompt_discard_7(Hero& hero); // Prompts the player to choose cards to discard after drawing.
@@ -60,10 +58,13 @@ public:
   void event_forecast(); // Forecast Event card, allows players to re-arrange infection deck.
   bool event_resilient(std::string _arguments);
   void event_airlift(std::string _arguments);
-  // Attempts to infect the city with this disease.
-  // If corresponding disease counter == 3, trigger contagion() method.
-  // Else increment disease counter by 1. Some exceptions: see game rules.
-  // num_cubes should be 1 except during world initialization and epidemics.
+
+  // These functions require interaction with the User Interface (.gui and .tui).
+  void render_world_ascii(); // Renders the world in ASCII, for debugging.
+  void render_world_gui(); // Renders the world graphically.
+  void display_deck(const std::vector<ICard>& _display);
+  void intarray_input(std::vector<int> _output, int size);
+
   std::vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
   std::deque<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
   std::vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.

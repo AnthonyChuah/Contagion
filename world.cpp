@@ -393,6 +393,23 @@ bool World::event_grant(std::string _arguments)
 void World::event_forecast()
 {
   // Tricky to implement, but you need to show players the top 6 infection deck cards and let them rearrange.
+  // Plan: make a GUI class that has an association link to World class. World will soon contain a pointer to GUI.
+  // For now, leave this part blank.
+  std::vector<ICard> to_display;
+  int decksize = min(infection_deck.size(), 6);
+  for (int i = 0; i < decksize; i++)
+    to_display.push_back(infection_deck[infection_deck.size()-decksize+i]);
+  // Above code concisely expresses the different treatment if the deck contained less than 6 cards.
+  display_deck(to_display); // This might stream data to the GUI once we build the GUI.
+  std::vector<int> rearrange_mapping;
+  intarray_input(rearrange_mapping, decksize); // e.g. 0 1 2 3 4 5 would be the original arrangement.
+  // Using the arrangement given by players, make an arranged sub-deck.
+  std::vector<ICard> arranged_subdeck = to_display; // vector<Template> overloads assignment. ICard MUST have too!
+  for (int i = 0; i < decksize; i++)
+    arranged_subdeck[i] = to_display[rearrange_mapping[i]]; // e.g. 3 1 2 0 4 5 would swap [0] and [3].
+  // Copy the arranged subdeck into the top 6 cards of the infection_deck double-ended queue.
+  for (int i = 0; i < decksize; i++)
+    infection_deck[infection_deck.size()-decksize+i] = arranged_subdeck[i];
 }
 
 bool World::event_resilient(std::string _arguments)

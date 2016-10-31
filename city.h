@@ -5,11 +5,8 @@
 Header file for City class.
 */
 
-
 #include <vector>
 #include <string>
-
-using namespace std;
 
 // --------------------------- MACROS ----------------------------------- //
 // Disease ID (type)
@@ -24,7 +21,7 @@ class City
 {
 public:
   City();
-  City(int _id, string _name, int _d_id, int _xcoord, int _ycoord, const vector<int>& _neighbour, World* _worldptr, bool _has_rc);
+  City(int _id, std::string _name, int _d_id, int _xcoord, int _ycoord, const std::vector<int>& _neighbour, World* _worldptr, bool _has_rc);
   ~City();
   City(const City& copy_from); // Copy constructor to ensure good behaviour with STL data structures.
   City& operator =(const City& assign_from); // Overloaded assignment operator needed to make the Big 3.
@@ -47,8 +44,8 @@ private:
   int disease_id; // Disease 0 is yellow, 1 is red, 2 is blue, 3 is black.
   int disease_counters[4]; // Counts the number of disease counters for each disease: from 0 to 3.
   bool research_centre; // Indicates if a research centre exists in that city.
-  vector<int> neighbours; // Vector containing the IDs of neighbouring cities.
-  vector<int> heroes; // Vector containing the IDs of Heroes (players) present in the City.
+  std::vector<int> neighbours; // Vector containing the IDs of neighbouring cities.
+  std::vector<int> heroes; // Vector containing the IDs of Heroes (players) present in the City.
 };
 
 #endif
