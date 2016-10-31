@@ -2,7 +2,7 @@
 #define HERO_H
 
 #include <string>
-#include <vector>
+#include <list>
 #include "world.h"
 #include "city.h"
 

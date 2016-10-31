@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
-#include <vector>
+#include <list>
 #include "hero.h"
 
 using namespace std;
@@ -11,10 +11,10 @@ using namespace std;
 /* -- Fly function: fly to the city "to_city" if viable, and return true.
       If the flight is not viable, return false.                           -- */
 bool Hero::fly(City& to_city) {
-  std::vector<PCard>::iterator it; //vector iterator
+  std::list<PCard>::iterator it; //list iterator
 
   // Direct flight: if there is a city card matching "to_city"
-  for(it=hand.begin(); it<hand.end(); it++) {
+  for(it=hand.begin(); it!=hand.end(); it++) {
     if(it->city_id==to_city.city_id) {
       // Move ptr_city to new city
       ptr_city=&to_city;
@@ -26,7 +26,7 @@ bool Hero::fly(City& to_city) {
 
   
   // Charter flight: if there is a city card matching current city (*ptr_city)
-  for(it=hand.begin(); it<hand.end(); it++) {
+  for(it=hand.begin(); it!=hand.end(); it++) {
     if(it->city_id==ptr_city->city_id) {
       // Move ptr_city to new city
       ptr_city=&to_city;
@@ -62,12 +62,12 @@ void Hero::disinfect(int d_id) {
 
 /* -- Build centre: adds a research centre to the city specified.          -- */
 void Hero::build_centre(City& city) {
-  std::vector<PCard>::iterator it; //vector iterator
+  std::list<PCard>::iterator it; //list iterator
 
   // If remaining centres, and no centre exists in the city
   if(ptr_world->centres_remaining>0 && city.research_centre==false) {
     //Check if a city in hand matches city to build in
-    for(it=hand.begin(); it<hand.end(); it++) {
+    for(it=hand.begin(); it!=hand.end(); it++) {
       if(it->city_id==to_city.city_id) {
 	hand.erase(it); //remove the card from hand
 	city.research_centre==true;
@@ -88,9 +88,9 @@ void Hero::build_centre(City& city) {
 
 /* -- Cure: if five cards of same colour in hand, cure that disease.       -- */
 void Hero::cure(int disease_id) {
-  //std::vector<PCard>::iterator it; //vector iterator
+  //std::list<PCard>::iterator it; //list iterator
 
-  //for(it=hand.begin(); it<hand.end(); it++) {
+  //for(it=hand.begin(); it!=hand.end(); it++) {
     //for(  //for all cities with d_id==disease_id ?
     //if(it->city_id==ptr_city->city_id) {
 	  //}  
