@@ -6,8 +6,6 @@
 #include "world.h"
 #include "city.h"
 
-using namespace std;
-
 /*
 Header file for Hero class.
 1. Heroes can own cards in their hand.
@@ -17,37 +15,31 @@ Header file for Hero class.
 
 class Hero {
 public:
-  Hero(City* _ptr_city, World* _ptr_world, string _spec) : ptr_city(_ptr_city), ptr_world(_ptr_world), spec(_spec) {}
-  // NOTE: Hero's City pointer should be set to Atlanta at initialization.
-  Hero(const Hero& copy_from); // Copy constructor to ensure good behaviour with STL data structures.
-  ~Hero() {}
-
+  Hero();
+ Hero(City* _ptr_city, World* _ptr_world, std::string _spec) : ptr_city(_ptr_city), ptr_world(_ptr_world), spec(_spec);
+  Hero(const Hero& _copy); // Copy constructor to ensure good behaviour with STL data structures.
+  Hero& operator =(const Hero& _assign); // Assignment operator needed for good behaviour with STL iterators.
   string get_spec() { return spec; }
-  bool fly(City& to_city);
-  bool move(City& to_city);
-  void disinfect(int d_id); // treat disease - redefined by Medic class
-  void build_centre(City& city); //build research centre - Redefined by OpExpert class
-
-  // Share cards
+  bool fly(City& _to); // Split into two versions: charter_flight and direct_flight.
+  bool charter_flight(City& _to);
+  bool direct_flight(City& _to);
+  bool move(City& _to);
+  void disinfect(int _did); // treat disease - redefined by Medic class
+  void build_centre(City& _city); //build research centre - Redefined by OpExpert class
   void give_card(PCard* card, Hero& p_to); //give a card to another player
   void take_card(PCard* card, Hero& p_from); //take card from another player
-
-  // Cure a disease -- if five cards of same colour in hand, cure disease of that colour
-  void cure(int disease_id);
-    // NOTE: Scientist class redefines this, as scientist needs 4 cards of same colour
-  
+  void cure(int disease_id); // NOTE: Scientist class redefines this, as scientist needs 4 cards of same colour
+  void end_turn(); // World should now infect cities and then draw player cards then switch to another player.
   friend void World::draw_infection_deck(Hero& hero);
-  // Declare function to be a friend so it can access private attributes in Hero.
   friend void World::draw_player_deck(Hero& hero);
-  // Declare function to be a friend so it can access private attributes in Hero.
-
 private:
-  World* ptr_world; //pointer to the World
-  City* ptr_city; // Pointer to a city.
-  string spec; // Medic, Dispatcher, Researcher, Quarantine, Scientist, Operations
-  list<PCard> hand;
-
-  virtual void spec_action()=0; //pure virtual function for special actions 
+  World* ptr_world;
+  City* ptr_city;
+  int hero_id;
+  int moves;
+  std::string spec;
+  std::list<PCard> hand;
+  virtual void spec_action()=0; // Pure virtual function to be instantiated in the subclasses.
 };
 
 #endif

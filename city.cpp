@@ -36,7 +36,7 @@ City::City(const City& _copy_from)
   skip_next_infect_cities = _copy_from.skip_next_infect_cities;
 }
 
-City& operator =(const City& _assign_from)
+City& City::operator =(const City& _assign_from)
 {
   city_id = _assign_from.city_id;
   name = _assign_from.name;
@@ -63,6 +63,7 @@ void City::outbreak(int _did)
 
 void City::infect(int _did, int _numcubes)
 {
+  // Add a check for whether Quarantine Specialist is in this city or any neighbouring city. If yes, return.
   for (int i = 0; i < _numcubes; i++)
     {
       if (disease_counters[_did] == 3)

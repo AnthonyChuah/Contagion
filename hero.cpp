@@ -4,56 +4,80 @@
 #include <cmath>
 #include <string>
 #include <list>
+
 #include "hero.h"
 
-using namespace std;
+Hero::Hero() : ptr_city(NULL), ptr_world(NULL), hero_id(-1), spec("Empty Hero Constructor")
+{
+}
 
-/* -- Fly function: fly to the city "to_city" if viable, and return true.
-      If the flight is not viable, return false.                           -- */
-bool Hero::fly(City& to_city) {
-  std::list<PCard>::iterator it; //list iterator
+Hero::Hero(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec) :
+  ptr_city(_ptr_city), ptr_world(_ptr_world), hero_id(_hid), spec(_spec)
+{
+}
 
-  // Direct flight: if there is a city card matching "to_city"
-  for(it=hand.begin(); it!=hand.end(); it++) {
-    if(it->city_id==to_city.city_id) {
-      // Move ptr_city to new city
-      ptr_city=&to_city;
-      // Erase the card from hand
+Hero::Hero(const Hero& _copy)
+{
+  ptr_city = _copy.ptr_city;
+  ptr_world = _copy.ptr_world;
+  hero_id = _copy.hero_id;
+  spec = _copy.spec;
+}
+
+Hero& Hero::operator =(const Hero& _assign)
+{
+  ptr_city = _assign.ptr_city;
+  ptr_world = _assign.ptr_world;
+  hero_id = _copy.hero_id;
+  spec = _assign.spec;
+}
+
+bool Hero::charter_flight(City& _to)
+{
+  std::list<PCard>::iterator it;
+  for (it = hand.begin(); it != hand.end(); it++) {
+    if (it->city_id == ptr_city->city_id) {
+      ptr_city->depart_hero(hero_id);
+      ptr_city = &_to;
+      ptr_city->arrive_hero(hero_id);
       hand.erase(it);
       return true;
     }
   }
-
-  
-  // Charter flight: if there is a city card matching current city (*ptr_city)
-  for(it=hand.begin(); it!=hand.end(); it++) {
-    if(it->city_id==ptr_city->city_id) {
-      // Move ptr_city to new city
-      ptr_city=&to_city;
-      // Erase the card from hand
-      hand.erase(it);
-      return true;
-    }
-  }
-
-  //OTHERWISE
   return false;
 }
 
-
-
-/* -- Move function: move to the city "to_city" if viable, and return true.
-      If the move is not viable, return false.                             -- */
-bool Hero::move(City& to_city) {
-  cout<<"STUB - add the 'move' functionality." << endl;
-  return true;
+bool Hero::direct_flight(City& _to)
+{
+  std::list<PCard>::iterator it;
+  for (it = hand.begin(); it != hand.end(); it++) {
+    if (it->city_id == _to.city_id) {
+      ptr_city->depart_hero(hero_id); // First remove hero_id from the city's heroes.
+      ptr_city = &_to; // Point hero's ptr_city to the new city.
+      ptr_city->arrive_hero(hero_id); // Now add hero_id to the new city's heroes.
+      hand.erase(it);
+      return true;
+    }
+  }
+  return false;
 }
 
+bool Hero::move(City& _to)
+{
+  int cid_to = _to.city_id;
+  std::vector<int>::iterator it;
+  for (it = ptr_city->neighbours.begin(); it != ptr_city->neighbours.end(); it++) {
+    if (it == cid_to) {
+      ptr_city->depart_hero(hero_id);
+      ptr_city = &_to;
+      ptr_city->arrive_hero(hero_id);
+      return true;
+    }
+  }
+  return false;
+}
 
-
-/* -- Disinfect: removes one "disease cube" of the "d_id" colour.          -- */
 void Hero::disinfect(int d_id) {
-  // Decrementing the disease counter for the disease "d_id"
   if(ptr_city->disease_counters[d_id] > 0)
     ptr_city->disease_counters[d_id]--;   
 }
