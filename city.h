@@ -16,23 +16,22 @@ Header file for City class.
 //#define BLACK 3
 // ---------------------------------------------------------------------- //
 
-
 class City
 {
 public:
   City();
-  City(int _id, std::string _name, int _d_id, int _xcoord, int _ycoord, const std::vector<int>& _neighbour, World* _worldptr, bool _has_rc);
-  ~City();
-  City(const City& copy_from); // Copy constructor to ensure good behaviour with STL data structures.
-  City& operator =(const City& assign_from); // Overloaded assignment operator needed to make the Big 3.
+  City(int _id, std::string _name, int _did, int _xcoord, int _ycoord, const std::vector<int>& _neighbour, World* _worldptr, bool _has_rc);
+  City(const City& _copy_from); // Copy constructor to ensure good behaviour with STL data structures.
+  City& operator =(const City& _assign_from); // Overloaded assignment operator needed to make the Big 3.
 
-  void outbreak(int d_id);
-  // Contagion is triggered, infecting neighbouring cities. This can trigger contagions in neighbours.
+  void outbreak(int _did);
+  void infect(int _did, int _numcubes);
+  // Outbreak is triggered, infecting neighbouring cities. This can trigger outbreaks in neighbours.
   bool has_rc(); // Returns true if the City has a research centre.
   void build_rc();
   int get_disease_id(); // Returns the disease_id of this city.
-  void arrive_hero(int hero_id); // Adds hero to the list of heroes in this city.
-  void depart_hero(int hero_id); // Removes hero from the list of heroes in this city.
+  void arrive_hero(int _hid); // Adds hero to the list of heroes in this city.
+  void depart_hero(int _hid); // Removes hero from the list of heroes in this city.
   std::string name;
 private:
   World* world_ptr; // Pointer to the world the city is in.
