@@ -12,7 +12,6 @@
 //#define ERADICATED 2
 // ---------------------------------------------------------------------- //
 
-
 /*
 Header file for World class.
 The World object should contain everything we need:
@@ -64,7 +63,8 @@ public:
   void render_world_gui(); // Renders the world graphically.
   void display_deck(const std::vector<ICard>& _display);
   void intarray_input(std::vector<int> _output, int size);
-
+private:
+  void init(); // Helper function for constructors.
   std::vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
   std::deque<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
   std::vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.
@@ -80,8 +80,6 @@ public:
   int calculate_infection_rate(); // Calculate infection rate.
   int infection_rate_base; // A base value for infection rate, used to calculate the infection rate.
   int num_epidemics; // Number of epidemics to be inserted into player card deck.
-private:
-  void init(); // Helper function for constructors.
 };
 
 #endif

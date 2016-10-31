@@ -87,7 +87,7 @@ void World::load_city_data(std::string _filename)
       std::string subitem;
       while (std::getline(sss, subitem, ':'))
 	cityneighbours.push_back(subitem);
-      City a_city(cityid,cityname,xcoord,ycoord,did,cityneighbours,this,has_rc);
+      City a_city(cityid,cityname,did,xcoord,ycoord,cityneighbours,this,has_rc);
       cities.push_back(a_city);
 
       // Call constructor for ICard and PCard and push them into respective vectors too.
@@ -331,8 +331,8 @@ bool World::play_event_card(Hero& _hero, string _event, std::string _arguments)
       /* std::string string_name = _event;
 	 iter = std::find_if(infection_discard.begin(), infection_discard.end(),
 	 [&string_name] (const PCard& obj) {return obj.name == string_name}); 
-	 This code above does something very smart: it passes a lambda (anonymous function) into find_if that
-	 can find the iterator matching Resilient Population.
+	 This code above does something very smart: it passes a lambda (like R's anon functions) into find_if that
+	 can find the iterator matching Resilient Population. You MUST use C++11 to use lambdas.
 	 But it's easier at the moment to use std::find() since I have an overloaded == operator for PCard.
       */
       if (iter != _hero.hand.end())
@@ -392,21 +392,22 @@ bool World::event_grant(std::string _arguments)
 
 void World::event_forecast()
 {
-  // Tricky to implement, but you need to show players the top 6 infection deck cards and let them rearrange.
   // Plan: make a GUI class that has an association link to World class. World will soon contain a pointer to GUI.
-  // For now, leave this part blank.
   std::vector<ICard> to_display;
   int decksize = min(infection_deck.size(), 6);
   for (int i = 0; i < decksize; i++)
     to_display.push_back(infection_deck[infection_deck.size()-decksize+i]);
   // Above code concisely expresses the different treatment if the deck contained less than 6 cards.
+
   display_deck(to_display); // This might stream data to the GUI once we build the GUI.
   std::vector<int> rearrange_mapping;
   intarray_input(rearrange_mapping, decksize); // e.g. 0 1 2 3 4 5 would be the original arrangement.
+
   // Using the arrangement given by players, make an arranged sub-deck.
   std::vector<ICard> arranged_subdeck = to_display; // vector<Template> overloads assignment. ICard MUST have too!
   for (int i = 0; i < decksize; i++)
     arranged_subdeck[i] = to_display[rearrange_mapping[i]]; // e.g. 3 1 2 0 4 5 would swap [0] and [3].
+
   // Copy the arranged subdeck into the top 6 cards of the infection_deck double-ended queue.
   for (int i = 0; i < decksize; i++)
     infection_deck[infection_deck.size()-decksize+i] = arranged_subdeck[i];
@@ -444,16 +445,11 @@ void World::event_airlift(std::string _arguments)
   int hid = std::stoi(elems[0]);
   int cid = std::stoi(elems[1]);
   // Get the present hero's city to pop the hero ID from City::vector<int> heroes.
-  std::vector<int>::iterator iter = std::find(heroes[hid].ptr_city->heroes.begin(), heroes[hid].ptr_city->heroes.end(), hid);
-  if (iter != heroes[hid].ptr_city->heroes.end())
-    {
-      int index_to_delete = iter - heroes[hid].ptr_city->heroes.begin();
-      heroes[hid].ptr_city->heroes.erase(heroes[hid].ptr_city->heroes.begin() + index_to_delete);
-    }
+  cities[heroes[hid].ptr_city->city_id].depart_hero(hid);
   // Get the hero (by id) to change its City* pointer to the new city.
   heroes[hid].ptr_city = &cities[cid];
   // Get the hero's new city to push the hero ID to City::vector<int> heroes.
-  cities[cid].heroes.push_back(hid);
+  cities[cid].arrive_hero(hid);
 }
 
 void World::init()
