@@ -417,6 +417,26 @@ bool World::event_resilient(std::string _arguments)
 void World::event_airlift(std::string _arguments)
 {
   // Transport the hero in question to the city in question. Arguments syntax is 3:0 for hero 3 to Atlanta.
+  // Parse the hero_id, and city_id.
+  // Split by comma delimiter to get data, split neighbours by colon delimiter.
+  std::stringstream ss(_arguments);
+  std::string item;
+  std::vector<string> elems;
+  while (std::getline(ss, item, ':'))
+    elems.push_back(item);
+  int hid = std::stoi(elems[0]);
+  int cid = std::stoi(elems[1]);
+  // Get the present hero's city to pop the hero ID from City::vector<int> heroes.
+  std::vector<int>::iterator iter = std::find(heroes[hid].ptr_city->heroes.begin(), heroes[hid].ptr_city->heroes.end(), hid);
+  if (iter != heroes[hid].ptr_city->heroes.end())
+    {
+      int index_to_delete = iter - heroes[hid].ptr_city->heroes.begin();
+      heroes[hid].ptr_city->heroes.erase(heroes[hid].ptr_city->heroes.begin() + index_to_delete);
+    }
+  // Get the hero (by id) to change its City* pointer to the new city.
+  heroes[hid].ptr_city = &cities[cid];
+  // Get the hero's new city to push the hero ID to City::vector<int> heroes.
+  cities[cid].heroes.push_back(hid);
 }
 
 void World::init()
