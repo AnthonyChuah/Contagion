@@ -13,6 +13,7 @@ PCard::PCard(const PCard& _copy_from)
 {
   name = _copy_from.name;
   city_id = _copy_from.city_id;
+  disease_id = _copy_from.disease_id;
   event = _copy_from.event;
   epidemic = _copy_from.epidemic;
 }
@@ -21,6 +22,7 @@ void PCard::operator =(const PCard& _assign_from)
 {
   name = _assign_from.name;
   city_id = _assign_from.city_id;
+  disease_id = _assign_from.disease_id;
   event = _assign_from.event;
   epidemic = _assign_from.epidemic;
 }

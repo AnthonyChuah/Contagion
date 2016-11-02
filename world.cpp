@@ -160,6 +160,8 @@ void World::load_hero_data(std::string _filename);
       Researcher a_hero(ptr_atlanta,this,hero_spec);
     else if (hero_spec == "Scientist")
       Scientist a_hero(ptr_atlanta,this,hero_spec);
+    else
+      std::cout << "I see a hero that I cannot recognize. You should abort this program now.\n";
     // Hero a_hero = Hero(ptr_atlanta,this,hero_spec);
     heroes.push_back(a_hero);
   }

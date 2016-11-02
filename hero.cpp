@@ -5,7 +5,11 @@
 #include <list>
 
 #include "macros.h"
+#include "pcard.h"
+#include "icard.h"
+#include "city.h"
 #include "hero.h"
+#include "world.h"
 
 Hero::Hero() : ptr_city(NULL), ptr_world(NULL), hero_id(-1), spec("Empty Hero Constructor"), moves(-1)
 {}
