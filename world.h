@@ -5,6 +5,13 @@
 #include <string>
 #include <deque>
 
+#include "macros.h"
+#include "city.h"
+#include "world.h"
+#include "hero.h"
+#include "pcard.h"
+#include "icard.h"
+
 // --------------------------- MACROS ----------------------------------- //
 // Disease status
 //#define UNCURED 0
@@ -49,15 +56,14 @@ public:
   void setup(); // Set up the world according to the rules.
   // CHECK if we need to initialize the cards by providing a starting hand to players.
   void draw_infection_deck(); // Draws 2 to 4 cards from the infection deck.
-  bool draw_player_deck(Hero& hero); // Deals to player card from the player deck: discard cards above 7.
-  void prompt_discard_7(Hero& hero); // Prompts the player to choose cards to discard after drawing.
+  void draw_player_deck(Hero& hero); // Deals to player card from the player deck: discard cards above 7.
   void epidemic(); // An epidemic occurs: see game rules.
-  bool play_event_card(Hero& hero); // Plays event card from hero's hand.
+  bool play_event_card(Hero& _hero, std::string _event, std::string _arguments);
   bool event_grant(std::string _arguments); // Playing the Government Grant event card.
   void event_forecast(); // Forecast Event card, allows players to re-arrange infection deck.
   bool event_resilient(std::string _arguments);
   void event_airlift(std::string _arguments);
-
+  void death(std::string _message);
   // These functions require interaction with the User Interface (.gui and .tui).
   void render_world_ascii(); // Renders the world in ASCII, for debugging.
   void render_world_gui(); // Renders the world graphically.
@@ -71,6 +77,7 @@ private:
   std::vector<PCard> player_deck; // Vector containing the player cards, populated at the start of the game.
   std::vector<PCard> player_discard; // Player discard pile, initially empty.
   std::vector<City> cities; // Vector of cities in the world.
+  bool skip_next_infect_cities;
   int centres_remaining; // How many more research centres can be built.
   int outbreaks; // Counts the number of outbreaks: you lose once outbreaks >= 8.
   int disease_status[4]; // Shows each disease's status: 0 for uncured, 1 for cured, 2 for eradicated.
