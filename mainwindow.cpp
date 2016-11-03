@@ -1,0 +1,228 @@
+#include <QtWidgets>
+#include <iostream>
+#include "mainwindow.h"
+#include "window.h"
+#include "transpbutton.h"
+
+mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
+{
+
+    QDir::setCurrent(QCoreApplication::applicationDirPath());
+
+
+    QWidget *widget = new QWidget;
+    setCentralWidget(widget);
+
+    QWidget *topFiller = new QWidget;
+    topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+
+    infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to "
+                              "invoke a context menu</i>"));
+    infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    infoLabel->setAlignment(Qt::AlignCenter);
+
+    QWidget *bottomFiller = new QWidget;
+    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setMargin(5);
+    layout->addWidget(topFiller);
+    layout->addWidget(bottomFiller);
+    widget->setLayout(layout);
+
+    createActions();
+    createMenus();
+
+    setWindowTitle(tr("Menus"));
+    int win_w = 1600;
+    int win_h =900;
+    //setMinimumSize(160, 160);
+    resize(win_w, win_h);
+
+    // Background picture
+    QPixmap bkgnd("../Contagion/images/World_map_concept_coloured.png");
+    bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
+    QPalette palette;
+    palette.setBrush(QPalette::Background, bkgnd);
+    this->setPalette(palette);
+
+
+    // Sub-Window
+    //Window *window = new Window(this);
+    //window->move(100,200);
+    //window->show();
+
+    // =========================================================== //
+    // Push button for player card
+    int card_wth = 128;
+    int card_hth = 176;
+    int card_xcoord = 975;
+    int card_xoffset = card_wth+20;
+    int card_ycoord = 700;
+
+    QPushButton *PCard_button = new QPushButton("PLAYER", this);
+    PCard_button->setGeometry(card_xcoord,card_ycoord,card_wth,card_hth);
+    //PCard_button->setAttribute(Qt::WA_TranslucentBackground);
+    PCard_button->setToolTip("Draws a player card");
+    PCard_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
+
+    // Push button for infection card
+    QPushButton *ICard_button = new QPushButton("INFECTION", this);
+    //TranspButton *ICard_button = new TranspButton(this); // Transparent button
+    ICard_button->setGeometry(card_xcoord+1*card_xoffset,card_ycoord,card_wth,card_hth);
+    ICard_button->setToolTip("Draws an Infection card");
+
+    // Connection (signal to slot)
+    //connect(ICard_button, SIGNAL (clicked()), QApplication::instance(), SLOT (quit()));
+
+
+    // =========================================================== //
+    // INFECTION RATE progress bar
+    QProgressBar *iprogBar = new QProgressBar(this);
+    int iprb_wth=300;
+    int iprb_hth=40;
+    iprogBar->setRange(1,7); //ranges from 1 to 7
+    iprogBar->setValue(1);
+    iprogBar->setGeometry(win_w-iprb_wth-20,20,iprb_wth,iprb_hth);
+    //NEED TO ADD THE THING THAT TAKES THE INFECTION RATE IN...
+
+
+    // =========================================================== //
+    // OUTBREAKS progress bar
+    QProgressBar *oprogBar = new QProgressBar(this);
+    int oprb_wth=40;
+    int oprb_hth=300;
+    int oprb_xcoord = 40;
+    int oprb_ycoord = win_h-oprb_hth-20;
+    oprogBar->setOrientation(Qt::Vertical);
+    oprogBar->setTextDirection(QProgressBar::BottomToTop);
+    oprogBar->setRange(0,8); //step values range: 0-8
+    oprogBar->setValue(0);
+    oprogBar->setGeometry(oprb_xcoord,oprb_ycoord,oprb_wth,oprb_hth);
+
+
+    // =========================================================== //
+    // DISEASES progress bars
+    int dis_prb_wth=50;
+    int dis_prb_hth=50;
+    int dis_prb_xcoord = oprb_xcoord + oprb_wth + 40;
+    int dis_prb_ycoord = oprb_ycoord;
+    int dis_offset = (oprb_hth - 4.0*dis_prb_hth)/3.0 + dis_prb_hth;
+
+    QProgressBar *disProg1 = new QProgressBar(this);
+    disProg1->setRange(0,2); //step values range: 0-2
+    disProg1->setValue(0);
+    disProg1->setGeometry(dis_prb_xcoord,dis_prb_ycoord,dis_prb_wth,dis_prb_hth);
+
+    QProgressBar *disProg2 = new QProgressBar(this);
+    disProg2->setRange(0,2); //step values range: 0-2
+    disProg2->setValue(0);
+    disProg2->setGeometry(dis_prb_xcoord,dis_prb_ycoord+dis_offset,dis_prb_wth,dis_prb_hth);
+
+    QProgressBar *disProg3 = new QProgressBar(this);
+    disProg3->setRange(0,2); //step values range: 0-2
+    disProg3->setValue(0);
+    disProg3->setGeometry(dis_prb_xcoord,dis_prb_ycoord+2*dis_offset,dis_prb_wth,dis_prb_hth);
+
+    QProgressBar *disProg4 = new QProgressBar(this);
+    disProg4->setRange(0,2); //step values range: 0-2
+    disProg4->setValue(0);
+    disProg4->setGeometry(dis_prb_xcoord,dis_prb_ycoord+3*dis_offset,dis_prb_wth,dis_prb_hth);
+
+
+    // =========================================================== //
+    // Control buttons
+    int b_wth = 128; //button width
+    int b_hth = 128; //button width
+    int b_xcoord = 500; //button starting x-coordinage
+    int b_xoffs = b_wth+20; //button x offset
+    int b_ycoord = 750; //button y-coordinate
+
+    // Move
+    QPushButton *move_button = new QPushButton("MOVE", this);
+    move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
+    move_button->setToolTip("Move along the map");
+    //move_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
+
+
+    // Fly
+    QPushButton *fly_button = new QPushButton("FLY", this);
+    fly_button->setGeometry(b_xcoord+1*b_xoffs,b_ycoord,b_wth,b_hth);
+    fly_button->setToolTip("Fly along the map");
+
+
+    // Special action
+    QPushButton *special_button = new QPushButton("SPECIAL", this);
+    special_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
+    special_button->setToolTip("Hero's special action");
+
+
+
+}
+
+void mainWindow::createActions()
+{
+    newAct = new QAction(tr("&New"), this);
+    newAct->setShortcuts(QKeySequence::New);
+    newAct->setStatusTip(tr("Start a new game"));
+    connect(newAct, &QAction::triggered, this, &mainWindow::new_game);
+
+    loadAct = new QAction(tr("&Load..."), this);
+    loadAct->setShortcuts(QKeySequence::Open);
+    loadAct->setStatusTip(tr("Load a previous game"));
+    connect(loadAct, &QAction::triggered, this, &mainWindow::load_game);
+
+    saveAct = new QAction(tr("&Save"), this);
+    saveAct->setShortcuts(QKeySequence::Save);
+    saveAct->setStatusTip(tr("Save the game"));
+    connect(saveAct, &QAction::triggered, this, &mainWindow::save_game);
+
+    quitAct = new QAction(tr("&Quit"), this);
+    quitAct->setShortcuts(QKeySequence::Quit);
+    quitAct->setStatusTip(tr("Quit the game"));
+    connect(quitAct, &QAction::triggered, this, &QWidget::close);
+
+    statusAct = new QAction(tr("&Status view"), this);
+    //statusAct->setShortcuts(QKeySequence::Save);
+    statusAct->setStatusTip(tr("Show status view"));
+    connect(saveAct, &QAction::triggered, this, &mainWindow::status_view);
+
+
+}
+
+
+void mainWindow::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(newAct);
+    fileMenu->addAction(loadAct);
+    fileMenu->addAction(saveAct);
+    fileMenu->addSeparator();
+    fileMenu->addAction(quitAct);
+
+
+    viewMenu = menuBar()->addMenu(tr("&View"));
+    viewMenu->addAction(statusAct);
+}
+
+
+void mainWindow::new_game()
+{
+    infoLabel->setText(tr("Invoked <b>File|New</b>"));
+}
+
+void mainWindow::load_game()
+{
+    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+}
+
+void mainWindow::save_game()
+{
+    infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+}
+
+void mainWindow::status_view()
+{
+    infoLabel->setText(tr("Invoked <b>Edit|Status_view</b>"));
+}

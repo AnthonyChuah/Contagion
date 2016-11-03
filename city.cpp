@@ -17,13 +17,13 @@ Implementation file for the City class.
 #include "pcard.h"
 #include "icard.h"
 
-#include "contplanner.h"
-#include "dispatcher.h"
-#include "medic.h"
-#include "opexpert.h"
-#include "qspecialist.h"
-#include "researcher.h"
-#include "scientist.h"
+#include "contPlanner.h"
+#include "Dispatcher.h"
+#include "Medic.h"
+#include "OpExpert.h"
+#include "QSpecialist.h"
+#include "Researcher.h"
+#include "Scientist.h"
 
 City::City() : city_id(-1), name("Empty City Constructor"), disease_id(-1), x_coord(-1), y_coord(-1),
 	       world_ptr(NULL), research_centre(false), skip_next_infect_cities(false)
