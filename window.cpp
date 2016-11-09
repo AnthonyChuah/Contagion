@@ -8,13 +8,20 @@
 #include <QMenu>
 
 
-Window::Window(QWidget *parent) : QWidget(parent) {
+Window::Window(QWidget *parent,int height, int width) : QWidget(parent) {
     //Set the size of the window
-    int win_wth=256;
-    int win_hth=128;
+    int win_wth=width;//256;
+    int win_hth=height;//128;
     setFixedSize(win_wth, win_hth);
 
-    setStyleSheet("background-image:url(\"PandemicMap.jpg\"); background-position:center; ");
+    /*
+    // Background picture
+    QPixmap bkgnd("../Contagion/images/World_map_concept_coloured.png");
+    bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
+    QPalette palette;
+    palette.setBrush(QPalette::Background, bkgnd);
+    this->setPalette(palette);
+*/
 
     // =========================================================== //
     // Create and position the Special action button
@@ -50,6 +57,7 @@ Window::Window(QWidget *parent) : QWidget(parent) {
     connect(exit_button, SIGNAL (clicked()), QApplication::instance(), SLOT (quit()));
 
 
+    /*
     // =========================================================== //
     // Create a progress bar
     QProgressBar *progressBar = new QProgressBar(this);
@@ -70,7 +78,7 @@ Window::Window(QWidget *parent) : QWidget(parent) {
 
     // Connection: progress bar and slider
     QObject::connect(slider, SIGNAL (valueChanged(int)), progressBar, SLOT (setValue(int)));
-
+*/
 }
 
 void Window::slotButtonClicked(bool checked) {

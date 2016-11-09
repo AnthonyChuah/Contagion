@@ -53,19 +53,24 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     //window->move(100,200);
     //window->show();
 
+
     // =========================================================== //
-    // Push button for player card
+    // CARDS
+    // =========================================================== //
+
+    // Button size and placement
     int card_wth = 128;
     int card_hth = 176;
     int card_xcoord = 975;
     int card_xoffset = card_wth+20;
     int card_ycoord = 700;
 
+    // Push button for player card
     QPushButton *PCard_button = new QPushButton("PLAYER", this);
     PCard_button->setGeometry(card_xcoord,card_ycoord,card_wth,card_hth);
     //PCard_button->setAttribute(Qt::WA_TranslucentBackground);
     PCard_button->setToolTip("Draws a player card");
-    PCard_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
+    //PCard_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
 
     // Push button for infection card
     QPushButton *ICard_button = new QPushButton("INFECTION", this);
@@ -79,6 +84,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
     // =========================================================== //
     // INFECTION RATE progress bar
+    // =========================================================== //
     QProgressBar *iprogBar = new QProgressBar(this);
     int iprb_wth=300;
     int iprb_hth=40;
@@ -90,6 +96,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
     // =========================================================== //
     // OUTBREAKS progress bar
+    // =========================================================== //
     QProgressBar *oprogBar = new QProgressBar(this);
     int oprb_wth=40;
     int oprb_hth=300;
@@ -130,9 +137,9 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     disProg4->setValue(0);
     disProg4->setGeometry(dis_prb_xcoord,dis_prb_ycoord+3*dis_offset,dis_prb_wth,dis_prb_hth);
 
-
     // =========================================================== //
-    // Control buttons
+    // Control/action buttons
+    // =========================================================== //
     int b_wth = 128; //button width
     int b_hth = 128; //button width
     int b_xcoord = 500; //button starting x-coordinage
@@ -156,6 +163,40 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     QPushButton *special_button = new QPushButton("SPECIAL", this);
     special_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
     special_button->setToolTip("Hero's special action");
+
+
+    // =========================================================== //
+    // PLAYER HAND WINDOW
+    // =========================================================== //
+
+    // Sub-Window size
+    int hand_win_h = 180;
+    int hand_win_w = 180;
+
+    hand_window = new Window(this,hand_win_h,hand_win_w);
+    hand_window->move((win_w-hand_win_w)/2,(win_h-hand_win_h)/2);
+    hand_window->close(); //for some reason the hand is automatically open o/w
+
+    // Button to show the hand window
+    QPushButton *hand_button = new QPushButton("SHOW HAND", this);
+    hand_button->setGeometry(b_xcoord+5*b_xoffs+30,b_ycoord,b_wth+100,b_hth);
+    //hand_button->setGeometry(200,200,100,100);
+    hand_button->setToolTip("Show the cards in hand");
+
+    hand_button->setCheckable(true);
+
+    // Connection (signal to slot)
+    connect(hand_button, SIGNAL (clicked(bool)), this, SLOT (handButtonClicked(bool)));
+
+
+    // need to also view other players' hands, so can plan trades
+    // there could e.g. be a quick-view pane that shows colours reflecting
+    // the disease-ares of the cities etc., and a button to open a window
+    // where you see the full cards
+
+
+
+
 
 
 
@@ -225,4 +266,13 @@ void mainWindow::save_game()
 void mainWindow::status_view()
 {
     infoLabel->setText(tr("Invoked <b>Edit|Status_view</b>"));
+}
+
+void mainWindow::handButtonClicked(bool checked) {
+ if (checked) {
+ hand_window->show();
+ } else {
+ hand_window->close();
+     //QApplication::instance()->quit();
+ }
 }

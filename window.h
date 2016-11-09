@@ -10,7 +10,7 @@ class QPushButton; //to add a push button
 class Window : public QWidget {
     Q_OBJECT
 public:
-    explicit Window(QWidget *parent = 0);
+    explicit Window(QWidget *parent = 0,int height = 180, int width = 180);
 
 private slots:
     void slotButtonClicked(bool checked);
