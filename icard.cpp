@@ -2,15 +2,9 @@
 
 #include "icard.h"
 
-ICard::Icard() : city_id(-1)
-{
-  name = "Empty Constructor";
-}
+ICard::Icard() : city_id(-1) { name = "Empty Constructor"; }
 
-ICard::ICard(string _name, int _cid) : city_id(_cid)
-{
-  name = _name;
-}
+ICard::ICard(string _name, int _cid) : city_id(_cid) { name = _name; }
 
 void ICard::operator =(const ICard& _assign_from)
 {

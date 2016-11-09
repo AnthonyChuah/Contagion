@@ -34,6 +34,7 @@ public:
   void build_rc();
   int get_disease_id(); // Returns the disease_id of this city.
   int get_ncubes(int _did); // Accessor returns number of cubes of disease_id.
+  int get_cityid();
   void arrive_hero(int _hid); // Adds hero to the list of heroes in this city.
   bool depart_hero(int _hid); // Removes hero from the list of heroes in this city.
   friend bool Hero::charter_flight(City& _to);

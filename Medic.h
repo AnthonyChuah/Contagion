@@ -1,25 +1,33 @@
 #ifndef MEDIC_H
 #define MEDIC_H
 
+/*
+Medic exceptions:
+1. Disinfect will remove all cubes of the colour.
+2. If disease cured, simply being in the city will prevent cube placement.
+3. Upon curing a disease, wherever the Medic is should be wiped of that disease's cubes.
+4. Upon moving to a new city, that new city should have all CURED cubes removed.
+5. Upon flying to a new city, that new city should have all CURED cubes removed.
+6. Upon BEING DISPATCHED by the dispatcher's ability, destination should have CURED cubes removed.
+*/
+
+#include <string>
+
+#include "city.h"
+#include "world.h"
 #include "hero.h"
+#include "pcard.h"
 
-#include <iostream>
-
-
-class Medic: public Hero {
- public:
-  // Constructor
-  Medic(City* _ptr_city, World* _ptr_world, string _spec) : ptr_city(_ptr_city), ptr_world(_ptr_world), spec(_spec) {}
-
-  void disinfect(int d_id); //Redefined -- removes ALL cubes of the same colour when doing "disinfect" action
-  
- private:
+class Medic: public Hero
+{
+public:
+  // Constructor calls superclass constructor. Hero::Hero() constructors not automatically inherited.
+  Medic();
+  Medic(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec);
+  // All other functions are automatically inherited.
+private:
   // Function to implement the Medic specialist action - Medic has no specialist action
-  virtual void spec_action()  {
-    std::cout<<"The medic does not have a separate specialist action.";
-  }
-
-  
+  virtual bool spec_action();
 };
 
 #endif

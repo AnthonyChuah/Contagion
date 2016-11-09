@@ -87,6 +87,7 @@ void City::outbreak(int _did)
   // For each neighbour of this city, add a cube of THIS CITY'S disease_id to the neighbour.
   // Neighbours is a vector that has random access iterators, so I'm going to be lazy and not use an iterator:
   world_ptr->outbreaks++;
+  if (world_ptr->outbreaks >= 8) world_ptr->death("Outbreaks have reached 8 and you lose!\n";
   for (int i = 0; i < neighbours.size(); i++) {
     // Use World pointer to access the neighbouring City, and call that City's infect() function.
     world_ptr->cities[neighbours[i]].infect(_did, 1);
@@ -95,22 +96,57 @@ void City::outbreak(int _did)
 
 void City::infect(int _did, int _numcubes)
 {
-  // Add a check for whether Quarantine Specialist is in this city or any neighbouring city. If yes, return.
-  for (int i = 0; i < _numcubes; i++)
-    {
-      if (disease_counters[_did] == 3) {
-	outbreak(_did);
-	return;
-      }
-      else {
-	if (world_ptr->disease_blocks[_did] == 0)
-	  world_ptr->death("Lost game because you ran out of disease blocks on the board.\n");
-	else {
-	  world_ptr->disease_blocks[_did]--;
-	  disease_counters[_did]++;
-	}
+  // Check if the disease is eradicated.
+  if (world_ptr->disease_status[_did] >= ERADICATED) return;
+  // Check if the disease is cured and the Medic is sitting there. If yes, return.
+  if (world_ptr->disease_status[_did] == CURED) {
+    std::vector<Hero>::iterator it; // Find it there is a Medic in play.
+    int medic_id = -1;
+    for (it = world_ptr->heroes.begin(); it != world_ptr->heroes.end(); it++) {
+      if (it->get_spec() == "Medic")
+	medic_id = it->get_heroid();
+    }
+    if (medic_id > -1) {
+      std::vector<int>::iterator it0; // There is a Medic in the world. Check if this city contains him.
+      for (it0 = heroes.begin(), it0 != heroes.end(); it0++)
+	if (*it0 == medic_id) return;
+    }
+  }
+  // Is Quarantine Specialist in this city or any neighbouring city? If yes, return.
+  std::vector<Hero>::iterator it2; // Find hero_id of Quarantine Specialist.
+  int qspec_id = -1;
+  for (it1 = world_ptr->heroes.begin(); it1 != world_ptr->heroes.end(); it1++) {
+    if (it1->get_spec() == "Quarantine Specialist")
+      qspec_id = it1->get_heroid();
+  }
+  // If there was a Quarantine Specialist in the game, its id will be set to some positive integer.
+  if (qspec_id > -1) {
+    // Check if the Quarantine Specialist is in this city or any neighbouring city. If so, return.
+    std::vector<int>::iterator it1, it2;
+    for (it2 = heroes.begin(); it2 != heroes.end(); it2++) {
+      if (*it2 == qspec_id) return; // Because this city has a Quarantine Specialist.
+    }
+    for (it1 = neighbours.begin(), it1 != neighbours.end(); it1++) {
+      for (it2 = world_ptr->cities[*it1].heroes.begin(), it2 != world_ptr->cities[*it1].heroes.end(), it2++) {
+	if (*it2 == qspec_id) return; // Because a neighbour has a Quarantine Specialist.
       }
     }
+  }
+  // If all the checks above did not go through, then infect the city by _numcubes with _did.
+  for (int i = 0; i < _numcubes; i++) {
+    if (disease_counters[_did] == 3) {
+      outbreak(_did);
+      return;
+    }
+    else {
+      if (world_ptr->disease_blocks[_did] == 0)
+	world_ptr->death("Lost game because you ran out of disease blocks on the board!\n");
+      else {
+	world_ptr->disease_blocks[_did]--;
+	disease_counters[_did]++;
+      }
+    }
+  }
 }
 
 bool City::has_rc() { return research_centre; }
@@ -122,6 +158,8 @@ void City::build_rc() { research_centre = true; }
 int City::get_disease_id() { return disease_id; }
 
 int City::get_ncubes(int _did) { return disease_counters[_did]; }
+
+int City::get_cityid() { return city_id; }
 
 void City::arrive_hero(int _hid) { heroes.push_back(_hid); }
 

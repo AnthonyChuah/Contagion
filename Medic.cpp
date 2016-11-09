@@ -1,15 +1,23 @@
-// Implementation file for the Medic class
+// Implementation file for the Medic class.
 
+#include <string>
 #include <iostream>
-#include <cmath>
+
 #include "hero.h"
-#include "Medic.h"
+#include "world.h"
+#include "city.h"
+#include "pcard.h"
+#include "medic.h"
 
+Medic::Medic() : Hero()
+{}
 
-/* -- Disinfect function: removes ALL cubes of the same colour when doing 
-      the "disinfect" action.                                              -- */
-void Medic::disinfect(int d_id) {
-  //ptr_world->
-  // Setting the disease counter to zero for the disease "d_id"
-  ptr_city->disease_counters[d_id] = 0;   
+Medic::Medic(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec) :
+  Hero(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec)
+{}
+
+bool Medic::spec_action()
+{
+  std::cout << "No specialist action for the Medic.\n";
+  return false;
 }

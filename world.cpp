@@ -110,14 +110,11 @@ void World::load_eventcards_data(std::string _filename)
     exit(1);
   }
   std::string rowdata;
-  std::string eventname;
   while (ins.good()) {
     std::cout << "DEBUG: reading event row data.\n";
     std::getline(ins, rowdata);
     // rowdata should simply be the event name, unless it read a blank row (end of file).
     if (rowdata.empty()) continue;
-    // If string is not empty, record it directly in eventname.
-    eventname = rowdata;
     // Call constructor for PCard and push onto the PCard vector.
     PCard a_pcard(rowdata,-1,-1,true,false);
     player_deck.push_back(a_pcard);
@@ -291,6 +288,7 @@ void World::draw_player_deck(Hero& hero)
 {
   for (int i = 0; i < 2; i++)
     {
+      if (player_deck.empty()) death("Lost game because you ran out of player cards to draw!\n");
       PCard chosen_card = player_deck.back();
       player_deck.pop_back();
       std::cout << "Player " << players_turn << " has drawn card: " << chosen_card.name << "\n";
@@ -321,7 +319,7 @@ void World::epidemic()
     }
 }
 
-bool World::play_event_card(Hero& _hero, std::string _event, std::string _arguments)
+bool World::play_eventcard(Hero& _hero, std::string _event, std::string _arguments)
 {
   // Use iterator to find the relevant card in the player's hand, then pop it, then make the event happen.
   if (_event == "Government Grant")
@@ -508,6 +506,7 @@ void World::death(std::string _message)
   char dummy;
   cout << "The game is over. Press any key to end this game.\n";
   cin >> dummy;
+  exit(1);
 }
 
 void World::init()
