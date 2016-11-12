@@ -15,4 +15,19 @@
 
 // ---------------------------------------------------------------------- //
 
+#include "icard.h"
+#include "pcard.h"
+#include "hero.h"
+
+#include "contplanner.h"
+#include "dispatcher.h"
+#include "medic.h"
+#include "opexpert.h"
+#include "qspecialist.h"
+#include "researcher.h"
+#include "scientist.h"
+
+#include "city.h"
+#include "world.h"
+
 #endif

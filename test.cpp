@@ -24,28 +24,30 @@
 #include "scientist.h"
 
 int main() {
-  cout << "Testing the Contagion game logic with a text UI!\n";
-  cout << "First, construct the World.\n";
-  cout << "How many epidemics do you want? 4 for easy, 5 for medium, 6 for hard.\n";
+  std::cout << "Testing the Contagion game logic with a text UI!\n";
+  std::cout << "First, construct the World.\n";
+  std::cout << "How many epidemics do you want? 4 for easy, 5 for medium, 6 for hard.\n";
   int number_of_epidemics;
-  cin >> number_of_epidemics;
+  std::cin >> number_of_epidemics;
   World new_world(number_of_epidemics);
-  cout << "I have just called the Constructor with your specified number of epidemics.\n";
+  std::cout << "I have just called the Constructor with " << number_of_epidemics << " epidemics.\n";
   new_world.render_world_ascii();
-  cout << "Happy with what you see? Enter anything to continue:\n";
+  std::cout << "Happy with what you see? Enter anything to continue:\n";
   char dummy;
-  cin >> dummy;
+  std::cin >> dummy;
 
-  cout << "Now I will load the city data into the World.\n";
-  new_world.load_hero_data("heroes.dat");
-  cout << "And then I will load the event cards data.\n";
+  std::cout << "Now I will load the city data into the World.\n";
+  new_world.load_city_data("cities.dat");
+  std::cout << "And then I will load the event cards data.\n";
   new_world.load_eventcards_data("eventcards.dat");
-  cout << "Then I load the heroes data.\n";
+  std::cout << "Then I load the heroes data.\n";
   new_world.load_hero_data("heroes.dat");
-  cout << "Then I run the Setup for the world.\n";
+  std::cout << "Then I run the Setup for the world.\n";
   new_world.setup();
-  cout << "Now you may inspect the world again. Do you like it?\n";
-  new_world.render_world.ascii();
-  cout << "Happy with what you see? Enter anything to continue:\n";
-  cin >> dummy;
+  std::cout << "Now you may inspect the world again. Do you like it?\n";
+  new_world.render_world_ascii();
+  std::cout << "Happy with what you see? Enter anything to continue:\n";
+  std::cin >> dummy;
+
+  return 0;
 }

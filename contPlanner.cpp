@@ -3,35 +3,24 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <list>
 
-#include "pcard.h"
-#include "hero.h"
-#include "contplanner.h"
-
-class ContPlanner: public Hero
-{
-public:
-  // Constructors are not automatically inherited from Hero, but these will call Hero's constructors.
-  ContPlanner();
-  ContPlanner(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec);
-  bool play_special_eventcard();
-  bool get_special_eventcard(std::string _eventname);
-private:
-  virtual bool spec_action();
-  PCard eventcard; // Contingency Planner has a special slot for an event card that does not occupy the hand.
-};
+#include "macros.h"
 
 ContPlanner::ContPlanner() : Hero()
-{}
+{
+  eventcard = "None";
+}
 
 ContPlanner::ContPlanner(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec) :
-  Hero(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec)
-{}
+  Hero(_ptr_city, _ptr_world, _hid, _spec)
+{
+  eventcard = "None";
+}
 
 bool ContPlanner::play_special_eventcard(std::string _arguments)
 {
-  if (ptr_world->play_eventcard(*this, eventcard.name, _arguments)) {
+  if (ptr_world->play_event_card(*this, eventcard, _arguments)) {
+    eventcard = "None";
     return true;
   } else {
     return false;
@@ -43,7 +32,7 @@ bool ContPlanner::get_special_eventcard(std::string _eventname)
   std::vector<PCard>::iterator it;
   for (it = ptr_world->player_discard.begin(); it != ptr_world->player_discard.end(); it++) {
     if (it->name == _eventname) {
-      eventcard = *it;
+      eventcard = it->name;
       ptr_world->player_discard.erase(it);
       std::cout << "Contingency Planner has taken event card " << _eventname << " into its hand.\n";
       return true;
@@ -52,11 +41,6 @@ bool ContPlanner::get_special_eventcard(std::string _eventname)
   return false;
 }
 
-bool ContPlanner::spec_action()
-{
-  std::cout << "Presently no ContPlanner action implemented, instead we have two separate functions.\n";
-  return false;
-}
 /* Function to implement the Contingency Planner specialist action - take event 
    card in discard pile
 void ContPlanner::spec_action() {

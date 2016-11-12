@@ -10,12 +10,7 @@ Implemented as exception in build_centre function, and as a special function cal
 
 #include <string>
 
-#include "city.h"
-#include "world.h"
-#include "hero.h"
-#include "pcard.h"
-
-class OpExpert: public Hero
+class OpExpert : public Hero
 {
 public:
   OpExpert();
@@ -25,9 +20,7 @@ public:
   void start_turn(); // REDEFINES Hero::start_turn().
   bool opex_flight(City& _to, std::string _card);
   // Special power allows OpExpert to fly to another city by discarding any city card.
-  bool build_centre(City& _city);
 private:
-  virtual void spec_action();
   bool opex_flew_this_turn;
 };
 

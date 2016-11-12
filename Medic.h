@@ -13,21 +13,13 @@ Medic exceptions:
 
 #include <string>
 
-#include "city.h"
-#include "world.h"
-#include "hero.h"
-#include "pcard.h"
-
-class Medic: public Hero
+class Medic : public Hero
 {
 public:
   // Constructor calls superclass constructor. Hero::Hero() constructors not automatically inherited.
   Medic();
   Medic(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec);
   // All other functions are automatically inherited.
-private:
-  // Function to implement the Medic specialist action - Medic has no specialist action
-  virtual bool spec_action();
 };
 
 #endif

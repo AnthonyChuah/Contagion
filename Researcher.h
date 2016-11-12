@@ -10,18 +10,12 @@ These are implemented as exceptions in give_card and take_card.
 
 #include <string>
 
-#include "city.h"
-#include "world.h"
-#include "hero.h"
-
-class Researcher: public Hero
+class Researcher : public Hero
 {
 public:
   // Constructors are not automatically inherited from Hero, but these will call Hero's constructors.
   Researcher();
   Researcher(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec);
-private:
-  virtual bool spec_action();
-}
+};
 
 #endif

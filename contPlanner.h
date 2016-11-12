@@ -1,13 +1,15 @@
 #ifndef CONTPLANNER_H
 #define CONTPLANNER_H
 
+#include "macros.h"
+
 #include <string>
 
-#include "city.h"
-#include "world.h"
-#include "hero.h"
+class Hero; // Forward-declaration necessary.
+class City;
+class ContPlanner;
 
-class ContPlanner: public Hero
+class ContPlanner : public Hero
 {
 public:
   // Constructors are not automatically inherited from Hero, but these will call Hero's constructors.
@@ -16,8 +18,7 @@ public:
   bool play_special_eventcard(std::string _arguments);
   bool get_special_eventcard(std::string _eventname);
 private:
-  virtual bool spec_action();
-  PCard eventcard; // Contingency Planner has a special slot for an event card that does not occupy the hand.
+  std::string eventcard; // Contingency Planner has a special slot for an event card that does not occupy the hand.
 };
 
 // Function to implement the Contingency Planner specialist action - take event card in discard pile
