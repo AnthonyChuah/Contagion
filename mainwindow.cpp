@@ -1,7 +1,7 @@
 #include <QtWidgets>
 #include <iostream>
 #include "mainwindow.h"
-#include "window.h"
+#include "handwindow.h"
 #include "transpbutton.h"
 
 mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
@@ -160,9 +160,21 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
 
     // Special action
-    QPushButton *special_button = new QPushButton("SPECIAL", this);
-    special_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
-    special_button->setToolTip("Hero's special action");
+    int spec_win_w = 600;
+    int spec_win_h = spec_win_w*1.0/1.56;
+
+    spec_window = new specialwindow(this,spec_win_h,spec_win_w);
+    spec_window->move((win_w-spec_win_w)/2,(win_h-spec_win_h)/2);
+    spec_window->close(); //for some reason the hand is automatically open o/w
+
+    spec_button = new QPushButton("SPECIAL", this);
+    spec_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
+    spec_button->setToolTip("Hero's special action");
+
+    spec_button->setCheckable(true);
+
+    // Connection (signal to slot)
+    connect(spec_button, SIGNAL (clicked(bool)), this, SLOT (specButtonClicked(bool)));
 
 
     // =========================================================== //
@@ -170,15 +182,15 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     // =========================================================== //
 
     // Sub-Window size
-    int hand_win_h = 180;
-    int hand_win_w = 180;
+    int hand_win_w = 600;
+    int hand_win_h = hand_win_w*1.0/1.56;
 
-    hand_window = new Window(this,hand_win_h,hand_win_w);
+    hand_window = new HandWindow(this,hand_win_h,hand_win_w);
     hand_window->move((win_w-hand_win_w)/2,(win_h-hand_win_h)/2);
     hand_window->close(); //for some reason the hand is automatically open o/w
 
     // Button to show the hand window
-    QPushButton *hand_button = new QPushButton("SHOW HAND", this);
+    hand_button = new QPushButton("SHOW HAND", this);
     hand_button->setGeometry(b_xcoord+5*b_xoffs+30,b_ycoord,b_wth+100,b_hth);
     //hand_button->setGeometry(200,200,100,100);
     hand_button->setToolTip("Show the cards in hand");
@@ -193,9 +205,6 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     // there could e.g. be a quick-view pane that shows colours reflecting
     // the disease-ares of the cities etc., and a button to open a window
     // where you see the full cards
-
-
-
 
 
 
@@ -225,7 +234,6 @@ void mainWindow::createActions()
     connect(quitAct, &QAction::triggered, this, &QWidget::close);
 
     statusAct = new QAction(tr("&Status view"), this);
-    //statusAct->setShortcuts(QKeySequence::Save);
     statusAct->setStatusTip(tr("Show status view"));
     connect(saveAct, &QAction::triggered, this, &mainWindow::status_view);
 
@@ -271,8 +279,21 @@ void mainWindow::status_view()
 void mainWindow::handButtonClicked(bool checked) {
  if (checked) {
  hand_window->show();
+ hand_button->setText("CLOSE HAND");
  } else {
  hand_window->close();
+ hand_button->setText("SHOW HAND");
+     //QApplication::instance()->quit();
+ }
+}
+
+void mainWindow::specButtonClicked(bool checked) {
+ if (checked) {
+ spec_window->show();
+ spec_button->setText("CLOSE\nSPECIAL");
+ } else {
+ spec_window->close();
+ spec_button->setText("SPECIAL");
      //QApplication::instance()->quit();
  }
 }

@@ -7,7 +7,6 @@ greaterThan(QT_MAJOR_VERSION,4): QT += widgets
 
 SOURCES += \
     main.cpp \
-    window.cpp \
     mainwindow.cpp \
     #city.cpp \
     #contPlanner.cpp \
@@ -22,12 +21,15 @@ SOURCES += \
     #Scientist.cpp \
     #test.cpp \
     #world.cpp
+    handwindow.cpp \
+    specialwindow.cpp
 
 
 HEADERS += \
-    window.h \
     mainwindow.h \
     transpbutton.h \
+    handwindow.h \
+    specialwindow.h
     #city.h \
     #contPlanner.h \
     #Dispatcher.h \

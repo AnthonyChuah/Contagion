@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QFont>
 #include <QGraphicsView>
-#include "window.h"
+#include "handwindow.h"
 #include "mainwindow.h"
 #include <iostream>
 

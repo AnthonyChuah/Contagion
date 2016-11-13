@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "window.h"
+#include "handwindow.h"
+#include "specialwindow.h"
+#include <QPushButton>
 
 class QMenu;
 class QLabel;
@@ -26,13 +28,16 @@ private slots:
     void save_game();
     void status_view();
     void handButtonClicked(bool checked);
+    void specButtonClicked(bool checked);
 
 
 private:
     void createActions();
     void createMenus();
 
-    Window *hand_window;
+    HandWindow *hand_window;
+    specialwindow *spec_window;
+
 
     QMenu *fileMenu;
     QMenu *viewMenu;
@@ -45,6 +50,9 @@ private:
     QAction *statusAct;
 
     QLabel *infoLabel;
+
+    QPushButton *hand_button;
+    QPushButton *spec_button;
 };
 
 #endif // MAINWINDOW_H
