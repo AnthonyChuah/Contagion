@@ -32,7 +32,10 @@ bool Scientist::cure(int _did, std::string _one, std::string _two, std::string _
     ptr_world->disease_status[_did] = CURED; // CURED is a macro for 1.
     moves--;
     ptr_world->check_eradication(_did);
-    check_end();
+    // Finally check if this was the final cure needed to win the game.
+    if (ptr_world->victory()) {
+      exit(1);
+    }
     return true;
   }
   else

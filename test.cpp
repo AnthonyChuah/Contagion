@@ -23,7 +23,8 @@
 #include "researcher.h"
 #include "scientist.h"
 
-int main() {
+int main()
+{
   std::cout << "Testing the Contagion game logic with a text UI!\n";
   std::cout << "First, construct the World.\n";
   std::cout << "How many epidemics do you want? 4 for easy, 5 for medium, 6 for hard.\n";
@@ -44,10 +45,10 @@ int main() {
   new_world.load_hero_data("heroes.dat");
   std::cout << "Then I run the Setup for the world.\n";
   new_world.setup();
-  std::cout << "Now you may inspect the world again. Do you like it?\n";
   new_world.render_world_ascii();
-  std::cout << "Happy with what you see? Enter anything to continue:\n";
-  std::cin >> dummy;
 
+  std::cout << "Starting the main game loop.\n";
+  new_world.game_loop();
+  
   return 0;
 }

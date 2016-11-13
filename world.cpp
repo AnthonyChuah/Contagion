@@ -196,6 +196,7 @@ void World::load_hero_data(std::string _filename)
       std::cout << "I see a hero that I cannot recognize. Abort this program now.\n";
       exit(1);
     }
+    cities[0].heroes.push_back(hid);
     // Hero a_hero = Hero(ptr_atlanta,this,hero_spec);
     hid++;
   }
@@ -264,11 +265,17 @@ void World::render_world_ascii()
     map[x_position][y_position] = '*';
     for (int j = 0; j < 4; j++)
       map[x_position+1+j][y_position] = cities[i].shortname[j];
+    int left_digit = cities[i].city_id / 10; int right_digit = cities[i].city_id % 10;
+    map[x_position+5][y_position] = static_cast<char>(left_digit) + '0';
+    map[x_position+6][y_position] = static_cast<char>(right_digit) + '0';
     if (cities[i].has_rc())
       map[x_position][y_position+1] = 'R';
     for (int j = 0; j < 4; j++)
       map[x_position+1+j][y_position+1] = (static_cast<char>(cities[i].get_ncubes(j)) + '0');
     map[x_position][y_position+2] = (static_cast<char>(cities[i].get_disease_id()) + '0');
+    map[x_position+1][y_position+2] = 'D';
+    map[x_position+2][y_position+2] = (static_cast<char>(cities[i].heroes.size() + '0'));
+    map[x_position+3][y_position+2] = 'H';
   }
   // Output the map.
   for (int j = height-1; j >= 0; j--)
@@ -279,6 +286,9 @@ void World::render_world_ascii()
       }
     }
   // Output the disease statuses.
+  std::cout << "Disease status 0 is UNCURED, 1 is CURED, 2 is ERADICATED.\n";
+  std::cout << "Disease cubes start from 24 each and are placed on cities. If you run out you lose.\n";
+  std::cout << "Disease 0 is yellow, 1 is red, 2 is blue, 3 is black.\n";
   for (int k = 0; k < 4; k++) {
     std::cout << "Disease " << k << " status: " << disease_status[k] << "  ";
   }
@@ -293,25 +303,62 @@ void World::render_world_ascii()
   std::cout << "Player discards: " << player_discard.size() << " cards.\n";
   std::cout << "Infection rate: " << calculate_infection_rate() << "\n";
   std::cout << "Player turn: Player " << players_turn << " of " << num_players << " total players.\n";
+  for (int i = 0; i < num_players; i++) {
+    std::cout << "HeroID " << i << " " << heroes[i].spec << ": " << heroes[i].ptr_city->name << "\n";
+  }
   // Enter code for requesting player input, then call handle_input() function.
   // Empty for now.
 }
 
-void World::handle_input(std::string _input)
+bool World::victory()
 {
-  // Code for handling player input. It should also track and decrement hero moves and pass control to other
-  // heroes once a given hero's turn is over.
-  while (heroes[players_turn].moves > 0) {
-    bool made_move = false;
-    while (!made_move) {
-      // Parse player input here. Once parsed with regex, go to the move-decrementing and turn-handling section.
-      // Empty for now.
+  for (int i = 0; i < 4; i++) {
+    if (disease_status[i] == UNCURED)
+      return false;
+  }
+  std::cout << "CONGRATULATIONS! You have saved the world from plague!\n";
+  return true;
+}
+
+void World::game_loop()
+{
+  std::string input;
+  while (!victory()) {
+    while (heroes[players_turn].moves > 0) {
+      bool made_move = false;
+      while (!made_move) {
+	// Parse player input here. Once parsed with regex, go to the move-decrementing and turn-handling section.
+	// Empty for now.
+	std::getline(std::cin, input);
+	made_move = handle_input(input);
+      }
+      // Now made_move has been set to true, the above while loop exited.
+      // Moves are decremented inside the heroes' functions.
+      render_world_ascii(); // Render the world again in text for the player to see.
     }
-    // Now made_move has been set to true, the above while loop exited.
-    heroes[players_turn].moves--; // Decrement the number of moves.
-    if (heroes[players_turn].moves == 0)
-      next_player_turn();
-    render_world_ascii(); // Render the world again in text for the player to see.
+    next_player_turn();
+  }
+}
+
+bool World::handle_input(std::string _input)
+{
+  std::regex regex_viewcity("^display_city (.+)$");
+  std::smatch match_viewcity;
+  // Note: lots more inputs to be added.
+  if (_input == "look") {
+    render_world_ascii();
+    return false;
+  } else if (std::regex_match(_input, match_viewcity, regex_viewcity)) {
+    if (match_viewcity.size() == 2) {
+      std::cout << "Regex for input handling detected a command for display_city().\n";
+      std::ssub_match submatch_viewcity = match_viewcity[1];
+      int cid = std::stoi(submatch_viewcity.str());
+      display_city(cid);
+      return false;
+    }
+  } else {
+    std::cout << "I do not recognize that command.\n";
+    return false;
   }
 }
 
@@ -323,6 +370,21 @@ void World::next_player_turn()
     players_turn = 0;
   }
   std::cout << players_turn << ".\n";
+  heroes[players_turn].start_turn();
+}
+
+void World::display_city(int _cid)
+{
+  std::cout << "Calling World::display_city().\n";
+  std::cout << "City number " << _cid << ": " << cities[_cid].name << "\n";
+  std::cout << "Associated disease ID: " << cities[_cid].disease_id << "  ";
+  std::cout << "Disease cubes for diseases 1 2 3 4:";
+  for (int i = 0; i < 4; i++)
+    std::cout << " " << cities[_cid].disease_counters[i];
+  std::cout << "\nNeighbouring City IDs:";
+  for (int i = 0; i < cities[_cid].neighbours.size(); i++)
+    std::cout << " " << cities[_cid].neighbours[i];
+  std::cout << "\n";
 }
 
 void World::display_player_discard()
