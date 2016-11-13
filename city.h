@@ -20,6 +20,10 @@ Header file for City class.
 //#define BLACK 3
 // ---------------------------------------------------------------------- //
 
+class City; // Forward-declaration necessary because City's attributes contain City.
+class World;
+class Hero;
+
 class City
 {
 public:
@@ -34,13 +38,14 @@ public:
   void build_rc();
   int get_disease_id(); // Returns the disease_id of this city.
   int get_ncubes(int _did); // Accessor returns number of cubes of disease_id.
+  int get_cityid();
   void arrive_hero(int _hid); // Adds hero to the list of heroes in this city.
   bool depart_hero(int _hid); // Removes hero from the list of heroes in this city.
-  friend bool Hero::charter_flight(City& _to);
-  friend bool Hero::direct_flight(City& _to);
-  friend bool Hero::move(City& _to);
-  friend void Hero::build_centre(City& _city);
-private:
+  friend bool Hero::charter_flight(City& _to, Hero* _user);
+  friend bool Hero::direct_flight(City& _to, Hero* _user);
+  friend bool Hero::shuttle_flight(City& _to, Hero* _user);
+  friend bool Hero::move(City& _to, Hero* _user);
+  friend bool Hero::build_centre(City& _city);
   std::string name;
   World* world_ptr; // Pointer to the world the city is in.
   bool skip_next_infect_cities;

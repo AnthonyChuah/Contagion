@@ -1,15 +1,10 @@
 // Implementation file for the Hero class.
 
+#include "macros.h"
+
 #include <iostream>
 #include <string>
-#include <list>
-
-#include "macros.h"
-#include "pcard.h"
-#include "icard.h"
-#include "city.h"
-#include "hero.h"
-#include "world.h"
+#include <vector>
 
 Hero::Hero() : ptr_city(NULL), ptr_world(NULL), hero_id(-1), spec("Empty Hero Constructor"), moves(-1)
 {}
@@ -31,23 +26,32 @@ Hero& Hero::operator =(const Hero& _assign)
 {
   ptr_city = _assign.ptr_city;
   ptr_world = _assign.ptr_world;
-  hero_id = _copy.hero_id;
+  hero_id = _assign.hero_id;
   spec = _assign.spec;
-  moves = _copy.moves;
+  moves = _assign.moves;
 }
 
 std::string Hero::get_spec() { return spec; }
 
-bool Hero::charter_flight(City& _to)
+int Hero::get_heroid() { return hero_id; }
+
+bool Hero::charter_flight(City& _to, Hero* _user)
 {
-  std::list<PCard>::iterator it;
-  for (it = hand.begin(); it != hand.end(); it++) {
+  // _user specifies the person who provides cards/moves for this action.
+  // This is ALWAYS the hero itself unless the hero has been dispatched
+  // by someone else.
+  if (_user == NULL) {
+    _user = this;
+  }
+  std::vector<PCard>::iterator it;
+  for (it = _user->hand.begin(); it != _user->hand.end(); it++) {
     if (it->city_id == ptr_city->city_id) {
       ptr_city->depart_hero(hero_id);
       ptr_city = &_to;
       ptr_city->arrive_hero(hero_id);
-      hand.erase(it);
-      moves--;
+      _user->hand.erase(it);
+      // If Medic and the disease is cured, the arrive_hero function in City will auto-disinfect blocks of that disease.
+      _user->moves--;
       check_end();
       return true;
     }
@@ -55,35 +59,60 @@ bool Hero::charter_flight(City& _to)
   return false;
 }
 
-bool Hero::direct_flight(City& _to)
+bool Hero::direct_flight(City& _to, Hero* _user)
 {
-  std::list<PCard>::iterator it;
-  for (it = hand.begin(); it != hand.end(); it++) {
+  if (_user == NULL) {
+    _user = this;
+  }
+  std::vector<PCard>::iterator it;
+  for (it = _user->hand.begin(); it != _user->hand.end(); it++) {
     if (it->city_id == _to.city_id) {
       ptr_city->depart_hero(hero_id); // First remove hero_id from the city's heroes.
       ptr_city = &_to; // Point hero's ptr_city to the new city.
       ptr_city->arrive_hero(hero_id); // Now add hero_id to the new city's heroes.
-      hand.erase(it);
-      moves--;
-      check_end();
+      _user->hand.erase(it);
+      // ADD EXCEPTION: if hero is a Medic, and if a disease is cured, remove all of that disease from destination.
+      _user->moves--;
+      _user->check_end();
       return true;
     }
   }
   return false;
 }
 
-bool Hero::move(City& _to)
+bool Hero::shuttle_flight(City& _to, Hero* _user)
 {
-  // Override function for Medic so that city from/to which he moves lose all CURED diseases.
-  int cid_to = _to.city_id;
-  std::vector<int>::iterator it;
-  for (it = ptr_city->neighbours.begin(); it != ptr_city->neighbours.end(); it++) {
-    if (it == cid_to) {
+  if (_user == NULL) {
+    _user = this;
+  }
+  if (ptr_city->has_rc()) {
+    if (_to.has_rc()) {
       ptr_city->depart_hero(hero_id);
       ptr_city = &_to;
       ptr_city->arrive_hero(hero_id);
-      moves--;
-      check_end();
+      _user->moves--;
+      _user->check_end();
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Hero::move(City& _to, Hero* _user)
+{
+  if (_user == NULL) {
+    _user = this;
+  }
+  // Override function for Medic so that city from/to which he moves lose all CURED diseases.
+  int cid_to = _to.get_cityid();
+  std::vector<int>::iterator it;
+  for (it = ptr_city->neighbours.begin(); it != ptr_city->neighbours.end(); it++) {
+    if (*it == cid_to) {
+      ptr_city->depart_hero(hero_id);
+      ptr_city = &_to;
+      ptr_city->arrive_hero(hero_id);
+      _user->moves--;
+      _user->check_end();
       return true;
     }
   }
@@ -118,34 +147,37 @@ bool Hero::disinfect(int _did)
 
 bool Hero::build_centre(City& _city)
 {
-  std::list<PCard>::iterator it;
-  if (ptr_world->centres_remaining > 0 && _city->has_rc() == false)
-    {
-      if (spec == "Operations Expert") {
-	_city.build_rc();
-	ptr_world->centres_remaining--;
-	moves--;
-	check_end();
-	return true;
+  // First check if the Hero is in the City.
+  if (ptr_city->get_cityid() == _city.get_cityid()) {
+    std::vector<PCard>::iterator it;
+    if (ptr_world->centres_remaining > 0 && _city.has_rc() == false)
+      {
+	if (spec == "Operations Expert") {
+	  _city.build_rc();
+	  ptr_world->centres_remaining--;
+	  moves--;
+	  check_end();
+	  return true;
+	}
+	for (it = hand.begin(); it != hand.end(); it++) {
+	  if (it->city_id == _city.city_id)
+	    {
+	      hand.erase(it);
+	      _city.build_rc();
+	      ptr_world->centres_remaining--;
+	      moves--;
+	      check_end();
+	      return true;
+	    }
+	}
       }
-      for (it = hand.begin(); it != hand.end(); it++) {
-	if (it->city_id == _city.city_id)
-	  {
-	    hand.erase(it);
-	    _city.build_rc();
-	    ptr_world->centres_remaining--;
-	    moves--;
-	    check_end();
-	    return true;
-	  }
-      }
-    }
+  }
   return false;
 }
 
 bool Hero::give_card(std::string _card, Hero& _to)
 {
-  std::list<PCard>::iterator it;
+  std::vector<PCard>::iterator it;
   // If the _card string matches the name of the city that hero is currently in and the receiver is also there:
   if ((_card == ptr_city->name && _card == _to.ptr_city->name) || spec == "Researcher")
     {
@@ -155,6 +187,7 @@ bool Hero::give_card(std::string _card, Hero& _to)
 	  _to.hand.push_back(*it); // Dereference iterator to get the object to push onto the receiver's hand.
 	  hand.erase(it++); // Subtle note: I cannot delete the element before incrementing. Super clever.
 	  moves--;
+	  check_end();
 	  return true;
 	}
 	else
@@ -168,7 +201,7 @@ bool Hero::give_card(std::string _card, Hero& _to)
 
 bool Hero::take_card(std::string _card, Hero& _from)
 {
-  std::list<PCard>::iterator it;
+  std::vector<PCard>::iterator it;
   if ((_card == ptr_city->name && _card == _from.ptr_city->name) || _from.spec == "Researcher")
     {
       for (it = _from.hand.begin(); it != _from.hand.end(); )
@@ -190,14 +223,18 @@ bool Hero::take_card(std::string _card, Hero& _from)
 
 bool Hero::cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four, std::string _five)
 {
-  // Scientist should have an overloaded function with 4 inputs only.
+  if (spec == "Scientist") {
+    std::cout << "Do not use the regular cure function, instead use the Scientist's overloaded cure.\n";
+    return false;
+  }
   // Player should be able to specify exactly which cards he wants to use.
   // First, verify that every card he wants to use exists in his hand.
   // Then, erase each card from his hand and CURE THE DISEASE!
-  std::list<PCard>::iterator it;
+  std::vector<PCard>::iterator it;
   int count_matches = 0;
   for (it = hand.begin(); it != hand.end(); it++)
-    if (it->name == _one || it->name == _two || it->name == _three || it->name == _four || it->name == _five)
+    if (it->disease_id == _did &&
+	(it->name == _one || it->name == _two || it->name == _three || it->name == _four || it->name == _five))
       count_matches++;
   if (count_matches == 5)
     {
@@ -214,11 +251,28 @@ bool Hero::cure(int _did, std::string _one, std::string _two, std::string _three
       moves--;
       ptr_world->check_eradication(_did);
       check_end();
+      // Final check: wherever Medic is, needs to be wiped of the cured disease.
+      std::vector<Hero>::iterator it;
+      int medic_id = -1;
+      City* medic_city = NULL;
+      for (it = ptr_world->heroes.begin(); it != ptr_world->heroes.end(); it++) {
+	if (it->get_spec() == "Medic")
+	  {
+	    medic_id = it->get_heroid();
+	    medic_city = it->ptr_city;
+	  }
+      }
+      // If there is a medic in the game, remove all disease cubes of the cured colour in city medic is in.
+      if (medic_id > -1) {
+	int cubes_to_putback = medic_city->disease_counters[_did];
+	medic_city->disease_counters[_did] = 0;
+	ptr_world->disease_blocks[_did] += cubes_to_putback;
+      }
       return true;
     }
   else
     {
-      std::cout << "Not all 5 cards for the cure are in the hero's hand.\n";
+      std::cout << "Not all 5 cards matching the disease colour for the cure are in the hero's hand.\n";
       return false;
     }
 }

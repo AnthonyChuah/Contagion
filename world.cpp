@@ -2,30 +2,17 @@
 Implementation file for the World class.
 */
 
+#include "macros.h"
+
 #include <iostream>
 #include <vector>
-#include <list>
 #include <deque>
 #include <algorithm>
 #include <cstdlib>
 #include <string>
 #include <sstream>
 #include <fstream>
-
-#include "macros.h"
-#include "pcard.h"
-#include "icard.h"
-#include "city.h"
-#include "hero.h"
-#include "world.h"
-
-#include "contplanner.h"
-#include "dispatcher.h"
-#include "medic.h"
-#include "opexpert.h"
-#include "qspecialist.h"
-#include "researcher.h"
-#include "scientist.h"
+#include <regex>
 
 World::World()
 {
@@ -59,15 +46,15 @@ void World::load_city_data(std::string _filename)
   // First line of data file is just headers, drop them.
   std::getline(ins, rowdata);
   while(ins.good()) {
-    std::cout << "DEBUG: reading row data.\n";
     std::getline(ins, rowdata);
+    std::cout << "Read city rowdata: " << rowdata << "\n";
     // If rowdata is simply empty (last line) then continue.
     if (rowdata.empty()) continue;
     
     // Split by comma delimiter to get data, split neighbours by colon delimiter.
     std::stringstream ss(rowdata);
     std::string item;
-    std::vector<string> elems;
+    std::vector<std::string> elems;
     while (std::getline(ss, item, ','))
       elems.push_back(item);
     
@@ -79,21 +66,25 @@ void World::load_city_data(std::string _filename)
     double xcoord, ycoord;
     bool has_rc = false; // Only Atlanta begins with a RC.
     cityid = std::stoi(elems[0]); cityname = elems[1];
-    xcoord = std::atof(elems[2]); ycoord = std::atof(elems[3]);
+    xcoord = std::stod(elems[2]); ycoord = std::stod(elems[3]);
     if (cityid == 0) has_rc = true;
     did = std::stoi(elems[4]);
     std::vector<int> cityneighbours;
     std::stringstream sss(elems[5]);
     std::string subitem;
     while (std::getline(sss, subitem, ':'))
-      cityneighbours.push_back(subitem);
+      cityneighbours.push_back(std::stod(subitem));
+    std::cout << "City constructor arguments: " << cityid << cityname << did
+	      << did << xcoord << ycoord << "\n";
     City a_city(cityid,cityname,did,xcoord,ycoord,cityneighbours,this,has_rc);
     cities.push_back(a_city);
     
     // Call constructor for ICard and PCard and push them into respective vectors too.
     ICard an_icard(cityname,cityid);
+    std::cout << "Infection card constructor: " << cityname << cityid << "\n";
     infection_deck.push_back(an_icard);
     PCard a_pcard(cityname,cityid,did,false,false);
+    std::cout << "Player card constructor: " << cityname << cityid << did << "\n";
     player_deck.push_back(a_pcard);
   }
   ins.close();
@@ -110,14 +101,11 @@ void World::load_eventcards_data(std::string _filename)
     exit(1);
   }
   std::string rowdata;
-  std::string eventname;
   while (ins.good()) {
     std::cout << "DEBUG: reading event row data.\n";
     std::getline(ins, rowdata);
     // rowdata should simply be the event name, unless it read a blank row (end of file).
     if (rowdata.empty()) continue;
-    // If string is not empty, record it directly in eventname.
-    eventname = rowdata;
     // Call constructor for PCard and push onto the PCard vector.
     PCard a_pcard(rowdata,-1,-1,true,false);
     player_deck.push_back(a_pcard);
@@ -127,7 +115,7 @@ void World::load_eventcards_data(std::string _filename)
   // Remember to inspect the vector.
 }
 
-void World::load_hero_data(std::string _filename);
+void World::load_hero_data(std::string _filename)
 {
   std::ifstream ins;
   ins.open(_filename);
@@ -137,33 +125,79 @@ void World::load_hero_data(std::string _filename);
   }
   std::string rowdata;
   std::string hero_spec;
+  int hid = 0;
+  bool contplanner = false, dispatcher = false, medic = false, opexpert = false;
+  bool qspecialist = false, researcher = false, scientist = false;
   while (ins.good()) {
-    std::cout << "DEBUG: reading hero row data.\n";
     std::getline(ins, rowdata);
+    std::cout << "Read rowdata: " << rowdata << "\n";
     // rowdata should simply be the hero's specialization, unless it is just a blank.
     if (rowdata.empty()) continue;
     hero_spec = rowdata;
     // If string is not empty, record it directly in hero_spec then call constructor and push to heroes vector.
     // ALWAYS call load_hero_data AFTER load_city_data, because Hero needs a pointer to Atlanta at init.
     City* ptr_atlanta = &cities[0]; // Set City pointer to first city in World::cities.
-    if (hero_spec == "Contingency Planner")
-      ContPlanner a_hero(ptr_atlanta,this,hero_spec);
-    else if (hero_spec == "Dispatcher")
-      Dispatcher a_hero(ptr_atlanta,this,hero_spec);
-    else if (hero_spec == "Medic")
-      Medic a_hero(ptr_atlanta,this,hero_spec);
-    else if (hero_spec == "Operations Expert")
-      OpExpert a_hero(ptr_atlanta,this,hero_spec);
-    else if (hero_spec == "Quarantine Specialist")
-      QSpecialist a_hero(ptr_atlanta,this,hero_spec);
-    else if (hero_spec == "Researcher")
-      Researcher a_hero(ptr_atlanta,this,hero_spec);
-    else if (hero_spec == "Scientist")
-      Scientist a_hero(ptr_atlanta,this,hero_spec);
-    else
-      std::cout << "I see a hero that I cannot recognize. You should abort this program now.\n";
+    if (hero_spec == "Contingency Planner") {
+      if (contplanner) {
+	std::cout << "You cannot have multiple Contingency Planners in the game.\n";
+	exit(1);
+      }
+      ContPlanner a_hero(ptr_atlanta,this,hid,hero_spec);
+      contplanner = true;
+      heroes.push_back(a_hero);
+    } else if (hero_spec == "Dispatcher") {
+      if (dispatcher) {
+	std::cout << "You cannot have multiple Dispatchers in the game.\n";
+	exit(1);
+      }
+      Dispatcher a_hero(ptr_atlanta,this,hid,hero_spec);
+      heroes.push_back(a_hero);
+    } else if (hero_spec == "Medic") {
+      if (medic) {
+	std::cout << "You cannot have multiple Medics in the game.\n";
+	exit(1);
+      }
+      Medic a_hero(ptr_atlanta,this,hid,hero_spec);
+      medic = true;
+      heroes.push_back(a_hero);
+    } else if (hero_spec == "Operations Expert") {
+      if (opexpert) {
+	std::cout << "You cannot have multiple Operations Experts in the game.\n";
+	exit(1);
+      }
+      OpExpert a_hero(ptr_atlanta,this,hid,hero_spec);
+      opexpert = true;
+      heroes.push_back(a_hero);
+    } else if (hero_spec == "Quarantine Specialist") {
+      if (qspecialist) {
+	std::cout << "You cannot have multiple Quarantine Specialists in the game.\n";
+	exit(1);
+      }
+      QSpecialist a_hero(ptr_atlanta,this,hid,hero_spec);
+      qspecialist = true;
+      heroes.push_back(a_hero);
+    } else if (hero_spec == "Researcher") {
+      if (researcher) {
+	std::cout << "You cannot have multiple Researchers in the game.\n";
+	exit(1);
+      }
+      Researcher a_hero(ptr_atlanta,this,hid,hero_spec);
+      researcher = true;
+      heroes.push_back(a_hero);
+    } else if (hero_spec == "Scientist") {
+      if (scientist) {
+	std::cout << "You cannot have multiple Scientists in the game.\n";
+	exit(1);
+      }
+      Scientist a_hero(ptr_atlanta,this,hid,hero_spec);
+      scientist = true;
+      heroes.push_back(a_hero);
+    } else {
+      std::cout << "I see a hero that I cannot recognize. Abort this program now.\n";
+      exit(1);
+    }
     // Hero a_hero = Hero(ptr_atlanta,this,hero_spec);
-    heroes.push_back(a_hero);
+    hid++;
   }
   ins.close();
   std::cout << "Heroes reading complete: please use debugger to inspect.\n";
@@ -175,8 +209,9 @@ void World::setup()
   // Check how many players there are and record this in World::num_players.
   num_players = heroes.size();
   num_cities = cities.size();
-  if (num_players > 4) {std::cout << "You cannot have more than 4 players.\n"; exit(1)}
-  else if (num_players < 2) {std::cout << "You cannot have fewer than 2 players.\n"; exit(1)}
+  if (num_players > 4) {std::cout << "You cannot have more than 4 players.\n"; exit(1);}
+  else if (num_players < 2) {std::cout << "You cannot have fewer than 2 players.\n"; exit(1);}
+  std::cout << "Found " << num_players << " players and " << num_cities << " cities.\n";
   int starting_hand = 6 - num_players; // 4 for 2 players, 3 for 3 players, 2 for 4 players.
   // First shuffle the PCard deck. Make sure this includes event cards.
   std::random_shuffle(player_deck.begin(),player_deck.end()); // <algorithm>'s function shuffles cards.
@@ -188,7 +223,8 @@ void World::setup()
     }
   // Now the players' cards are dealt. Add epidemic cards to player_deck and shuffle again.
   for (int i = 0; i < num_epidemics; i++) {
-    PCard an_epidemic("Epidemic",-1,false,true);
+    std::string epidemic("Epidemic");
+    PCard an_epidemic(epidemic,-1,-1,false,true);
     player_deck.push_back(an_epidemic);
   }
   std::random_shuffle(player_deck.begin(),player_deck.end());
@@ -212,8 +248,9 @@ void World::setup()
   heroes[players_turn].start_turn(); // Set this player's moves to 4.
 }
 
-void World::render_world_ascii(ofstream& outs, int width, int height)
+void World::render_world_ascii()
 {
+  int width = ui_width; int height = ui_height;
   // We do not yet know how exactly we will render the world in ASCII.
   // Default width 180 characters, height 60 characters.
   char map[width][height]; // 2d character array represents the map.
@@ -222,7 +259,7 @@ void World::render_world_ascii(ofstream& outs, int width, int height)
       map[i][j] = 0;
   for (int i = 0; i < cities.size(); i++) {
     // Get city's x and y coordinates.
-    int x_position = cities[i].x_coord * width; // Should add code to make sure it rounds off instead of truncates.
+    int x_position = cities[i].x_coord * width;
     int y_position = cities[i].y_coord * height;
     map[x_position][y_position] = '*';
     for (int j = 0; j < 4; j++)
@@ -230,11 +267,11 @@ void World::render_world_ascii(ofstream& outs, int width, int height)
     if (cities[i].has_rc())
       map[x_position][y_position+1] = 'R';
     for (int j = 0; j < 4; j++)
-      map[x_position+1+j][y_position+1] = cities[i].get_ncubes(j);
-    map[x_position][y_position+2] = cities[i].get_disease_id();
+      map[x_position+1+j][y_position+1] = (static_cast<char>(cities[i].get_ncubes(j)) + '0');
+    map[x_position][y_position+2] = (static_cast<char>(cities[i].get_disease_id()) + '0');
   }
   // Output the map.
-  for (int j = 0; j < height; j++)
+  for (int j = height-1; j >= 0; j--)
     for (int i = 0; i < width; i++) {
       std::cout << map[i][j];
       if (i == width-1) {
@@ -247,7 +284,7 @@ void World::render_world_ascii(ofstream& outs, int width, int height)
   }
   std::cout << "\n";
   for (int k = 0; k < 4; k++) {
-    std::cout << "Disease " << k << " cubes: " << disease_status[k] << "  ";
+    std::cout << "Disease " << k << " cubes:  " << disease_status[k] << "  ";
   }
   std::cout << "\n";
   std::cout << "Infection deck: " << infection_deck.size() << " cards. ";
@@ -255,7 +292,52 @@ void World::render_world_ascii(ofstream& outs, int width, int height)
   std::cout << "Player deck: " << player_deck.size() << " cards. ";
   std::cout << "Player discards: " << player_discard.size() << " cards.\n";
   std::cout << "Infection rate: " << calculate_infection_rate() << "\n";
-  std::cout << "Player turn: Player " << players_turn << " of " << num_players+1 << " total players.\n";
+  std::cout << "Player turn: Player " << players_turn << " of " << num_players << " total players.\n";
+  // Enter code for requesting player input, then call handle_input() function.
+  // Empty for now.
+}
+
+void World::handle_input(std::string _input)
+{
+  // Code for handling player input. It should also track and decrement hero moves and pass control to other
+  // heroes once a given hero's turn is over.
+  while (heroes[players_turn].moves > 0) {
+    bool made_move = false;
+    while (!made_move) {
+      // Parse player input here. Once parsed with regex, go to the move-decrementing and turn-handling section.
+      // Empty for now.
+    }
+    // Now made_move has been set to true, the above while loop exited.
+    heroes[players_turn].moves--; // Decrement the number of moves.
+    if (heroes[players_turn].moves == 0)
+      next_player_turn();
+    render_world_ascii(); // Render the world again in text for the player to see.
+  }
+}
+
+void World::next_player_turn()
+{
+  std::cout << "Player " << players_turn << " has ended its turn, now for player ";
+  players_turn++;
+  if (players_turn == num_players) {
+    players_turn = 0;
+  }
+  std::cout << players_turn << ".\n";
+}
+
+void World::display_player_discard()
+{
+  std::cout << "Calling World::display_player_discard().\n";
+}
+
+void World::display_infection_discard()
+{
+  std::cout << "Calling World::display_infection_discard().\n";
+}
+
+void World::display_deck(const std::vector<ICard>& _display)
+{
+  std::cout << "Calling World::display_deck().\n";
 }
 
 void World::render_world_gui()
@@ -276,7 +358,7 @@ void World::draw_infection_deck()
     {
       std::cout << "Commencing the infect cities process.\n";
       // Pop off the front or back of the infection deck. Read city ID. Call the infection function accordingly.
-      for (int i = 0; i < calculate_infection_rate(); n++)
+      for (int i = 0; i < calculate_infection_rate(); i++)
 	{
 	  ICard chosen_card = infection_deck.back();
 	  infection_deck.pop_back();
@@ -291,6 +373,7 @@ void World::draw_player_deck(Hero& hero)
 {
   for (int i = 0; i < 2; i++)
     {
+      if (player_deck.empty()) death("Lost game because you ran out of player cards to draw!\n");
       PCard chosen_card = player_deck.back();
       player_deck.pop_back();
       std::cout << "Player " << players_turn << " has drawn card: " << chosen_card.name << "\n";
@@ -314,11 +397,20 @@ void World::epidemic()
   infection_deck.pop_front();
   cities[cid_target].infect(cities[cid_target].get_disease_id(), 3);
   std::random_shuffle(infection_discard.begin(), infection_discard.end());
-  while (infection_discard.size > 0)
+  while (infection_discard.size() > 0)
     {
       infection_deck.push_back(infection_discard.back());
       infection_discard.pop_back();
     }
+}
+
+bool World::check_eradication(int _did)
+{
+  if (disease_blocks[_did] == 24 && disease_status[_did] == CURED) {
+    disease_status[_did] = ERADICATED;
+    return true;
+  }
+  return false;
 }
 
 bool World::play_event_card(Hero& _hero, std::string _event, std::string _arguments)
@@ -327,8 +419,8 @@ bool World::play_event_card(Hero& _hero, std::string _event, std::string _argume
   if (_event == "Government Grant")
     {
       // Check that hero's hand contains that card.
-      PCard govgrant("Government Grant", -1, true, false);
-      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), govgrant);
+      PCard govgrant("Government Grant", -1, -1, true, false);
+      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), govgrant);
       if (iter != _hero.hand.end())
 	{
 	  // Call event_grant function: if it returns true, it's worked, so return true here too.
@@ -359,8 +451,8 @@ bool World::play_event_card(Hero& _hero, std::string _event, std::string _argume
     }
   else if (_event == "Forecast")
     {
-      PCard forecast("Forecast", -1, true, false);
-      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), forecast);
+      PCard forecast("Forecast", -1, -1, true, false);
+      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), forecast);
       if (iter != _hero.hand.end())
 	{
 	  event_forecast(); // INTERACTIVE function, tricky to program.
@@ -376,8 +468,8 @@ bool World::play_event_card(Hero& _hero, std::string _event, std::string _argume
     }
   else if (_event == "Resilient Population")
     {
-      PCard resilpop("Resilient Population", -1, true, false);
-      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), resilpop);
+      PCard resilpop("Resilient Population", -1, -1, true, false);
+      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), resilpop);
       /* std::string string_name = _event;
 	 iter = std::find_if(infection_discard.begin(), infection_discard.end(),
 	 [&string_name] (const PCard& obj) {return obj.name == string_name}); 
@@ -405,8 +497,8 @@ bool World::play_event_card(Hero& _hero, std::string _event, std::string _argume
   else if (_event == "Airlift")
     {
       // Arguments should look like this: 0:0 means move hero 0 to Atlanta, which is city_id 0.
-      PCard airlift("Airlift", -1, true, false);
-      std::list<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), airlift);
+      PCard airlift("Airlift", -1, -1, true, false);
+      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), airlift);
       if (iter != _hero.hand.end())
 	{
 	  int index_to_delete = iter - _hero.hand.begin();
@@ -444,15 +536,14 @@ void World::event_forecast()
 {
   // Plan: make a GUI class that has an association link to World class. World will soon contain a pointer to GUI.
   std::vector<ICard> to_display;
-  int decksize = min(infection_deck.size(), 6);
+  int decksize = std::min(static_cast<int>(infection_deck.size()), 6);
   for (int i = 0; i < decksize; i++)
     to_display.push_back(infection_deck[infection_deck.size()-decksize+i]);
   // Above code concisely expresses the different treatment if the deck contained less than 6 cards.
 
   display_deck(to_display); // This might stream data to the GUI once we build the GUI.
   std::vector<int> rearrange_mapping;
-  intarray_input(rearrange_mapping, decksize); // e.g. 0 1 2 3 4 5 would be the original arrangement.
-
+  // intarray_input(rearrange_mapping, decksize); // e.g. 0 1 2 3 4 5 would be the original arrangement.
   // Using the arrangement given by players, make an arranged sub-deck.
   std::vector<ICard> arranged_subdeck = to_display; // vector<Template> overloads assignment. ICard MUST have too!
   for (int i = 0; i < decksize; i++)
@@ -465,6 +556,7 @@ void World::event_forecast()
 
 bool World::event_resilient(std::string _arguments)
 {
+  std::cout << "Calling World::event_resilient.\n";
   // Arguments should be a number referring to the city_id.
   int cid = std::stoi(_arguments);
   std::string cardname = cities[cid].name;
@@ -472,12 +564,12 @@ bool World::event_resilient(std::string _arguments)
   ICard to_remove(cardname, cid);
   // Note: since this event card rarely happens, happy to keep infection_discard a vector despite slow deletion.
   std::vector<ICard>::iterator iter = std::find(infection_discard.begin(), infection_discard.end(), to_remove);
-  if (iter != infection_discard.end())
-    {
-      int index_to_delete = iter - infection_deck.begin();
-      infection_deck.erase(infection_deck.begin() + index_to_delete);
-      return true;
-    }
+  if (iter != infection_discard.end()) {
+    int index_to_delete = iter - infection_discard.begin();
+    std::cout << "Resilient Pop event card removed " << to_remove.name << " from play.\n";
+    infection_discard.erase(infection_discard.begin() + index_to_delete);
+    return true;
+  }
   else
     return false;
 }
@@ -489,7 +581,7 @@ void World::event_airlift(std::string _arguments)
   // Split by comma delimiter to get data, split neighbours by colon delimiter.
   std::stringstream ss(_arguments);
   std::string item;
-  std::vector<string> elems;
+  std::vector<std::string> elems;
   while (std::getline(ss, item, ':'))
     elems.push_back(item);
   int hid = std::stoi(elems[0]);
@@ -504,14 +596,16 @@ void World::event_airlift(std::string _arguments)
 
 void World::death(std::string _message)
 {
-  cout << _message;
+  std::cout << _message;
   char dummy;
-  cout << "The game is over. Press any key to end this game.\n";
-  cin >> dummy;
+  std::cout << "The game is over. Press any key to end this game.\n";
+  std::cin >> dummy;
+  exit(1);
 }
 
 void World::init()
 {
+  ui_width = 180; ui_height = 60;
   centres_remaining = 5;
   outbreaks = 0;
   infection_rate_base = 0;

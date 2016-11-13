@@ -1,17 +1,21 @@
 #ifndef RESEARCHER_H
 #define RESEARCHER_H
 
-#include "hero.h"
+/*
+Researcher exceptions:
+1. Researcher may give any card to another hero in the same city.
+2. Another player in the same city may take any card from the Researcher's hand.
+These are implemented as exceptions in give_card and take_card.
+*/
 
-class Researcher: public Hero {
- public:
-  // Constructor
-  Researcher(City* _ptr_city, World* _ptr_world, string _spec) : ptr_city(_ptr_city), ptr_world(_ptr_world), spec(_spec) {}
-  
- private:
-  // Function to implement the Researcher specialist action
-  // - give ANY city card to another player in same city, without it having to match the city
-  virtual void spec_action();
-}
+#include <string>
+
+class Researcher : public Hero
+{
+public:
+  // Constructors are not automatically inherited from Hero, but these will call Hero's constructors.
+  Researcher();
+  Researcher(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec);
+};
 
 #endif

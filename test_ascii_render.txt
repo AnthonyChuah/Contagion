@@ -1,0 +1,96 @@
+Testing the Contagion game logic with a text UI!
+First, construct the World.
+How many epidemics do you want? 4 for easy, 5 for medium, 6 for hard.
+I have just called the Constructor with 4 epidemics.
+
+[ BIG EMPTY MAP BECAUSE NOTHING IS INITIALIZED ]
+
+Disease 0 status: 0  Disease 1 status: 0  Disease 2 status: 0  Disease 3 status: 0  
+Disease 0 cubes:  0  Disease 1 cubes:  0  Disease 2 cubes:  0  Disease 3 cubes:  0  
+Infection deck: 0 cards. Infection discards: 0 cards.
+Player deck: 0 cards. Player discards: 0 cards.
+Infection rate: 2
+Player turn: Player 0 of 0 total players.
+Happy with what you see? Enter anything to continue:
+Now I will load the city data into the World.
+[ Removed city data reading messages ]
+City reading complete: please use GDB to inspect the 3 vectors and make sure they're correct.
+And then I will load the event cards data.
+[ Removed event cards reading messages ]
+Event card reading complete: please use debugger to inspect.
+Then I load the heroes data.
+Read rowdata: Medic
+Read rowdata: Dispatcher
+Read rowdata: Researcher
+Read rowdata: Operations Expert
+Heroes reading complete: please use debugger to inspect.
+Then I run the Setup for the world.
+Found 4 players and 48 cities.
+Now you may inspect the world again. Do you like it?
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                      2                                                                             
+                                                                                        2              0000                                                                         
+                                                                           2             0000         *St P                                                                         
+                                                                            0000        *Esse                                                                                       
+                                                                           *Lond             2              3                                                                       
+                              2            2                                         2        0000           0003                               1          1                        
+                               0020         0000    2                                 0000   *Mila          *Mosc                                0000       0000                    
+              2               *Chic        *Mont     0000                            *Pari        3                  3                          *Beij      *Seou    1               
+               0000                                 *New                 2                         0000               0000                                           0100           
+              *San                 2            2                         0010                    *Ista              *Tehr                       1                  *Toky           
+                                   R0000         0020                    *Madr                             3                                      0000                              
+                                   *Atla        *Wash                                  3                    0000                3                *Shan                              
+                                                                                        0000     3         *Bagh       3         0000    3                           1              
+                 0                                                                     *Algi      0000                  0000    *Delh     0000              1         0000          
+                  0000                     0                                                     *Cair                 *Kara             *Kolk    1          0200    *Osak          
+                 *Los       0               0000                                                                                                   0000     *Taip                   
+                             0000          *Miam                                                             3                                    *Hong                             
+                            *Mexi                                                                             0000      3                  1                                        
+                                                                                                   0         *Riya       0000               0300                                    
+                                                                                   0                1000                *Mumb              *Bang                                    
+                                         0                                          0000           *Khar                          3                                                 
+                                          0000                                     *Lago                                           0000            1           1                    
+                                         *Bogo                                                                                    *Chen             0300        0000                
+                                                                                           0                                                       *Ho C       *Mani                
+                                                                                            0000                                                                                    
+                                                                                           *Kins                                           1                                        
+                                                                                                                                            0000                                    
+                                     0                     0                                                                               *Jaka                                    
+                                      0000                  0000                                                                                                                    
+                                     *Lima                 *Sao                                   0                                                                                 
+                                                                                                   0000                                                                             
+                                                                                                  *Joha                                                                             
+                                                    0                                                                                                                               
+                                       0             0000                                                                                                             1             
+                                        0000        *Buen                                                                                                              0000         
+                                       *Sant                                                                                                                          *Sydn         
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+Disease 0 status: 0  Disease 1 status: 0  Disease 2 status: 0  Disease 3 status: 0  
+Disease 0 cubes:  0  Disease 1 cubes:  0  Disease 2 cubes:  0  Disease 3 cubes:  0  
+Infection deck: 39 cards. Infection discards: 9 cards.
+Player deck: 49 cards. Player discards: 0 cards.
+Infection rate: 2
+Player turn: Player 0 of 4 total players.
+Happy with what you see? Enter anything to continue:

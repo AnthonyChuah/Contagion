@@ -1,0 +1,22 @@
+Windows compilation (lazy to do separate compilation without UNIX make):
+
+
+Individual compilation tests done for:
+
+icard.cpp
+pcard.cpp
+hero.cpp
+city.cpp
+world.cpp
+
+All specialization implementation files
+
+Note: checks only COMPILATION errors, not logic errors or run-time errors.
+
+
+Test for run-time errors:
+
+g++ -g -std=c++11 icard.cpp pcard.cpp world.cpp city.cpp hero.cpp contplanner.cpp dispatcher.cpp medic.cpp opexpert.cpp qspecialist.cpp researcher.cpp scientist.cpp test.cpp -o test
+
+test.exe
+
