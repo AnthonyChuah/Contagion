@@ -75,7 +75,7 @@ public:
   void display_city(int _cid);
   void display_player_discard();
   void display_infection_discard();
-  void display_deck(const std::vector<ICard>& _display);
+  void display_hands(); // Displays all players' hands.
   void render_world_gui(); // Renders the world graphically.
   bool handle_input(std::string _input);
   std::vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.

@@ -83,6 +83,7 @@ void City::outbreak(int _did)
 
 void City::infect(int _did, int _numcubes)
 {
+  std::cout << "Calling City::infect() on Disease " << _did << " with " << _numcubes << " cubes.\n";
   // Check if the disease is eradicated.
   if (world_ptr->disease_status[_did] >= ERADICATED)
     return;

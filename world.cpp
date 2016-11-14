@@ -336,6 +336,9 @@ void World::game_loop()
       // Moves are decremented inside the heroes' functions.
       render_world_ascii(); // Render the world again in text for the player to see.
     }
+    // Now the hero in question has finished its turn. Draw player cards and then infect cities.
+    draw_player_deck(heroes[players_turn]);
+    draw_infection_deck();
     next_player_turn();
   }
 }
@@ -343,19 +346,25 @@ void World::game_loop()
 bool World::handle_input(std::string _input)
 {
   std::regex regex_viewcity("^display_city (.+)$");
-  std::smatch match_viewcity;
+  std::smatch match_group;
   // Note: lots more inputs to be added.
   if (_input == "look") {
     render_world_ascii();
     return false;
-  } else if (std::regex_match(_input, match_viewcity, regex_viewcity)) {
-    if (match_viewcity.size() == 2) {
+  } else if (std::regex_match(_input, match_group, regex_viewcity)) {
+    if (match_group.size() == 2) {
       std::cout << "Regex for input handling detected a command for display_city().\n";
-      std::ssub_match submatch_viewcity = match_viewcity[1];
+      std::ssub_match submatch_viewcity = match_group[1];
       int cid = std::stoi(submatch_viewcity.str());
       display_city(cid);
       return false;
     }
+  } else if (_input == "display_player_discard") {
+    display_player_discard();
+  } else if (_input == "display_infection_discard") {
+    display_infection_discard();
+  } else if (_input == "display_hands") {
+    display_hands();
   } else {
     std::cout << "I do not recognize that command.\n";
     return false;
@@ -390,16 +399,46 @@ void World::display_city(int _cid)
 void World::display_player_discard()
 {
   std::cout << "Calling World::display_player_discard().\n";
+  int ncards = player_discard.size();
+  if (ncards == 0) {
+    std::cout << "The player discard pile is empty.\n";
+    return;
+  } else {
+    std::cout << "Displaying cards from bottom to top:\n";
+    for (int i = 0; i < ncards; i++) {
+      std::cout << i << ") " << player_discard[i].name << "\n";
+    }
+  }
 }
 
 void World::display_infection_discard()
 {
   std::cout << "Calling World::display_infection_discard().\n";
+  int ncards = infection_discard.size();
+  if (ncards == 0) {
+    std::cout << "The infection discard pile is empty.\n";
+    return;
+  } else {
+    std::cout << "Displaying cards from bottom to top:\n";
+    for (int i = 0; i < ncards; i++) {
+      std::cout << i << ") " << infection_discard[i].name << "\n";
+    }
+  }
 }
 
-void World::display_deck(const std::vector<ICard>& _display)
+void World::display_hands()
 {
-  std::cout << "Calling World::display_deck().\n";
+  std::cout << "Calling World::display_hands().\n";
+  for (int i = 0; i < num_players; i++) {
+    std::cout << "Player " << i << " " << heroes[i].spec << ": ";
+    int ncards = heroes[i].hand.size();
+    for (int j = 0; j < ncards; j++) {
+      if (heroes[i].hand[j].is_event)
+	std::cout << "EVENT ";
+      std::cout << heroes[i].hand[j].name << " ";
+    }
+    std::cout << "\n";
+  }
 }
 
 void World::render_world_gui()

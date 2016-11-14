@@ -33,7 +33,6 @@ public:
   bool give_card(std::string _card, Hero& _to); //give a card to another player
   bool take_card(std::string _card, Hero& _from); //take card from another player
   bool cure(int _did,std::string _one,std::string _two,std::string _three,std::string _four,std::string _five);
-  bool check_end(); // Check if the player turn has ended.
   void start_turn(); // Set moves to 4.
   std::string spec;
   std::vector<PCard> hand;
