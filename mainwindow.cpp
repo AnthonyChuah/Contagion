@@ -2,6 +2,7 @@
 #include <iostream>
 #include "mainwindow.h"
 #include "handwindow.h"
+#include "movewindow.h"
 #include "transpbutton.h"
 
 mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
@@ -17,10 +18,13 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
+    //REMOVE infoLabel? WILL NEED TO CHECK WHEN TIME, BUT SEEMS UNNECESSARY
     infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to "
                               "invoke a context menu</i>"));
     infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     infoLabel->setAlignment(Qt::AlignCenter);
+
+
 
     QWidget *bottomFiller = new QWidget;
     bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -49,7 +53,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
 
     // =========================================================== //
-    // Style sheet
+    // Load the style sheet
     // =========================================================== //
     QFile file("../Contagion/resources/style.qss");
     file.open(QFile::ReadOnly);
@@ -72,13 +76,11 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     // Push button for player card
     QPushButton *PCard_button = new QPushButton("PLAYER", this);
     PCard_button->setGeometry(card_xcoord,card_ycoord,card_wth,card_hth);
-    //PCard_button->setAttribute(Qt::WA_TranslucentBackground);
     PCard_button->setToolTip("Draws a player card");
     //PCard_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
 
     // Push button for infection card
     QPushButton *ICard_button = new QPushButton("INFECTION", this);
-    //TranspButton *ICard_button = new TranspButton(this); // Transparent button
     ICard_button->setGeometry(card_xcoord+1*card_xoffset,card_ycoord,card_wth,card_hth);
     ICard_button->setToolTip("Draws an Infection card");
 
@@ -150,11 +152,6 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     int b_xoffs = b_wth+20; //button x offset
     int b_ycoord = 750; //button y-coordinate
 
-    // Move
-    QPushButton *move_button = new QPushButton("MOVE", this);
-    move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
-    move_button->setToolTip("Move along the map");
-    //move_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
 
 
     // Fly
@@ -179,6 +176,26 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Connection (signal to slot)
     connect(spec_button, SIGNAL (clicked(bool)), this, SLOT (specButtonClicked(bool)));
+
+
+    // =========================================================== //
+    // MOVE WINDOW OVERLAY
+    // =========================================================== //
+
+    // Move button
+    //QPushButton *move_button = new QPushButton("MOVE", this);
+    move_button = new QPushButton("MOVE", this);
+    move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
+    move_button->setToolTip("Move along the map");
+    //move_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
+
+    move_button->setCheckable(true);
+
+    move_window = new movewindow(this,win_h-150,win_w);
+    move_window->close(); //for some reason the hand is automatically open o/w
+
+    // Connection (signal to slot)
+    connect(move_button, SIGNAL (clicked(bool)), this, SLOT (moveButtonClicked(bool)));
 
 
     // =========================================================== //
@@ -256,6 +273,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
 
     //NEED A FUNCTION THAT GENERATES THESE FROM AN INPUT FILE!
+
 
 }
 
@@ -342,6 +360,17 @@ void mainWindow::specButtonClicked(bool checked) {
  } else {
  spec_window->close();
  spec_button->setText("SPECIAL");
+     //QApplication::instance()->quit();
+ }
+}
+
+void mainWindow::moveButtonClicked(bool checked) {
+ if (checked) {
+ move_window->show();
+ move_button->setText("CLOSE\nMOVE\nWINDOW");
+ } else {
+ move_window->close();
+ move_button->setText("MOVE");
      //QApplication::instance()->quit();
  }
 }

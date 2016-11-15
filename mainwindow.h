@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "handwindow.h"
 #include "specialwindow.h"
+#include "movewindow.h"
 #include <QPushButton>
 
 class QMenu;
@@ -29,6 +30,7 @@ private slots:
     void status_view();
     void handButtonClicked(bool checked);
     void specButtonClicked(bool checked);
+    void moveButtonClicked(bool checked);
 
 
 private:
@@ -37,7 +39,7 @@ private:
 
     HandWindow *hand_window;
     specialwindow *spec_window;
-
+    movewindow *move_window;
 
     QMenu *fileMenu;
     QMenu *viewMenu;
@@ -53,6 +55,8 @@ private:
 
     QPushButton *hand_button;
     QPushButton *spec_button;
+    QPushButton *move_button;
+
 };
 
 #endif // MAINWINDOW_H

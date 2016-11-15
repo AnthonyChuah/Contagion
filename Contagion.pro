@@ -22,14 +22,16 @@ SOURCES += \
     #test.cpp \
     #world.cpp
     handwindow.cpp \
-    specialwindow.cpp
+    specialwindow.cpp \
+    movewindow.cpp
 
 
 HEADERS += \
     mainwindow.h \
     transpbutton.h \
     handwindow.h \
-    specialwindow.h
+    specialwindow.h \
+    movewindow.h
     #city.h \
     #contPlanner.h \
     #Dispatcher.h \
