@@ -36,7 +36,7 @@ specialwindow::specialwindow(QWidget *parent,int height, int width) : QWidget(pa
     button1->setCheckable(true);
 
     // Connection (signal to slot)
-    connect(button1, SIGNAL (clicked(bool)), this, SLOT (slotButtonClicked(bool)));
+    connect(button1, SIGNAL (clicked(bool)), this, SLOT (slotSpec1Clicked(bool)));
 
 
     // Seventh card
@@ -46,16 +46,33 @@ specialwindow::specialwindow(QWidget *parent,int height, int width) : QWidget(pa
     button2->setCheckable(true);
 
     // Connection (signal to slot)
-    connect(button2, SIGNAL (clicked(bool)), this, SLOT (slotButtonClicked(bool)));
+    connect(button2, SIGNAL (clicked(bool)), this, SLOT (slotSpec2Clicked(bool)));
 
 
 }
 
-void specialwindow::slotButtonClicked(bool checked) {
+void specialwindow::slotSpec1Clicked(bool checked) {
  if (checked) {
- button1->setText("Checked");
- } else {
- button1->setText("CARD 1");
+ button1->setText("Checked"); //THIS IS OBVIOUSLY THE WRONG BEHAVIOUR...
+ }
+ //else if (ADD CONDITION!!!){
+   // IF CHARACTER IS NOT ONE WITH A SPECIAL ACTION
+   // button1->setText("NOT\nAPPLICABLE");
+ //}
+ else {
+ button1->setText("SPEC 1");
  }
 }
 
+void specialwindow::slotSpec2Clicked(bool checked) {
+ if (checked) {
+   button2->setText("Checked"); //THIS IS OBVIOUSLY THE WRONG BEHAVIOUR...
+ }
+ //else if (ADD CONDITION!!!){
+   // IF CHARACTER IS NOT DISPATCHER
+   // button2->setText("NOT\nAPPLICABLE");
+ //}
+ else {
+   button2->setText("SPEC 2");
+ }
+}

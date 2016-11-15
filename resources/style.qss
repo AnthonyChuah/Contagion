@@ -1,0 +1,44 @@
+QMenuBar {
+    background-color: transparent; /* sets background of the menu */
+    border: 1px solid black;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+}
+
+/* PushButton configuration */
+QPushButton { background-color: cyan }
+
+
+/* Radio button configuration */
+QRadioButton::indicator {width: 30px; height: 30px}
+
+// Colour setting, to see the background box when debugging
+//QRadioButton { background-color: cyan }
+
+/*
+QRadioButton::indicator::unchecked {
+    image: url(../Contagion/resources/images/radiobutton_unchecked.png);
+}
+
+QRadioButton::indicator:unchecked:hover {
+    image: url(../Contagion/resources/images/radiobutton_unchecked_hover.png);
+}
+
+QRadioButton::indicator:unchecked:pressed {
+    image: url(../Contagion/resources/images/radiobutton_unchecked_pressed.png);
+}
+
+QRadioButton::indicator::checked {
+    image: url(../Contagion/resources/images/radiobutton_checked.png);
+}
+
+QRadioButton::indicator:checked:hover {
+    image: url(../Contagion/resources/images/radiobutton_checked_hover.png);
+}
+
+QRadioButton::indicator:checked:pressed {
+    image: url(../Contagion/resources/images/radiobutton_checked_pressed.png);
+}
+*/

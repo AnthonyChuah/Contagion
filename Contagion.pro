@@ -42,3 +42,7 @@ HEADERS += \
     #Researcher.h \
     #Scientist.h \
     #world.h
+
+RESOURCES +=
+
+FORMS +=

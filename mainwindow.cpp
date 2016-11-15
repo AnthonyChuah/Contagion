@@ -48,14 +48,18 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     this->setPalette(palette);
 
 
-    // Sub-Window
-    //Window *window = new Window(this);
-    //window->move(100,200);
-    //window->show();
+    // =========================================================== //
+    // Style sheet
+    // =========================================================== //
+    QFile file("../Contagion/resources/style.qss");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QString::fromLatin1(file.readAll());
+    this->setStyleSheet(styleSheet);
+
 
 
     // =========================================================== //
-    // CARDS
+    // BUTTONS
     // =========================================================== //
 
     // Button size and placement
@@ -197,6 +201,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
     hand_button->setCheckable(true);
 
+
     // Connection (signal to slot)
     connect(hand_button, SIGNAL (clicked(bool)), this, SLOT (handButtonClicked(bool)));
 
@@ -207,7 +212,50 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     // where you see the full cards
 
 
+    // =========================================================== //
+    // CITY BUTTONS - SHOULD BE CREATED USING AN EXTERNAL FILE!!!
+    // =========================================================== //
 
+    // Radio button rectangle (background) size
+    int radio_wth=30;
+    int radio_hth=radio_wth;
+
+    QRadioButton* cityButton = new QRadioButton(this);
+    cityButton->setGeometry(110,270,radio_wth,radio_hth); //sets location and size of rectangle
+    cityButton->setText("San Francisco");
+
+
+    //OTHER BUTTONS, FOR TESTING PURPOSES - NEED TO GEN FROM FILE!
+    QRadioButton* cityButton2 = new QRadioButton(this);
+    cityButton2->setGeometry(120,300,radio_wth,radio_hth);
+    cityButton2->setText("LA");
+
+    QRadioButton* cityButton3 = new QRadioButton(this);
+    cityButton3->setGeometry(250,230,radio_wth,radio_hth);
+    cityButton3->setText("Chicago");
+
+    QRadioButton* cityButton4 = new QRadioButton(this);
+    cityButton4->setGeometry(330,225,radio_wth,radio_hth);
+    cityButton4->setText("Montreal");
+
+    QRadioButton* cityButton5 = new QRadioButton(this);
+    cityButton5->setGeometry(340,255,radio_wth,radio_hth);
+    cityButton5->setText("NY");
+
+    QRadioButton* cityButton6 = new QRadioButton(this);
+    cityButton6->setGeometry(320,280,radio_wth,radio_hth);
+    cityButton6->setText("DC");
+
+    QRadioButton* cityButton7 = new QRadioButton(this);
+    cityButton7->setGeometry(270,300,radio_wth,radio_hth);
+    cityButton7->setText("Atlanta");
+
+    QRadioButton* cityButton8 = new QRadioButton(this);
+    cityButton8->setGeometry(285,340,radio_wth,radio_hth);
+    cityButton8->setText("Miami");
+
+
+    //NEED A FUNCTION THAT GENERATES THESE FROM AN INPUT FILE!
 
 }
 
