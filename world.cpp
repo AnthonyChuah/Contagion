@@ -294,7 +294,7 @@ void World::render_world_ascii()
   }
   std::cout << "\n";
   for (int k = 0; k < 4; k++) {
-    std::cout << "Disease " << k << " cubes:  " << disease_status[k] << "  ";
+    std::cout << "Disease " << k << " cubes:  " << disease_blocks[k] << "  ";
   }
   std::cout << "\n";
   std::cout << "Infection deck: " << infection_deck.size() << " cards. ";
@@ -302,12 +302,11 @@ void World::render_world_ascii()
   std::cout << "Player deck: " << player_deck.size() << " cards. ";
   std::cout << "Player discards: " << player_discard.size() << " cards.\n";
   std::cout << "Infection rate: " << calculate_infection_rate() << "\n";
-  std::cout << "Player turn: Player " << players_turn << " of " << num_players << " total players.\n";
+  std::cout << "Player turn: Player " << players_turn << " of " << num_players << " total players. ";
+  std::cout << "Moves left: " << heroes[players_turn].moves << "\n";
   for (int i = 0; i < num_players; i++) {
     std::cout << "HeroID " << i << " " << heroes[i].spec << ": " << heroes[i].ptr_city->name << "\n";
   }
-  // Enter code for requesting player input, then call handle_input() function.
-  // Empty for now.
 }
 
 bool World::victory()
@@ -345,7 +344,22 @@ void World::game_loop()
 
 bool World::handle_input(std::string _input)
 {
-  std::regex regex_viewcity("^display_city (.+)$");
+  std::regex regex_viewcity("^display_city (.+)$"); // display_city CITY_ID
+  std::regex regex_move("^move (.+)$"); // move CITY_ID
+  std::regex regex_charter("^charter_flight (.+)$"); // charter_flight CITY_ID
+  std::regex regex_direct("^direct_flight (.+)$"); // direct_flight CITY_ID
+  std::regex regex_shuttle("^shuttle_flight (.+)$"); // shuttle_flight CITY_ID
+  std::regex regex_disinfect("^disinfect (.+)$"); // disinfect DISEASE_ID
+  std::regex regex_givecard("^give_card (.+) (.+)$"); // give_card CITY_ID HERO_ID
+  std::regex regex_takecard("^take_card (.+) (.+)$"); // take_card CITY_ID HERO_ID
+  std::regex regex_cure("^cure (.+) (.+) (.+) (.+) (.+) (.+)$"); // cure DISEASE_ID CITY_ID CITY_ID CITY_ID CITY_ID CITY_ID
+  std::regex regex_event("^play_event_card (\\d{1}) (.+),(.+)$"); // ... HERO_ID EVENTNAME,ARGUMENTS
+  std::regex regex_cpget("^get_special_eventcard (.+)$"); // get_special_eventcard EVENT_NAME
+  std::regex regex_cpplay("^play_special_eventcard (.+)$"); // play_special_eventcard EVENT_NAME
+  std::regex regex_dispatchc("^dispatch_control (.+) (.+)$"); // dispatch_control HERO_ID FUNCTION:CITY_ID
+  std::regex regex_dispatchm("^dispatch_move (.+)$"); // dispatch_move HERO_ID HERO_ID(TO)
+  std::regex regex_opex("^opex_flight (.+) (.+)$"); // opex_flight CITY_ID(TO) CITY_ID(CARD)
+  std::regex regex_scientist("^scientist (.+) (.+) (.+) (.+) (.+)$"); // scientist DISEASE_ID CITY_ID CITY_ID CITY_ID CITY_ID
   std::smatch match_group;
   // Note: lots more inputs to be added.
   if (_input == "look") {
@@ -361,14 +375,166 @@ bool World::handle_input(std::string _input)
     }
   } else if (_input == "display_player_discard") {
     display_player_discard();
+    return false;
   } else if (_input == "display_infection_discard") {
     display_infection_discard();
+    return false;
   } else if (_input == "display_hands") {
     display_hands();
-  } else {
-    std::cout << "I do not recognize that command.\n";
     return false;
+  } else if (std::regex_match(_input, match_group, regex_move)) {
+    if (match_group.size() == 2) {
+      std::cout << "Regex for input handling detected command for Hero::move().\n";
+      std::ssub_match submatch_move = match_group[1];
+      int cid = std::stoi(submatch_move.str());
+      if (heroes[players_turn].move(cities[cid], NULL)) {
+	return true;
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_charter)) {
+    if (match_group.size() == 2) {
+      std::cout << "Regex for input handling detected command for Hero::charter_flight().\n";
+      std::ssub_match submatch_charter = match_group[1];
+      int cid = std::stoi(submatch_charter.str());
+      if (heroes[players_turn].charter_flight(cities[cid], NULL)) {
+	return true;
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_direct)) {
+    if (match_group.size() == 2) {
+      std::cout << "Regex for input handling detected command for Hero::direct_flight().\n";
+      std::ssub_match submatch_direct = match_group[1];
+      int cid = std::stoi(submatch_direct.str());
+      if (heroes[players_turn].direct_flight(cities[cid], NULL)) {
+	return true;
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_shuttle)) {
+    if (match_group.size() == 2) {
+      std::cout << "Regex for input handling detected command for Hero::shuttle_flight().\n";
+      std::ssub_match submatch_shuttle = match_group[1];
+      int cid = std::stoi(submatch_shuttle.str());
+      if (heroes[players_turn].direct_flight(cities[cid], NULL)) {
+	return true;
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_disinfect)) {
+    if (match_group.size() == 2) {
+      std::cout << "Regex for input handling detected command for Hero::disinfect().\n";
+      std::ssub_match submatch_disinfect = match_group[1];
+      int did = std::stoi(submatch_disinfect.str());
+      if (heroes[players_turn].disinfect(did)) {
+	return true;
+      }
+    }
+  } else if (_input == "build_centre") {
+    if (heroes[players_turn].build_centre(*heroes[players_turn].ptr_city)) {
+      return true;
+    }
+  } else if (std::regex_match(_input, match_group, regex_givecard)) {
+    if (match_group.size() == 3) {
+      std::cout << "Regex for input handling detected command for Hero::give_card().\n";
+      int cid = std::stoi(match_group[1].str());
+      int hid = std::stoi(match_group[2].str());
+      if (heroes[players_turn].give_card(cities[cid].name, heroes[hid])) {
+	return true;
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_takecard)) {
+    if (match_group.size() == 3) {
+      std::cout << "Regex for input handling detected command for Hero::take_card().\n";
+      int cid = std::stoi(match_group[1].str());
+      int hid = std::stoi(match_group[2].str());
+      if (heroes[players_turn].take_card(cities[cid].name, heroes[hid])) {
+	return true;
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_event)) {
+    if (match_group.size() == 4) {
+      std::cout << "Regex for input handling detected command for World::play_event_card().\n";
+      int hid = std::stoi(match_group[1].str());
+      return (play_event_card(heroes[hid], match_group[2].str(), match_group[3].str()));
+    }
+  } else if (std::regex_match(_input, match_group, regex_cure)) {
+    if (match_group.size() == 7) {
+      std::cout << "Regex for input handling detected command for Hero::cure().\n";
+      int did = std::stoi(match_group[1].str());
+      int cid0 = std::stoi(match_group[2].str());
+      int cid1 = std::stoi(match_group[3].str());
+      int cid2 = std::stoi(match_group[4].str());
+      int cid3 = std::stoi(match_group[5].str());
+      int cid4 = std::stoi(match_group[6].str());
+      return (heroes[players_turn].cure(did, cities[cid0].name, cities[cid1].name,
+					cities[cid2].name, cities[cid3].name, cities[cid4].name));
+    }
+  } else if (std::regex_match(_input, match_group, regex_cpget)) {
+    if (match_group.size() == 2) {
+      std::cout << "Regex for input handling detected command for ContPlanner::get_special_eventcard().\n";
+      if (heroes[players_turn].spec == "Contingency Planner") {
+	return heroes[players_turn].get_special_eventcard(match_group[2].str());
+      } else {
+	std::cout << "Only the Contingency Planner can do this.\n";
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_cpplay)) {
+    if (match_group.size() == 2) {
+      std::cout << "Regex for input handling detected command for ContPlanner::play_special_eventcard().\n";
+      if (heroes[players_turn].spec == "Contingency Planner") {
+	return heroes[players_turn].play_special_eventcard(match_group[2].str());
+      } else {
+	std::cout << "Only the Contingency Planner can do this.\n";
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_dispatchc)) {
+    if (match_group.size() == 3) {
+      std::cout << "Regex for input handling detected command for Dispatcher::dispatch_control().\n";
+      if (heroes[players_turn].spec == "Dispatcher") {
+	int hid = std::stoi(match_group[1].str());
+	return heroes[players_turn].dispatch_control(hid, match_group[2].str());
+      } else {
+	std::cout << "Only the Dispatcher can do this.\n";
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_dispatchm)) {
+    if (match_group.size() == 3) {
+      std::cout << "Regex for input handling detected command for Dispatcher::dispatch_move().\n";
+      if (heroes[players_turn].spec == "Dispatcher") {
+	int hidfrom = std::stoi(match_group[1].str());
+	int hidto = std::stoi(match_group[2].str());
+	return heroes[players_turn].dispatch_move(hidfrom, hidto);
+      } else {
+	std::cout << "Only the Dispatcher can do this.\n";
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_opex)) {
+    if (match_group.size() == 3) {
+      std::cout << "Regex for input handling detected command for OpExpert::opex_flight().\n";
+      if (heroes[players_turn].spec == "Operations Expert") {
+	int cidto = std::stoi(match_group[1].str());
+	int cardcid = std::stoi(match_group[2].str());
+	return heroes[players_turn].opex_flight(cities[cidto], cities[cardcid].name);
+      } else {
+	std::cout << "Only the Operations Expert can do this.\n";
+      }
+    }
+  } else if (std::regex_match(_input, match_group, regex_scientist)) {
+    if (match_group.size() == 6) {
+      std::cout << "Regex for input handling detected command for Scientist::cure().\n";
+      if (heroes[players_turn].spec == "Scientist") {
+	int did = std::stoi(match_group[1].str());
+	int cid0 = std::stoi(match_group[2].str());
+	int cid1 = std::stoi(match_group[3].str());
+	int cid2 = std::stoi(match_group[4].str());
+	int cid3 = std::stoi(match_group[5].str());
+	return (heroes[players_turn].scientist_cure(did, cities[cid0].name, cities[cid1].name,
+					  cities[cid2].name, cities[cid3].name));
+      } else {
+	std::cout << "Only the Scientist can do this.\n";
+      }
+    }
   }
+  std::cout << "I do not recognize that command.\n";
+  return false;
 }
 
 void World::next_player_turn()
@@ -433,7 +599,7 @@ void World::display_hands()
     std::cout << "Player " << i << " " << heroes[i].spec << ": ";
     int ncards = heroes[i].hand.size();
     for (int j = 0; j < ncards; j++) {
-      if (heroes[i].hand[j].is_event)
+      if (heroes[i].hand[j].event)
 	std::cout << "EVENT ";
       std::cout << heroes[i].hand[j].name << " ";
     }
@@ -472,6 +638,7 @@ void World::draw_infection_deck()
 
 void World::draw_player_deck(Hero& hero)
 {
+  std::cout << "Calling World::draw_player_deck().\n";
   for (int i = 0; i < 2; i++)
     {
       if (player_deck.empty()) death("Lost game because you ran out of player cards to draw!\n");
@@ -635,16 +802,23 @@ bool World::event_grant(std::string _arguments)
 
 void World::event_forecast()
 {
+  std::cout << "Calling World::event_forecast().\n";
   // Plan: make a GUI class that has an association link to World class. World will soon contain a pointer to GUI.
   std::vector<ICard> to_display;
   int decksize = std::min(static_cast<int>(infection_deck.size()), 6);
   for (int i = 0; i < decksize; i++)
     to_display.push_back(infection_deck[infection_deck.size()-decksize+i]);
   // Above code concisely expresses the different treatment if the deck contained less than 6 cards.
-
-  display_deck(to_display); // This might stream data to the GUI once we build the GUI.
+  for (int i = 0; i < decksize; i++) {
+    std::cout << i << ": " << to_display[i].name << "\n";
+  }
+  std::cout << "Please enter the rearrangement mapping you desire.\n";
   std::vector<int> rearrange_mapping;
-  // intarray_input(rearrange_mapping, decksize); // e.g. 0 1 2 3 4 5 would be the original arrangement.
+  int value;
+  for (int i = 0; i < decksize; i++) {
+    std::cin >> value;
+    rearrange_mapping.push_back(value);
+  }
   // Using the arrangement given by players, make an arranged sub-deck.
   std::vector<ICard> arranged_subdeck = to_display; // vector<Template> overloads assignment. ICard MUST have too!
   for (int i = 0; i < decksize; i++)

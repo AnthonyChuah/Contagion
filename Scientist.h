@@ -13,7 +13,7 @@ class Scientist : public Hero
 public:
   Scientist();
   Scientist(City* _ptr_city, World* _ptr_world, int _hid, std::string _spec);
-  bool cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four);
+  bool scientist_cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four);
 };
 
 #endif

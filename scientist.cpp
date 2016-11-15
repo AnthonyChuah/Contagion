@@ -12,8 +12,9 @@ Scientist::Scientist(City* _ptr_city, World* _ptr_world, int _hid, std::string _
   Hero(_ptr_city, _ptr_world, _hid, _spec)
 {}
 
-bool Scientist::cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four)
+bool Scientist::scientist_cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four)
 {
+  std::cout << "Calling Scientist::cure() on disease ID " << _did << ".\n";
   std::vector<PCard>::iterator it;
   int count_matches = 0;
   for (it = hand.begin(); it != hand.end(); it++)
@@ -40,7 +41,7 @@ bool Scientist::cure(int _did, std::string _one, std::string _two, std::string _
   }
   else
     {
-      std::cout << "Not all 5 cards matching the disease colour for the cure are in the hero's hand.\n";
+      std::cout << "Not all 4 cards matching the disease colour for the scientist-cure are in the hero's hand.\n";
       return false;
     }
 }
