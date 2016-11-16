@@ -34,6 +34,14 @@ World::World(int _epidemics)
   num_epidemics = _epidemics;
 }
 
+World::~World()
+{
+  for (std::vector<Hero*>::iterator it = heroes.begin(); it != heroes.end(); it++) {
+    delete *it;
+  }
+  // Everything else can be handled by the default destructor as it goes out of scope.
+}
+
 void World::load_city_data(std::string _filename)
 {
   std::ifstream ins;
@@ -89,7 +97,7 @@ void World::load_city_data(std::string _filename)
   }
   ins.close();
   std::cout << "City reading complete: please use GDB to inspect the 3 vectors and make sure they're correct.\n";
-  // Remember to inspect the vectors.
+  // Verified that it works.
 }
 
 void World::load_eventcards_data(std::string _filename)
@@ -102,7 +110,6 @@ void World::load_eventcards_data(std::string _filename)
   }
   std::string rowdata;
   while (ins.good()) {
-    std::cout << "DEBUG: reading event row data.\n";
     std::getline(ins, rowdata);
     // rowdata should simply be the event name, unless it read a blank row (end of file).
     if (rowdata.empty()) continue;
@@ -111,8 +118,7 @@ void World::load_eventcards_data(std::string _filename)
     player_deck.push_back(a_pcard);
   }
   ins.close();
-  std::cout << "Event card reading complete: please use debugger to inspect.\n";
-  // Remember to inspect the vector.
+  // Verified that it works.
 }
 
 void World::load_hero_data(std::string _filename)
@@ -142,7 +148,8 @@ void World::load_hero_data(std::string _filename)
 	std::cout << "You cannot have multiple Contingency Planners in the game.\n";
 	exit(1);
       }
-      ContPlanner a_hero(ptr_atlanta,this,hid,hero_spec);
+      ContPlanner* a_hero;
+      a_hero = new ContPlanner(ptr_atlanta,this,hid,hero_spec);
       contplanner = true;
       heroes.push_back(a_hero);
     } else if (hero_spec == "Dispatcher") {
@@ -150,14 +157,16 @@ void World::load_hero_data(std::string _filename)
 	std::cout << "You cannot have multiple Dispatchers in the game.\n";
 	exit(1);
       }
-      Dispatcher a_hero(ptr_atlanta,this,hid,hero_spec);
+      Dispatcher* a_hero;
+      a_hero = new Dispatcher(ptr_atlanta,this,hid,hero_spec);
       heroes.push_back(a_hero);
     } else if (hero_spec == "Medic") {
       if (medic) {
 	std::cout << "You cannot have multiple Medics in the game.\n";
 	exit(1);
       }
-      Medic a_hero(ptr_atlanta,this,hid,hero_spec);
+      Medic* a_hero;
+      a_hero = new Medic(ptr_atlanta,this,hid,hero_spec);
       medic = true;
       heroes.push_back(a_hero);
     } else if (hero_spec == "Operations Expert") {
@@ -165,7 +174,8 @@ void World::load_hero_data(std::string _filename)
 	std::cout << "You cannot have multiple Operations Experts in the game.\n";
 	exit(1);
       }
-      OpExpert a_hero(ptr_atlanta,this,hid,hero_spec);
+      OpExpert* a_hero;
+      a_hero = new OpExpert(ptr_atlanta,this,hid,hero_spec);
       opexpert = true;
       heroes.push_back(a_hero);
     } else if (hero_spec == "Quarantine Specialist") {
@@ -173,7 +183,8 @@ void World::load_hero_data(std::string _filename)
 	std::cout << "You cannot have multiple Quarantine Specialists in the game.\n";
 	exit(1);
       }
-      QSpecialist a_hero(ptr_atlanta,this,hid,hero_spec);
+      QSpecialist* a_hero;
+      a_hero = new QSpecialist(ptr_atlanta,this,hid,hero_spec);
       qspecialist = true;
       heroes.push_back(a_hero);
     } else if (hero_spec == "Researcher") {
@@ -181,7 +192,8 @@ void World::load_hero_data(std::string _filename)
 	std::cout << "You cannot have multiple Researchers in the game.\n";
 	exit(1);
       }
-      Researcher a_hero(ptr_atlanta,this,hid,hero_spec);
+      Researcher* a_hero;
+      a_hero = new Researcher(ptr_atlanta,this,hid,hero_spec);
       researcher = true;
       heroes.push_back(a_hero);
     } else if (hero_spec == "Scientist") {
@@ -189,7 +201,8 @@ void World::load_hero_data(std::string _filename)
 	std::cout << "You cannot have multiple Scientists in the game.\n";
 	exit(1);
       }
-      Scientist a_hero(ptr_atlanta,this,hid,hero_spec);
+      Scientist* a_hero;
+      a_hero = new Scientist(ptr_atlanta,this,hid,hero_spec);
       scientist = true;
       heroes.push_back(a_hero);
     } else {
@@ -197,11 +210,9 @@ void World::load_hero_data(std::string _filename)
       exit(1);
     }
     cities[0].heroes.push_back(hid);
-    // Hero a_hero = Hero(ptr_atlanta,this,hero_spec);
     hid++;
   }
   ins.close();
-  std::cout << "Heroes reading complete: please use debugger to inspect.\n";
 }
 
 void World::setup()
@@ -219,19 +230,44 @@ void World::setup()
   // Note: do not use draw_player_deck because that will perform 2 draws and discard cards above 7.
   for (int i = 0; i < num_players; i++)
     for (int j = 0; j < starting_hand; j++) {
-      heroes[i].hand.push_back(player_deck.back());
+      heroes[i]->hand.push_back(player_deck.back());
       player_deck.pop_back();
     }
+  int num_pcards = player_deck.size();
+  std::cout << "num_pcards " << num_pcards << " and size of player_deck " << player_deck.size() << "\n";
+  std::vector<PCard> temp_deck;
+  for (int i = 0; i < num_pcards; i++)
+    temp_deck.push_back(player_deck[i]);
   // Now the players' cards are dealt. Add epidemic cards to player_deck and shuffle again.
   for (int i = 0; i < num_epidemics; i++) {
     std::string epidemic("Epidemic");
     PCard an_epidemic(epidemic,-1,-1,false,true);
     player_deck.push_back(an_epidemic);
   }
-  std::random_shuffle(player_deck.begin(),player_deck.end());
-  // NOTE: this algorithm can lead to concentrations of epidemics, which is not good.
-  // TO UPDATE: follow the rules and split into N piles and insert the N epidemics into each and shuffle each,
-  // then put them back together.
+  for (int i = 0; i < num_epidemics; i++) {
+    std::vector<PCard> temp_subdeck;
+    int subdeck_size_pre_insert;
+    if (i == (num_epidemics - 1)) {
+      subdeck_size_pre_insert = num_pcards / num_epidemics + (num_pcards % num_epidemics);
+    } else {
+      subdeck_size_pre_insert = num_pcards / num_epidemics;
+    }
+    int subdeck_size_post_insert = subdeck_size_pre_insert + 1;
+    int lower = i * (num_pcards / num_epidemics);
+    int upper = i * (num_pcards / num_epidemics) + subdeck_size_pre_insert;
+    for (int j = lower; j < upper; j++) {
+      temp_subdeck.push_back(temp_deck[j]);
+    }
+    std::string epidemic("Epidemic");
+    PCard an_epidemic(epidemic, -1, -1, false, true);
+    temp_subdeck.push_back(an_epidemic);
+    std::random_shuffle(temp_subdeck.begin(), temp_subdeck.end()); // Shuffles this subdeck.
+    int lower_post = lower + i;
+    int upper_post = lower_post + subdeck_size_post_insert;
+    for (int k = 0, n = k + lower_post; k < temp_subdeck.size(); k++, n++) {
+      player_deck[n] = temp_subdeck[k]; // Copies the subdeck to the corresponding portion of player_deck.
+    }
+  } // Now the deck should be shuffled by N different sections with an epidemic in each section.
   // Now shuffle the infection deck and begin infecting cities.
   std::random_shuffle(infection_deck.begin(),infection_deck.end());
   // First 3 cities get 3 cubes each. Next 3 get 2, next 3 get 1.
@@ -246,7 +282,14 @@ void World::setup()
       }
   // Now determine whose turn it is. Technically the rules require it's player with highest pop city in hand.
   players_turn = 0;
-  heroes[players_turn].start_turn(); // Set this player's moves to 4.
+  heroes[players_turn]->start_turn(); // Set this player's moves to 4.
+  // For debugging:
+  // for (int i = 0; i < player_deck.size(); i++)
+  //   std::cout << player_deck[i].name << "  ";
+  // std::cout << "\n";
+  // for (int i = 0; i < infection_deck.size(); i++)
+  //   std::cout << infection_deck[i].name << "  ";
+  // std::cout << "\n";
 }
 
 void World::render_world_ascii()
@@ -294,7 +337,7 @@ void World::render_world_ascii()
   }
   std::cout << "\n";
   for (int k = 0; k < 4; k++) {
-    std::cout << "Disease " << k << " cubes:  " << disease_blocks[k] << "  ";
+    std::cout << "Disease " << k << " cubes: " << disease_blocks[k] << "  ";
   }
   std::cout << "\n";
   std::cout << "Infection deck: " << infection_deck.size() << " cards. ";
@@ -303,10 +346,11 @@ void World::render_world_ascii()
   std::cout << "Player discards: " << player_discard.size() << " cards.\n";
   std::cout << "Infection rate: " << calculate_infection_rate() << "\n";
   std::cout << "Player turn: Player " << players_turn << " of " << num_players << " total players. ";
-  std::cout << "Moves left: " << heroes[players_turn].moves << "\n";
+  std::cout << "Moves left: " << heroes[players_turn]->moves << "\n";
   for (int i = 0; i < num_players; i++) {
-    std::cout << "HeroID " << i << " " << heroes[i].spec << ": " << heroes[i].ptr_city->name << "\n";
+    std::cout << "HeroID " << i << " " << heroes[i]->spec << ": " << heroes[i]->ptr_city->name << "  ";
   }
+  std::cout << "\n";
 }
 
 bool World::victory()
@@ -323,7 +367,7 @@ void World::game_loop()
 {
   std::string input;
   while (!victory()) {
-    while (heroes[players_turn].moves > 0) {
+    while (heroes[players_turn]->moves > 0) {
       bool made_move = false;
       while (!made_move) {
 	// Parse player input here. Once parsed with regex, go to the move-decrementing and turn-handling section.
@@ -336,7 +380,7 @@ void World::game_loop()
       render_world_ascii(); // Render the world again in text for the player to see.
     }
     // Now the hero in question has finished its turn. Draw player cards and then infect cities.
-    draw_player_deck(heroes[players_turn]);
+    draw_player_deck(*heroes[players_turn]);
     draw_infection_deck();
     next_player_turn();
   }
@@ -357,7 +401,7 @@ bool World::handle_input(std::string _input)
   std::regex regex_cpget("^get_special_eventcard (.+)$"); // get_special_eventcard EVENT_NAME
   std::regex regex_cpplay("^play_special_eventcard (.+)$"); // play_special_eventcard EVENT_NAME
   std::regex regex_dispatchc("^dispatch_control (.+) (.+)$"); // dispatch_control HERO_ID FUNCTION:CITY_ID
-  std::regex regex_dispatchm("^dispatch_move (.+)$"); // dispatch_move HERO_ID HERO_ID(TO)
+  std::regex regex_dispatchm("^dispatch_move (.+) (.+)$"); // dispatch_move HERO_ID HERO_ID(TO)
   std::regex regex_opex("^opex_flight (.+) (.+)$"); // opex_flight CITY_ID(TO) CITY_ID(CARD)
   std::regex regex_scientist("^scientist (.+) (.+) (.+) (.+) (.+)$"); // scientist DISEASE_ID CITY_ID CITY_ID CITY_ID CITY_ID
   std::smatch match_group;
@@ -387,7 +431,7 @@ bool World::handle_input(std::string _input)
       std::cout << "Regex for input handling detected command for Hero::move().\n";
       std::ssub_match submatch_move = match_group[1];
       int cid = std::stoi(submatch_move.str());
-      if (heroes[players_turn].move(cities[cid], NULL)) {
+      if (heroes[players_turn]->move(cities[cid], NULL)) {
 	return true;
       }
     }
@@ -396,7 +440,7 @@ bool World::handle_input(std::string _input)
       std::cout << "Regex for input handling detected command for Hero::charter_flight().\n";
       std::ssub_match submatch_charter = match_group[1];
       int cid = std::stoi(submatch_charter.str());
-      if (heroes[players_turn].charter_flight(cities[cid], NULL)) {
+      if (heroes[players_turn]->charter_flight(cities[cid], NULL)) {
 	return true;
       }
     }
@@ -405,7 +449,7 @@ bool World::handle_input(std::string _input)
       std::cout << "Regex for input handling detected command for Hero::direct_flight().\n";
       std::ssub_match submatch_direct = match_group[1];
       int cid = std::stoi(submatch_direct.str());
-      if (heroes[players_turn].direct_flight(cities[cid], NULL)) {
+      if (heroes[players_turn]->direct_flight(cities[cid], NULL)) {
 	return true;
       }
     }
@@ -414,7 +458,7 @@ bool World::handle_input(std::string _input)
       std::cout << "Regex for input handling detected command for Hero::shuttle_flight().\n";
       std::ssub_match submatch_shuttle = match_group[1];
       int cid = std::stoi(submatch_shuttle.str());
-      if (heroes[players_turn].direct_flight(cities[cid], NULL)) {
+      if (heroes[players_turn]->shuttle_flight(cities[cid], NULL)) {
 	return true;
       }
     }
@@ -423,12 +467,12 @@ bool World::handle_input(std::string _input)
       std::cout << "Regex for input handling detected command for Hero::disinfect().\n";
       std::ssub_match submatch_disinfect = match_group[1];
       int did = std::stoi(submatch_disinfect.str());
-      if (heroes[players_turn].disinfect(did)) {
+      if (heroes[players_turn]->disinfect(did)) {
 	return true;
       }
     }
   } else if (_input == "build_centre") {
-    if (heroes[players_turn].build_centre(*heroes[players_turn].ptr_city)) {
+    if (heroes[players_turn]->build_centre(*heroes[players_turn]->ptr_city)) {
       return true;
     }
   } else if (std::regex_match(_input, match_group, regex_givecard)) {
@@ -436,7 +480,7 @@ bool World::handle_input(std::string _input)
       std::cout << "Regex for input handling detected command for Hero::give_card().\n";
       int cid = std::stoi(match_group[1].str());
       int hid = std::stoi(match_group[2].str());
-      if (heroes[players_turn].give_card(cities[cid].name, heroes[hid])) {
+      if (heroes[players_turn]->give_card(cities[cid].name, *heroes[hid])) {
 	return true;
       }
     }
@@ -445,7 +489,7 @@ bool World::handle_input(std::string _input)
       std::cout << "Regex for input handling detected command for Hero::take_card().\n";
       int cid = std::stoi(match_group[1].str());
       int hid = std::stoi(match_group[2].str());
-      if (heroes[players_turn].take_card(cities[cid].name, heroes[hid])) {
+      if (heroes[players_turn]->take_card(cities[cid].name, *heroes[hid])) {
 	return true;
       }
     }
@@ -453,7 +497,7 @@ bool World::handle_input(std::string _input)
     if (match_group.size() == 4) {
       std::cout << "Regex for input handling detected command for World::play_event_card().\n";
       int hid = std::stoi(match_group[1].str());
-      return (play_event_card(heroes[hid], match_group[2].str(), match_group[3].str()));
+      return (play_event_card(*heroes[hid], match_group[2].str(), match_group[3].str()));
     }
   } else if (std::regex_match(_input, match_group, regex_cure)) {
     if (match_group.size() == 7) {
@@ -464,14 +508,14 @@ bool World::handle_input(std::string _input)
       int cid2 = std::stoi(match_group[4].str());
       int cid3 = std::stoi(match_group[5].str());
       int cid4 = std::stoi(match_group[6].str());
-      return (heroes[players_turn].cure(did, cities[cid0].name, cities[cid1].name,
+      return (heroes[players_turn]->cure(did, cities[cid0].name, cities[cid1].name,
 					cities[cid2].name, cities[cid3].name, cities[cid4].name));
     }
   } else if (std::regex_match(_input, match_group, regex_cpget)) {
     if (match_group.size() == 2) {
       std::cout << "Regex for input handling detected command for ContPlanner::get_special_eventcard().\n";
-      if (heroes[players_turn].spec == "Contingency Planner") {
-	return heroes[players_turn].get_special_eventcard(match_group[2].str());
+      if (heroes[players_turn]->spec == "Contingency Planner") {
+	return heroes[players_turn]->get_special_eventcard(match_group[2].str());
       } else {
 	std::cout << "Only the Contingency Planner can do this.\n";
       }
@@ -479,8 +523,8 @@ bool World::handle_input(std::string _input)
   } else if (std::regex_match(_input, match_group, regex_cpplay)) {
     if (match_group.size() == 2) {
       std::cout << "Regex for input handling detected command for ContPlanner::play_special_eventcard().\n";
-      if (heroes[players_turn].spec == "Contingency Planner") {
-	return heroes[players_turn].play_special_eventcard(match_group[2].str());
+      if (heroes[players_turn]->spec == "Contingency Planner") {
+	return heroes[players_turn]->play_special_eventcard(match_group[2].str());
       } else {
 	std::cout << "Only the Contingency Planner can do this.\n";
       }
@@ -488,9 +532,9 @@ bool World::handle_input(std::string _input)
   } else if (std::regex_match(_input, match_group, regex_dispatchc)) {
     if (match_group.size() == 3) {
       std::cout << "Regex for input handling detected command for Dispatcher::dispatch_control().\n";
-      if (heroes[players_turn].spec == "Dispatcher") {
+      if (heroes[players_turn]->spec == "Dispatcher") {
 	int hid = std::stoi(match_group[1].str());
-	return heroes[players_turn].dispatch_control(hid, match_group[2].str());
+	return heroes[players_turn]->dispatch_control(hid, match_group[2].str());
       } else {
 	std::cout << "Only the Dispatcher can do this.\n";
       }
@@ -498,10 +542,10 @@ bool World::handle_input(std::string _input)
   } else if (std::regex_match(_input, match_group, regex_dispatchm)) {
     if (match_group.size() == 3) {
       std::cout << "Regex for input handling detected command for Dispatcher::dispatch_move().\n";
-      if (heroes[players_turn].spec == "Dispatcher") {
+      if (heroes[players_turn]->spec == "Dispatcher") {
 	int hidfrom = std::stoi(match_group[1].str());
 	int hidto = std::stoi(match_group[2].str());
-	return heroes[players_turn].dispatch_move(hidfrom, hidto);
+	return heroes[players_turn]->dispatch_move(hidfrom, hidto);
       } else {
 	std::cout << "Only the Dispatcher can do this.\n";
       }
@@ -509,10 +553,10 @@ bool World::handle_input(std::string _input)
   } else if (std::regex_match(_input, match_group, regex_opex)) {
     if (match_group.size() == 3) {
       std::cout << "Regex for input handling detected command for OpExpert::opex_flight().\n";
-      if (heroes[players_turn].spec == "Operations Expert") {
+      if (heroes[players_turn]->spec == "Operations Expert") {
 	int cidto = std::stoi(match_group[1].str());
 	int cardcid = std::stoi(match_group[2].str());
-	return heroes[players_turn].opex_flight(cities[cidto], cities[cardcid].name);
+	return heroes[players_turn]->opex_flight(cities[cidto], cities[cardcid].name);
       } else {
 	std::cout << "Only the Operations Expert can do this.\n";
       }
@@ -520,13 +564,13 @@ bool World::handle_input(std::string _input)
   } else if (std::regex_match(_input, match_group, regex_scientist)) {
     if (match_group.size() == 6) {
       std::cout << "Regex for input handling detected command for Scientist::cure().\n";
-      if (heroes[players_turn].spec == "Scientist") {
+      if (heroes[players_turn]->spec == "Scientist") {
 	int did = std::stoi(match_group[1].str());
 	int cid0 = std::stoi(match_group[2].str());
 	int cid1 = std::stoi(match_group[3].str());
 	int cid2 = std::stoi(match_group[4].str());
 	int cid3 = std::stoi(match_group[5].str());
-	return (heroes[players_turn].scientist_cure(did, cities[cid0].name, cities[cid1].name,
+	return (heroes[players_turn]->scientist_cure(did, cities[cid0].name, cities[cid1].name,
 					  cities[cid2].name, cities[cid3].name));
       } else {
 	std::cout << "Only the Scientist can do this.\n";
@@ -545,7 +589,7 @@ void World::next_player_turn()
     players_turn = 0;
   }
   std::cout << players_turn << ".\n";
-  heroes[players_turn].start_turn();
+  heroes[players_turn]->start_turn();
 }
 
 void World::display_city(int _cid)
@@ -596,12 +640,12 @@ void World::display_hands()
 {
   std::cout << "Calling World::display_hands().\n";
   for (int i = 0; i < num_players; i++) {
-    std::cout << "Player " << i << " " << heroes[i].spec << ": ";
-    int ncards = heroes[i].hand.size();
+    std::cout << "Player " << i << " " << heroes[i]->spec << ": ";
+    int ncards = heroes[i]->hand.size();
     for (int j = 0; j < ncards; j++) {
-      if (heroes[i].hand[j].event)
+      if (heroes[i]->hand[j].event)
 	std::cout << "EVENT ";
-      std::cout << heroes[i].hand[j].name << " ";
+      std::cout << heroes[i]->hand[j].name << " ";
     }
     std::cout << "\n";
   }
@@ -614,6 +658,7 @@ void World::render_world_gui()
 
 void World::draw_infection_deck()
 {
+  std::cout << "Calling World::draw_infection_deck().\n";
   // If One Quiet Night event card has been played, do nothing and set skip_next_infect_cities back to false.
   if (skip_next_infect_cities)
     {
@@ -623,20 +668,21 @@ void World::draw_infection_deck()
     }
   else
     {
-      std::cout << "Commencing the infect cities process.\n";
       // Pop off the front or back of the infection deck. Read city ID. Call the infection function accordingly.
       for (int i = 0; i < calculate_infection_rate(); i++)
 	{
 	  ICard chosen_card = infection_deck.back();
+	  std::cout << chosen_card.name << " ";
 	  infection_deck.pop_back();
 	  int cid_to_infect = chosen_card.city_id;
 	  cities[cid_to_infect].infect(cities[cid_to_infect].get_disease_id(), 1);
 	  infection_discard.push_back(chosen_card);
 	}
+      std::cout << "\n";
     }
 }
 
-void World::draw_player_deck(Hero& hero)
+void World::draw_player_deck(Hero& _hero)
 {
   std::cout << "Calling World::draw_player_deck().\n";
   for (int i = 0; i < 2; i++)
@@ -644,7 +690,14 @@ void World::draw_player_deck(Hero& hero)
       if (player_deck.empty()) death("Lost game because you ran out of player cards to draw!\n");
       PCard chosen_card = player_deck.back();
       player_deck.pop_back();
-      std::cout << "Player " << players_turn << " has drawn card: " << chosen_card.name << "\n";
+      if (chosen_card.epidemic) {
+	std::cout << "Player has drawn an EPIDEMIC!\n";
+	epidemic();
+	continue;
+      } else {
+	_hero.hand.push_back(chosen_card);
+	std::cout << "Player " << players_turn << " has drawn card: " << chosen_card.name << "\n";
+      }
     }
 }
 
@@ -660,11 +713,19 @@ void World::epidemic()
   std::cout << "Epidemic!\n";
   infection_rate_base++;
   int infection_rate = calculate_infection_rate();
+  std::cout << "The infection rate is now: " << infection_rate << ".\n";
   int cid_target = infection_deck.front().city_id;
+  std::cout << "The unlucky city to suffer the epidemic is " << cid_target << " " << infection_deck.front().name
+	    << ".\n";
   infection_discard.push_back(infection_deck.front());
+  std::cout << "This card has been added to the infection discard pile and then the pile is shuffled.\n";
   infection_deck.pop_front();
   cities[cid_target].infect(cities[cid_target].get_disease_id(), 3);
   std::random_shuffle(infection_discard.begin(), infection_discard.end());
+  for (int i = 0; i < infection_discard.size(); i++) {
+    std::cout << infection_discard[i].name << "  ";
+  }
+  std::cout << "\n";
   while (infection_discard.size() > 0)
     {
       infection_deck.push_back(infection_discard.back());
@@ -862,9 +923,9 @@ void World::event_airlift(std::string _arguments)
   int hid = std::stoi(elems[0]);
   int cid = std::stoi(elems[1]);
   // Get the present hero's city to pop the hero ID from City::vector<int> heroes.
-  cities[heroes[hid].ptr_city->city_id].depart_hero(hid);
+  cities[heroes[hid]->ptr_city->city_id].depart_hero(hid);
   // Get the hero (by id) to change its City* pointer to the new city.
-  heroes[hid].ptr_city = &cities[cid];
+  heroes[hid]->ptr_city = &cities[cid];
   // Get the hero's new city to push the hero ID to City::vector<int> heroes.
   cities[cid].arrive_hero(hid);
 }

@@ -38,25 +38,25 @@ bool Dispatcher::dispatch_control(int _hid, std::string _arguments)
     return false;
   } else {
     if (function_name == "move") {
-      if (ptr_world->heroes[_hid].move(ptr_world->cities[city_to], this)) {
+      if (ptr_world->heroes[_hid]->move(ptr_world->cities[city_to], this)) {
 	moves--;
 	return true;
       } else
 	return false;
     } else if (function_name == "charter_flight") {
-      if (ptr_world->heroes[_hid].charter_flight(ptr_world->cities[city_to], this)) {
+      if (ptr_world->heroes[_hid]->charter_flight(ptr_world->cities[city_to], this)) {
 	moves--;
 	return true;
       } else
 	return false;
     } else if (function_name == "direct_flight") {
-      if (ptr_world->heroes[_hid].direct_flight(ptr_world->cities[city_to], this)) {
+      if (ptr_world->heroes[_hid]->direct_flight(ptr_world->cities[city_to], this)) {
 	moves--;
 	return true;
       } else
 	return false;
     } else if (function_name == "shuttle_flight") {
-      if (ptr_world->heroes[_hid].shuttle_flight(ptr_world->cities[city_to], this)) {
+      if (ptr_world->heroes[_hid]->shuttle_flight(ptr_world->cities[city_to], this)) {
 	moves--;
 	return true;
       } else
@@ -79,11 +79,11 @@ bool Dispatcher::dispatch_move(int _hidfrom, int _hidto)
     return false;
   }
   // Find the hero who you are moving, grab its city, and remove that hero from its city.
-  ptr_world->heroes[_hidfrom].ptr_city->depart_hero(_hidfrom);
+  ptr_world->heroes[_hidfrom]->ptr_city->depart_hero(_hidfrom);
   // For the hero you are moving, re-point its city pointer to the new city.
-  ptr_world->heroes[_hidfrom].ptr_city = ptr_world->heroes[_hidto].ptr_city;
+  ptr_world->heroes[_hidfrom]->ptr_city = ptr_world->heroes[_hidto]->ptr_city;
   // Find the hero to whom you are moving, grab its city, and add the moved hero to that city.
-  ptr_world->heroes[_hidto].ptr_city->arrive_hero(_hidfrom);
+  ptr_world->heroes[_hidto]->ptr_city->arrive_hero(_hidfrom);
   moves--;
   return true;
 }
