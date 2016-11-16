@@ -19,4 +19,3 @@ Test for run-time errors:
 g++ -g -std=c++11 icard.cpp pcard.cpp world.cpp city.cpp hero.cpp contplanner.cpp dispatcher.cpp medic.cpp opexpert.cpp qspecialist.cpp researcher.cpp scientist.cpp test.cpp -o test
 
 test.exe
-

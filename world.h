@@ -50,6 +50,7 @@ class World
 public:
   World();
   World(int _epidemics);
+  ~World();
   void load_city_data(std::string _filename); // Loads the initial city data from a data file.
   // Note: Atlanta should be the first city in the list, and Atlanta must start with a research centre.
   // Note: infection card data is drawn from the city data file.
@@ -78,7 +79,7 @@ public:
   void display_hands(); // Displays all players' hands.
   void render_world_gui(); // Renders the world graphically.
   bool handle_input(std::string _input);
-  std::vector<Hero> heroes; // Vector containing objects of class Hero, generated at the start of the game.
+  std::vector<Hero*> heroes; // Vector containing pointers of class Hero, generated at the start of the game.
   std::deque<ICard> infection_deck; // Vector containing cards, populated at the start of the game.
   std::vector<ICard> infection_discard; // Vector containing the infection discard pile, initially empty.
   std::vector<PCard> player_deck; // Vector containing the player cards, populated at the start of the game.

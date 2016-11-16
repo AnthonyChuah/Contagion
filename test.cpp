@@ -32,10 +32,6 @@ int main()
   std::cin >> number_of_epidemics;
   World new_world(number_of_epidemics);
   std::cout << "I have just called the Constructor with " << number_of_epidemics << " epidemics.\n";
-  new_world.render_world_ascii();
-  std::cout << "Happy with what you see? Enter anything to continue:\n";
-  char dummy;
-  std::cin >> dummy;
 
   std::cout << "Now I will load the city data into the World.\n";
   new_world.load_city_data("cities.dat");
