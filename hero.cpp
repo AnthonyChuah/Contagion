@@ -50,6 +50,7 @@ bool Hero::charter_flight(City& _to, Hero* _user)
       ptr_city->depart_hero(hero_id);
       ptr_city = &_to;
       ptr_city->arrive_hero(hero_id);
+      ptr_world->player_discard.push_back(*it);
       _user->hand.erase(it);
       // If Medic and the disease is cured, the arrive_hero function in City will auto-disinfect blocks of that disease.
       _user->moves--;
@@ -71,6 +72,7 @@ bool Hero::direct_flight(City& _to, Hero* _user)
       ptr_city->depart_hero(hero_id); // First remove hero_id from the city's heroes.
       ptr_city = &_to; // Point hero's ptr_city to the new city.
       ptr_city->arrive_hero(hero_id); // Now add hero_id to the new city's heroes.
+      ptr_world->player_discard.push_back(*it);
       _user->hand.erase(it);
       // ADD EXCEPTION: if hero is a Medic, and if a disease is cured, remove all of that disease from destination.
       _user->moves--;
@@ -122,19 +124,26 @@ bool Hero::move(City& _to, Hero* _user)
 
 bool Hero::disinfect(int _did)
 {
+  if (_did < 0 || _did >= 4) {
+    std::cout << "You cannot disinfect a disease ID that is not between 0 to 3 inclusive.\n";
+    return false;
+  }
   std::cout << "Calling Hero::disinfect() on disease ID " << _did << ".\n";
   int existing_cubes = ptr_city->disease_counters[_did];
   if (ptr_city->disease_counters[_did] > 0) {
     // If Medic, set to 0. If disease cured, set to 0. Else, decrement by 1.
     if (spec == "Medic") {
+      std::cout << "Medic cleans up all of that disease in the city.\n";
       ptr_city->disease_counters[_did] = 0;
       ptr_world->disease_blocks[_did] += existing_cubes;
     }
     else if (ptr_world->disease_status[_did] >= CURED) {
+      std::cout << "Since disease is cured, all of that disease is removed.\n";
       ptr_city->disease_counters[_did] = 0;
       ptr_world->disease_blocks[_did] += existing_cubes;
     }
     else {
+      std::cout << "Hero cleans up 1 cube of that disease in the city.\n";
       ptr_city->disease_counters[_did]--;
       ptr_world->disease_blocks[_did]++;
     }
@@ -142,12 +151,18 @@ bool Hero::disinfect(int _did)
     ptr_world->check_eradication(_did);
     return true;
   }
-  else
+  else {
+    std::cout << "This disease ID is not present in the city!\n";
     return false;
+  }
 }
 
 bool Hero::build_centre(City& _city)
 {
+  if (ptr_world->centres_remaining <= 0) {
+    std::cout << "There are no more Research Centres that may be built.\n";
+    return false;
+  }
   // First check if the Hero is in the City.
   if (ptr_city->get_cityid() == _city.get_cityid()) {
     std::vector<PCard>::iterator it;
@@ -186,7 +201,7 @@ bool Hero::give_card(std::string _card, Hero& _to)
       for (it = hand.begin(); it != hand.end(); ) {
 	if (it->name == _card) {
 	  _to.hand.push_back(*it); // Dereference iterator to get the object to push onto the receiver's hand.
-	  hand.erase(it++); // Subtle note: I cannot delete the element before incrementing. Super clever.
+	  hand.erase(it);
 	  moves--;
 	  return true;
 	}
@@ -251,14 +266,14 @@ bool Hero::cure(int _did, std::string _one, std::string _two, std::string _three
       moves--;
       ptr_world->check_eradication(_did);
       // Final check: wherever Medic is, needs to be wiped of the cured disease.
-      std::vector<Hero>::iterator it;
+      std::vector<Hero*>::iterator it;
       int medic_id = -1;
       City* medic_city = NULL;
       for (it = ptr_world->heroes.begin(); it != ptr_world->heroes.end(); it++) {
-	if (it->get_spec() == "Medic")
+	if ((*it)->get_spec() == "Medic")
 	  {
-	    medic_id = it->get_heroid();
-	    medic_city = it->ptr_city;
+	    medic_id = (*it)->get_heroid();
+	    medic_city = (*it)->ptr_city;
 	  }
       }
       // If there is a medic in the game, remove all disease cubes of the cured colour in city medic is in.

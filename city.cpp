@@ -89,11 +89,11 @@ void City::infect(int _did, int _numcubes)
     return;
   // Check if the disease is cured and the Medic is sitting there. If yes, return.
   if (world_ptr->disease_status[_did] == CURED) {
-    std::vector<Hero>::iterator it; // Find it there is a Medic in play.
+    std::vector<Hero*>::iterator it; // Find it there is a Medic in play.
     int medic_id = -1;
     for (it = world_ptr->heroes.begin(); it != world_ptr->heroes.end(); it++) {
-      if (it->get_spec() == "Medic")
-	medic_id = it->get_heroid();
+      if ((*it)->get_spec() == "Medic")
+	medic_id = (*it)->get_heroid();
     }
     if (medic_id > -1) {
       std::vector<int>::iterator it0; // There is a Medic in the world. Check if this city contains him.
@@ -102,11 +102,11 @@ void City::infect(int _did, int _numcubes)
     }
   }
   // Is Quarantine Specialist in this city or any neighbouring city? If yes, return.
-  std::vector<Hero>::iterator it1; // Find hero_id of Quarantine Specialist.
+  std::vector<Hero*>::iterator it1; // Find hero_id of Quarantine Specialist.
   int qspec_id = -1;
   for (it1 = world_ptr->heroes.begin(); it1 != world_ptr->heroes.end(); it1++) {
-    if (it1->get_spec() == "Quarantine Specialist")
-      qspec_id = it1->get_heroid();
+    if ((*it1)->get_spec() == "Quarantine Specialist")
+      qspec_id = (*it1)->get_heroid();
   }
   // If there was a Quarantine Specialist in the game, its id will be set to some positive integer.
   if (qspec_id > -1) {
@@ -157,7 +157,7 @@ int City::get_cityid() { return city_id; }
 void City::arrive_hero(int _hid)
 {
   heroes.push_back(_hid);
-  if (world_ptr->heroes[_hid].spec == "Medic") {
+  if (world_ptr->heroes[_hid]->spec == "Medic") {
     for (int did = 0; did < 4; did++) {
       if (world_ptr->disease_status[did] >= CURED)
 	disease_counters[did] = 0;
