@@ -8,19 +8,19 @@ greaterThan(QT_MAJOR_VERSION,4): QT += widgets
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    #city.cpp \
-    #contPlanner.cpp \
-    #Dispatcher.cpp \
-    #hero.cpp \
-    #icard.cpp \
-    #Medic.cpp \
-    #OpExpert.cpp \
-    #pcard.cpp \
-    #QSpecialist.cpp \
-    #Researcher.cpp \
-    #Scientist.cpp \
+    city.cpp \
+    contplanner.cpp \
+    dispatcher.cpp \
+    hero.cpp \
+    icard.cpp \
+    medic.cpp \
+    opexpert.cpp \
+    pcard.cpp \
+    qspecialist.cpp \
+    researcher.cpp \
+    scientist.cpp \
     #test.cpp \
-    #world.cpp
+    world.cpp \
     handwindow.cpp \
     specialwindow.cpp \
     movewindow.cpp \
@@ -33,19 +33,19 @@ HEADERS += \
     handwindow.h \
     specialwindow.h \
     movewindow.h \
-    confirmwindow.h
-    #city.h \
-    #contPlanner.h \
-    #Dispatcher.h \
-    #hero.h \
-    #icard.h \
-    #Medic.h \
-    #OpExpert.h \
-    #pcard.h \
-    #QSpecialist.h \
-    #Researcher.h \
-    #Scientist.h \
-    #world.h
+    confirmwindow.h \
+    city.h \
+    contplanner.h \
+    dispatcher.h \
+    hero.h \
+    icard.h \
+    medic.h \
+    opexpert.h \
+    pcard.h \
+    qspecialist.h \
+    researcher.h \
+    scientist.h \
+    world.h
 
 RESOURCES +=
 
