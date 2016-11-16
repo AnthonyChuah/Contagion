@@ -18,4 +18,3 @@ int main(int argc, char **argv)
 
 }
 
-//https://wiki.qt.io/Qt_for_Beginners

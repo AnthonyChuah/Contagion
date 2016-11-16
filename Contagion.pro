@@ -23,7 +23,8 @@ SOURCES += \
     #world.cpp
     handwindow.cpp \
     specialwindow.cpp \
-    movewindow.cpp
+    movewindow.cpp \
+    confirmwindow.cpp
 
 
 HEADERS += \
@@ -31,7 +32,8 @@ HEADERS += \
     transpbutton.h \
     handwindow.h \
     specialwindow.h \
-    movewindow.h
+    movewindow.h \
+    confirmwindow.h
     #city.h \
     #contPlanner.h \
     #Dispatcher.h \

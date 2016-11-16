@@ -32,6 +32,7 @@ private slots:
     void specButtonClicked(bool checked);
     void moveButtonClicked(bool checked);
 
+    void overlayClosed(); //for closing move overlay correctly
 
 private:
     void createActions();

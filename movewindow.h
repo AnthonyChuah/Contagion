@@ -19,17 +19,22 @@ public:
     explicit movewindow(QWidget *parent = 0,int height = 180, int width = 180);
 
 private slots:
-    //void slotButtonClicked(bool checked);
+    void slotButtonClicked(int buttonID);
+    void confirmHandler(bool confirm);
 
 private:
+    int win_wth;
+    int win_hth;
+
     QRadioButton* city_button;
     QList<QRadioButton*> city_buttons; //list of radio buttons
     QButtonGroup* city_group;
 
     void createRadioButton(QRadioButton* button, int cid, std::string cname, int x, int y);
-    void cityListSetup(std::string _filename);
+    void cityListSetup(std::string _filename,QButtonGroup* group);
 
 signals:
+    void closeOverlay();
 
 public slots:
 };

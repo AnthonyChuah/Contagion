@@ -63,7 +63,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
 
     // =========================================================== //
-    // BUTTONS
+    // CARD DECK BUTTONS
     // =========================================================== //
 
     // Button size and placement
@@ -197,6 +197,8 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     // Connection (signal to slot)
     connect(move_button, SIGNAL (clicked(bool)), this, SLOT (moveButtonClicked(bool)));
 
+    connect(move_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
+
 
     // =========================================================== //
     // PLAYER HAND WINDOW
@@ -204,7 +206,7 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Sub-Window size
     int hand_win_w = 600;
-    int hand_win_h = hand_win_w*1.0/1.56;
+    int hand_win_h = hand_win_w*1.0/1.56; // playing card x/y ratio is 1:1.56
 
     hand_window = new HandWindow(this,hand_win_h,hand_win_w);
     hand_window->move((win_w-hand_win_w)/2,(win_h-hand_win_h)/2);
@@ -227,52 +229,6 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     // there could e.g. be a quick-view pane that shows colours reflecting
     // the disease-ares of the cities etc., and a button to open a window
     // where you see the full cards
-
-
-    // =========================================================== //
-    // CITY BUTTONS - SHOULD BE CREATED USING AN EXTERNAL FILE!!!
-    // =========================================================== //
-
-    // Radio button rectangle (background) size
-    int radio_wth=30;
-    int radio_hth=radio_wth;
-
-    QRadioButton* cityButton = new QRadioButton(this);
-    cityButton->setGeometry(110,270,radio_wth,radio_hth); //sets location and size of rectangle
-    cityButton->setText("San Francisco");
-
-
-    //OTHER BUTTONS, FOR TESTING PURPOSES - NEED TO GEN FROM FILE!
-    QRadioButton* cityButton2 = new QRadioButton(this);
-    cityButton2->setGeometry(120,300,radio_wth,radio_hth);
-    cityButton2->setText("LA");
-
-    QRadioButton* cityButton3 = new QRadioButton(this);
-    cityButton3->setGeometry(250,230,radio_wth,radio_hth);
-    cityButton3->setText("Chicago");
-
-    QRadioButton* cityButton4 = new QRadioButton(this);
-    cityButton4->setGeometry(330,225,radio_wth,radio_hth);
-    cityButton4->setText("Montreal");
-
-    QRadioButton* cityButton5 = new QRadioButton(this);
-    cityButton5->setGeometry(340,255,radio_wth,radio_hth);
-    cityButton5->setText("NY");
-
-    QRadioButton* cityButton6 = new QRadioButton(this);
-    cityButton6->setGeometry(320,280,radio_wth,radio_hth);
-    cityButton6->setText("DC");
-
-    QRadioButton* cityButton7 = new QRadioButton(this);
-    cityButton7->setGeometry(270,300,radio_wth,radio_hth);
-    cityButton7->setText("Atlanta");
-
-    QRadioButton* cityButton8 = new QRadioButton(this);
-    cityButton8->setGeometry(285,340,radio_wth,radio_hth);
-    cityButton8->setText("Miami");
-
-
-    //NEED A FUNCTION THAT GENERATES THESE FROM AN INPUT FILE!
 
 
 }
@@ -373,4 +329,10 @@ void mainWindow::moveButtonClicked(bool checked) {
  move_button->setText("MOVE");
      //QApplication::instance()->quit();
  }
+}
+
+void mainWindow::overlayClosed() {
+ move_window->close();
+ move_button->setChecked(false);
+ move_button->setText("MOVE");
 }
