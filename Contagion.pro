@@ -6,8 +6,20 @@ QT = core gui
 greaterThan(QT_MAJOR_VERSION,4): QT += widgets
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
+    src/gui/main.cpp \
+    #src/game_logic/city.cpp \
+    #src/game_logic/contplanner.cpp \
+    #src/game_logic/dispatcher.cpp \
+    #src/game_logic/hero.cpp \
+    #src/game_logic/icard.cpp \
+    #src/game_logic/medic.cpp \
+    #src/game_logic/opexpert.cpp \
+    #src/game_logic/pcard.cpp \
+    #src/game_logic/qspecialist.cpp \
+    #src/game_logic/researcher.cpp \
+    #src/game_logic/scientist.cpp \
+    ##src/game_logic/test.cpp \
+    #src/game_logic/world.cpp \
     city.cpp \
     contplanner.cpp \
     dispatcher.cpp \
@@ -21,19 +33,26 @@ SOURCES += \
     scientist.cpp \
     #test.cpp \
     world.cpp \
-    handwindow.cpp \
-    specialwindow.cpp \
-    movewindow.cpp \
-    confirmwindow.cpp
+    src/gui/mainwindow.cpp \
+    src/gui/handwindow.cpp \
+    src/gui/specialwindow.cpp \
+    src/gui/movewindow.cpp \
+    src/gui/confirmwindow.cpp
 
 
 HEADERS += \
-    mainwindow.h \
-    transpbutton.h \
-    handwindow.h \
-    specialwindow.h \
-    movewindow.h \
-    confirmwindow.h \
+    #src/game_logic/city.h \
+    #src/game_logic/contplanner.h \
+    #src/game_logic/dispatcher.h \
+    #src/game_logic/hero.h \
+    #src/game_logic/icard.h \
+    #src/game_logic/medic.h \
+    #src/game_logic/opexpert.h \
+    #src/game_logic/pcard.h \
+    #src/game_logic/qspecialist.h \
+    #src/game_logic/researcher.h \
+    #src/game_logic/scientist.h \
+    #src/game_logic/world.h \
     city.h \
     contplanner.h \
     dispatcher.h \
@@ -45,7 +64,13 @@ HEADERS += \
     qspecialist.h \
     researcher.h \
     scientist.h \
-    world.h
+    world.h \
+    src/gui/mainwindow.h \
+    src/gui/transpbutton.h \
+    src/gui/handwindow.h \
+    src/gui/specialwindow.h \
+    src/gui/movewindow.h \
+    src/gui/confirmwindow.h
 
 RESOURCES +=
 
