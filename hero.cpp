@@ -37,6 +37,7 @@ int Hero::get_heroid() { return hero_id; }
 
 bool Hero::charter_flight(City& _to, Hero* _user)
 {
+  std::cout << "Calling Hero::charter_flight().\n";
   // _user specifies the person who provides cards/moves for this action.
   // This is ALWAYS the hero itself unless the hero has been dispatched
   // by someone else.
@@ -52,7 +53,6 @@ bool Hero::charter_flight(City& _to, Hero* _user)
       _user->hand.erase(it);
       // If Medic and the disease is cured, the arrive_hero function in City will auto-disinfect blocks of that disease.
       _user->moves--;
-      check_end();
       return true;
     }
   }
@@ -61,6 +61,7 @@ bool Hero::charter_flight(City& _to, Hero* _user)
 
 bool Hero::direct_flight(City& _to, Hero* _user)
 {
+  std::cout << "Calling Hero::direct_flight().\n";
   if (_user == NULL) {
     _user = this;
   }
@@ -73,7 +74,6 @@ bool Hero::direct_flight(City& _to, Hero* _user)
       _user->hand.erase(it);
       // ADD EXCEPTION: if hero is a Medic, and if a disease is cured, remove all of that disease from destination.
       _user->moves--;
-      _user->check_end();
       return true;
     }
   }
@@ -82,6 +82,7 @@ bool Hero::direct_flight(City& _to, Hero* _user)
 
 bool Hero::shuttle_flight(City& _to, Hero* _user)
 {
+  std::cout << "Calling Hero::shuttle_flight().\n";
   if (_user == NULL) {
     _user = this;
   }
@@ -91,7 +92,6 @@ bool Hero::shuttle_flight(City& _to, Hero* _user)
       ptr_city = &_to;
       ptr_city->arrive_hero(hero_id);
       _user->moves--;
-      _user->check_end();
       return true;
     }
   }
@@ -100,6 +100,7 @@ bool Hero::shuttle_flight(City& _to, Hero* _user)
 
 bool Hero::move(City& _to, Hero* _user)
 {
+  std::cout << "Calling Hero::move().\n";
   if (_user == NULL) {
     _user = this;
   }
@@ -112,7 +113,7 @@ bool Hero::move(City& _to, Hero* _user)
       ptr_city = &_to;
       ptr_city->arrive_hero(hero_id);
       _user->moves--;
-      _user->check_end();
+      std::cout << "Hero " << spec << " moved to " << _to.name << ".\n";
       return true;
     }
   }
@@ -121,6 +122,7 @@ bool Hero::move(City& _to, Hero* _user)
 
 bool Hero::disinfect(int _did)
 {
+  std::cout << "Calling Hero::disinfect() on disease ID " << _did << ".\n";
   int existing_cubes = ptr_city->disease_counters[_did];
   if (ptr_city->disease_counters[_did] > 0) {
     // If Medic, set to 0. If disease cured, set to 0. Else, decrement by 1.
@@ -138,7 +140,6 @@ bool Hero::disinfect(int _did)
     }
     moves--;
     ptr_world->check_eradication(_did);
-    check_end();
     return true;
   }
   else
@@ -156,7 +157,7 @@ bool Hero::build_centre(City& _city)
 	  _city.build_rc();
 	  ptr_world->centres_remaining--;
 	  moves--;
-	  check_end();
+	  std::cout << "Built RC in " << _city.name << ".\n";
 	  return true;
 	}
 	for (it = hand.begin(); it != hand.end(); it++) {
@@ -166,7 +167,7 @@ bool Hero::build_centre(City& _city)
 	      _city.build_rc();
 	      ptr_world->centres_remaining--;
 	      moves--;
-	      check_end();
+	      std::cout << "Built RC in " << _city.name << ".\n";
 	      return true;
 	    }
 	}
@@ -187,7 +188,6 @@ bool Hero::give_card(std::string _card, Hero& _to)
 	  _to.hand.push_back(*it); // Dereference iterator to get the object to push onto the receiver's hand.
 	  hand.erase(it++); // Subtle note: I cannot delete the element before incrementing. Super clever.
 	  moves--;
-	  check_end();
 	  return true;
 	}
 	else
@@ -211,7 +211,6 @@ bool Hero::take_card(std::string _card, Hero& _from)
 	      hand.push_back(*it);
 	      _from.hand.erase(it);
 	      moves--;
-	      check_end();
 	      return true;
 	    }
 	  else
@@ -223,6 +222,7 @@ bool Hero::take_card(std::string _card, Hero& _from)
 
 bool Hero::cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four, std::string _five)
 {
+  std::cout << "Calling Hero::cure() on disease ID " << _did << ".\n";
   if (spec == "Scientist") {
     std::cout << "Do not use the regular cure function, instead use the Scientist's overloaded cure.\n";
     return false;
@@ -250,7 +250,6 @@ bool Hero::cure(int _did, std::string _one, std::string _two, std::string _three
       ptr_world->disease_status[_did] = CURED; // CURED is a macro for 1.
       moves--;
       ptr_world->check_eradication(_did);
-      check_end();
       // Final check: wherever Medic is, needs to be wiped of the cured disease.
       std::vector<Hero>::iterator it;
       int medic_id = -1;
@@ -268,6 +267,10 @@ bool Hero::cure(int _did, std::string _one, std::string _two, std::string _three
 	medic_city->disease_counters[_did] = 0;
 	ptr_world->disease_blocks[_did] += cubes_to_putback;
       }
+      // Finally check if this was the final cure needed to win the game.
+      if (ptr_world->victory()) {
+	exit(1);
+      }
       return true;
     }
   else
@@ -277,21 +280,50 @@ bool Hero::cure(int _did, std::string _one, std::string _two, std::string _three
     }
 }
 
-bool Hero::check_end()
+void Hero::start_turn()
 {
-  if (moves <= 0)
-    {
-      moves = 0;
-      ptr_world->draw_player_deck(*this); // Deals player cards to this hero.
-      ptr_world->draw_infection_deck();
-      // Now switch to next hero's turn.
-      int next_hid = (hero_id+1) % ptr_world->heroes.size();
-      ptr_world->players_turn = next_hid;
-      ptr_world->heroes[next_hid].start_turn();
-      return true;
-    }
-  else
-    return false;
+  std::cout << "Hero::start_turn called.\n";
+  moves = 4;
 }
 
-void Hero::start_turn() { moves = 4; }
+bool Hero::play_special_eventcard(std::string _arguments)
+{
+  std::cout << "Hero::play_special_eventcard is a purely virtual function. It should not have been possible to "
+	    << "call this function. This should be called only as ContPlanner::play_special_eventcard.\n";
+  exit(1);
+}
+
+bool Hero::get_special_eventcard(std::string _eventname)
+{
+  std::cout << "Hero::get_special_eventcard is a purely virtual function. It should not have been possible to "
+	    << "call this function. This should be called only as ContPlanner::get_special_eventcard.\n";
+  exit(1);
+}
+
+bool Hero::dispatch_control(int _hid, std::string _arguments)
+{
+  std::cout << "Hero::dispatch_control is a purely virtual function. It should not have been possible to "
+	    << "call this function. This should be called only as Dispatcher::dispatch_control.\n";
+  exit(1);
+}
+
+bool Hero::dispatch_move(int _hidfrom, int _hidto)
+{
+  std::cout << "Hero::dispatch_move is a purely virtual function. It should not have been possible to "
+	    << "call this function. This should be called only as Dispatcher::dispatch_move.\n";
+  exit(1);
+}
+
+bool Hero::opex_flight(City& _to, std::string _card)
+{
+  std::cout << "Hero::opex_flight is a purely virtual function. It should not have been possible to "
+	    << "call this function. This should be called only as OpExpert::opex_flight.\n";
+  exit(1);
+}
+
+bool Hero::scientist_cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four)
+{
+  std::cout << "Hero::scientist_cure is a purely virtual function. It should not have been possible to "
+	    << "call this function. This should be called only as Scientist::scientist_cure.\n";
+  exit(1);
+}

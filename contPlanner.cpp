@@ -6,6 +6,11 @@
 
 #include "macros.h"
 
+/*
+1. Can take event card from player discard pile into his hand, and this does not occupy normal hand space.
+   When this card is played, completely remove this card from the game.
+*/
+
 ContPlanner::ContPlanner() : Hero()
 {
   eventcard = "None";

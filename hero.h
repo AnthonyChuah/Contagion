@@ -33,8 +33,16 @@ public:
   bool give_card(std::string _card, Hero& _to); //give a card to another player
   bool take_card(std::string _card, Hero& _from); //take card from another player
   bool cure(int _did,std::string _one,std::string _two,std::string _three,std::string _four,std::string _five);
-  bool check_end(); // Check if the player turn has ended.
   void start_turn(); // Set moves to 4.
+  // Heroes have their own functions, however the program will not compile if we do not define a virtual function
+  // that has the same name as the specialist subclass function, because there will be no late-binding of function
+  // names. Here I declare virtual specialist functions.
+  virtual bool play_special_eventcard(std::string _arguments);
+  virtual bool get_special_eventcard(std::string _eventname);
+  virtual bool dispatch_control(int _hid, std::string _arguments);
+  virtual bool dispatch_move(int _hidfrom, int _hidto);
+  virtual bool opex_flight(City& _to, std::string _card);
+  virtual bool scientist_cure(int _did, std::string _one, std::string _two, std::string _three, std::string _four);
   std::string spec;
   std::vector<PCard> hand;
   City* ptr_city;
