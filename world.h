@@ -67,6 +67,8 @@ public:
   void event_forecast(); // Forecast Event card, allows players to re-arrange infection deck.
   bool event_resilient(std::string _arguments);
   void event_airlift(std::string _arguments);
+  void clear_outbreak_flags(); // Outbreak flags are meant to prevent infinite chains of outbreak between cities.
+  // The flags immunize a city from further infection, but must be cleared ASAP.
   void game_loop(); // MAIN GAME LOOP.
   bool victory();
   void death(std::string _message);

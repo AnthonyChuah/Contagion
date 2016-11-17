@@ -62,3 +62,10 @@ Design of the objects in this program:
 
 
 
+Recent Issues and Bugfixes:
+
+1. Fixed: infinite chain reaction outbreaks by setting an immunity flag the moment you get an outbreak. Immunity flags are reset right after every infection card draw and every epidemic call.
+
+2. Fixed: removal of multiple cards requires you to repeatedly iterate and break, because erasure of a vector element can shift its memory location.
+
+3. Fixed: segmentation fault due to erasure from player's hand (discard cards above 7) and then continuing to use the iterator. Now I break the loop instead.

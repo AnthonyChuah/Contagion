@@ -14,7 +14,7 @@ Implementation file for the City class.
 #include <cstring>
 
 City::City() : city_id(-1), name("Empty City Constructor"), disease_id(-1), x_coord(-1), y_coord(-1),
-	       world_ptr(NULL), research_centre(false), skip_next_infect_cities(false)
+	       world_ptr(NULL), research_centre(false), skip_next_infect_cities(false), outbreak_flag(false)
 {
   for (int i = 0; i < 4; i++) {
     disease_counters[i] = 0;
@@ -24,7 +24,7 @@ City::City() : city_id(-1), name("Empty City Constructor"), disease_id(-1), x_co
 
 City::City(int _id, std::string _name, int _did, double _xcoord, double _ycoord, const std::vector<int>& _neighbour, World* _worldptr, bool _research_centre) :
   city_id(_id), name(_name), disease_id(_did), x_coord(_xcoord), y_coord(_ycoord), world_ptr(_worldptr),
-  research_centre(_research_centre), skip_next_infect_cities(false)
+  research_centre(_research_centre), skip_next_infect_cities(false), outbreak_flag(false)
 {
   std::string substring = _name.substr(0, 4);
   std::strncpy(shortname, substring.c_str(), 4);
@@ -43,6 +43,7 @@ City::City(const City& _copy_from)
   skip_next_infect_cities = _copy_from.skip_next_infect_cities;
   neighbours = _copy_from.neighbours;
   heroes = _copy_from.heroes;
+  outbreak_flag = _copy_from.outbreak_flag;
   for (int i = 0; i < 4; i++) {
     disease_counters[i] = _copy_from.disease_counters[i];
     shortname[i] = _copy_from.shortname[i];
@@ -61,6 +62,7 @@ City& City::operator =(const City& _assign_from)
   skip_next_infect_cities = _assign_from.skip_next_infect_cities;
   neighbours = _assign_from.neighbours;
   heroes = _assign_from.heroes;
+  outbreak_flag = _assign_from.outbreak_flag;
   for (int i = 0; i < 4; i++) {
     disease_counters[i] = _assign_from.disease_counters[i];
     shortname[i] = _assign_from.shortname[i];
@@ -69,6 +71,8 @@ City& City::operator =(const City& _assign_from)
 
 void City::outbreak(int _did)
 {
+  std::cout << "Calling City::outbreak() on disease ID " << _did << " in city " << name << ".\n";
+  outbreak_flag = true;
   // This triggers if you attempt to add a cube to a city which already has 3 cubes of that colour.
   // For each neighbour of this city, add a cube of THIS CITY'S disease_id to the neighbour.
   // Neighbours is a vector that has random access iterators, so I'm going to be lazy and not use an iterator:
@@ -83,10 +87,12 @@ void City::outbreak(int _did)
 
 void City::infect(int _did, int _numcubes)
 {
-  std::cout << "Calling City::infect() on Disease " << _did << " with " << _numcubes << " cubes.\n";
+  std::cout << "Calling City::infect() on Disease " << _did << " with " << _numcubes << " cubes "
+	    << "in city " << name << ".\n";
   // Check if the disease is eradicated.
   if (world_ptr->disease_status[_did] >= ERADICATED)
     return;
+  if (outbreak_flag) return; // To prevent infinite chains of outbreaks.
   // Check if the disease is cured and the Medic is sitting there. If yes, return.
   if (world_ptr->disease_status[_did] == CURED) {
     std::vector<Hero*>::iterator it; // Find it there is a Medic in play.
@@ -145,7 +151,7 @@ void City::infect(int _did, int _numcubes)
 bool City::has_rc() { return research_centre; }
 
 // Normally the Hero will build this and Hero has a pointer to the City,
-// so strictly speaking you do not need this setter function. But whatever, pretty code.
+// so strictly speaking you do not need this getter function. But whatever, pretty code.
 void City::build_rc() { research_centre = true; }
 
 int City::get_disease_id() { return disease_id; }
