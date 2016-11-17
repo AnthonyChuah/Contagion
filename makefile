@@ -1,4 +1,4 @@
-OBJ=main.o city.o world.o icard.o pcard.o hero.o contPlanner.o Dispatcher.o Medic.o OpExpert.o QSpecialist.o Researcher.o Scientist.o
+OBJ=test.o city.o world.o icard.o pcard.o hero.o contPlanner.o Dispatcher.o Medic.o OpExpert.o QSpecialist.o Researcher.o Scientist.o
 EXE=contagion
 CXX=g++
 CPPFLAGS=-std=c++11 -Wall -g -MMD
