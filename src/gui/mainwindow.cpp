@@ -4,9 +4,22 @@
 #include "handwindow.h"
 #include "movewindow.h"
 #include "transpbutton.h"
+#include "world.h"
 
-mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
-{
+//mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent) {
+mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
+    /*
+    // =========================================================== //
+    // WORLD Setup - TO BE CHANGED TO USE A SETUP WINDOW!!!
+    // =========================================================== //
+    int number_of_epidemics = 4;
+    world = new World(number_of_epidemics);
+    world->load_city_data("../Contagion/cities.dat");
+    world->load_eventcards_data("../Contagion/eventcards.dat");
+    world->load_hero_data("../Contagion/heroes.dat");
+    world->setup();
+    // =========================================================== //
+    */
 
     QDir::setCurrent(QCoreApplication::applicationDirPath());
 
@@ -51,6 +64,19 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     palette.setBrush(QPalette::Background, bkgnd);
     this->setPalette(palette);
 
+    // =========================================================== //
+    // STATUS BAR
+    // =========================================================== //
+    QMainWindow::statusBar()->showMessage(tr("Ready"));
+
+    // The status bar should be made to have permanent widgets
+    // and text boxes that track:
+    //  - whose turn it is (player name/number)
+    //  - what hero class the player is
+    //  - how many actions the player has left
+    //  - etc
+
+
 
     // =========================================================== //
     // Load the style sheet
@@ -59,7 +85,6 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     file.open(QFile::ReadOnly);
     QString styleSheet = QString::fromLatin1(file.readAll());
     this->setStyleSheet(styleSheet);
-
 
 
     // =========================================================== //
@@ -114,6 +139,17 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     oprogBar->setValue(0);
     oprogBar->setGeometry(oprb_xcoord,oprb_ycoord,oprb_wth,oprb_hth);
 
+    // =========================================================== //
+    // ACTIONS remaining LCD number
+    // =========================================================== //
+    action_lcd = new QLCDNumber(this);
+    action_lcd->display(world->heroes[world->players_turn]->moves);
+    action_lcd->setGeometry(win_w/2-25,20,100,50);
+    //action_lcd->setSegmentStyle(QLCDNumber::Flat);
+    //action_lcd->setAutoFillBackground(true);
+    action_lcd->setPalette(Qt::transparent);
+    action_lcd->show();
+
 
     // =========================================================== //
     // DISEASES progress bars
@@ -146,19 +182,21 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     // =========================================================== //
     // Control/action buttons
     // =========================================================== //
+
     int b_wth = 128; //button width
     int b_hth = 128; //button width
     int b_xcoord = 500; //button starting x-coordinage
     int b_xoffs = b_wth+20; //button x offset
     int b_ycoord = 750; //button y-coordinate
 
-
-
     // Fly
-    QPushButton *fly_button = new QPushButton("FLY", this);
+    fly_button = new QPushButton("FLY", this);
     fly_button->setGeometry(b_xcoord+1*b_xoffs,b_ycoord,b_wth,b_hth);
     fly_button->setToolTip("Fly along the map");
+    fly_button->setCheckable(true);
 
+    // Connection (signal to slot)
+    connect(fly_button, SIGNAL (clicked(bool)), this, SLOT (flyButtonClicked(bool)));
 
     // Special action
     int spec_win_w = 600;
@@ -171,16 +209,10 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     spec_button = new QPushButton("SPECIAL", this);
     spec_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
     spec_button->setToolTip("Hero's special action");
-
     spec_button->setCheckable(true);
 
     // Connection (signal to slot)
     connect(spec_button, SIGNAL (clicked(bool)), this, SLOT (specButtonClicked(bool)));
-
-
-    // =========================================================== //
-    // MOVE WINDOW OVERLAY
-    // =========================================================== //
 
     // Move button
     //QPushButton *move_button = new QPushButton("MOVE", this);
@@ -188,14 +220,17 @@ mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent)
     move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
     move_button->setToolTip("Move along the map");
     //move_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
-
     move_button->setCheckable(true);
-
-    move_window = new movewindow(this,win_h-150,win_w);
-    move_window->close(); //for some reason the hand is automatically open o/w
 
     // Connection (signal to slot)
     connect(move_button, SIGNAL (clicked(bool)), this, SLOT (moveButtonClicked(bool)));
+
+    // =========================================================== //
+    // MOVE WINDOW OVERLAY
+    // =========================================================== //
+
+    move_window = new movewindow(this,win_h-150,win_w);
+    move_window->close(); //for some reason the hand is automatically open o/w
 
     connect(move_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
 
@@ -309,6 +344,18 @@ void mainWindow::handButtonClicked(bool checked) {
  }
 }
 
+void mainWindow::overlayClosed() {
+ move_window->close();
+ move_button->setChecked(false);
+ move_button->setText("MOVE");
+
+ // TEMPORARY - to handle fly-button (as it also connects to move_window)
+ fly_button->setChecked(false);
+ fly_button->setText("FLY");
+}
+
+
+
 void mainWindow::specButtonClicked(bool checked) {
  if (checked) {
  spec_window->show();
@@ -316,7 +363,6 @@ void mainWindow::specButtonClicked(bool checked) {
  } else {
  spec_window->close();
  spec_button->setText("SPECIAL");
-     //QApplication::instance()->quit();
  }
 }
 
@@ -327,12 +373,17 @@ void mainWindow::moveButtonClicked(bool checked) {
  } else {
  move_window->close();
  move_button->setText("MOVE");
-     //QApplication::instance()->quit();
  }
 }
 
-void mainWindow::overlayClosed() {
+void mainWindow::flyButtonClicked(bool checked) {
+ if (checked) {
+ move_window->show();
+ fly_button->setText("CLOSE\nFLY\nWINDOW");
+ } else {
  move_window->close();
- move_button->setChecked(false);
- move_button->setText("MOVE");
+ fly_button->setText("FLY");
+ }
 }
+
+

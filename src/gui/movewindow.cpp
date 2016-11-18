@@ -5,14 +5,20 @@
 #include <QList>
 #include <QButtonGroup>
 #include <QDebug>
+#include "mainwindow.h"
+
 #include "confirmwindow.h"
+
+
+#include "city.h"
+#include "world.h"
 
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <cstdio>
 
-movewindow::movewindow(QWidget *parent,int height, int width) : QWidget(parent) {
+movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent) {
     //Set the size of the window
     win_wth=width;
     win_hth=height;
@@ -26,39 +32,15 @@ movewindow::movewindow(QWidget *parent,int height, int width) : QWidget(parent) 
     QString styleSheet = QString::fromLatin1(file.readAll());
     this->setStyleSheet(styleSheet);
 
-
     // =========================================================== //
-    // BUTTONS
+    // BUTTON CREATION FROM DATA FILE
     // =========================================================== //
-
-    // Sample, for debugging
-    /*
-    // Radio button rectangle (background) size
-    int radio_wth=30;
-    int radio_hth=radio_wth;
-
-    QRadioButton* cityButton = new QRadioButton(this);
-    cityButton->setGeometry(500,500,radio_wth,radio_hth); //sets location and size of rectangle
-    cityButton->setText("San Francisco");
-    */
-
-    // =========================================================== //
-    // BUTTON CREATION FROM LIST
-    // =========================================================== //
-
     // Set up the QList of Radio Buttons
     city_group = new QButtonGroup(this);
     cityListSetup("../Contagion/cities.dat",city_group);
     //cityListSetup("../Contagion/cities.dat");
     qDebug() << "City list setup done.\n";
 
-/*
-    // Add the buttons to a group (NOTE - NOT NECESSARILY NEEDED!)
-    city_group = new QButtonGroup(this);
-    foreach(QRadioButton* button, city_buttons) {
-      city_group->addButton(button);
-    }
-*/
 
     // =========================================================== //
     // SIGNAL HANDLING
@@ -66,13 +48,6 @@ movewindow::movewindow(QWidget *parent,int height, int width) : QWidget(parent) 
     // Using group
     connect(city_group,SIGNAL(buttonClicked(int)),this,SLOT(slotButtonClicked(int)));
 
-    // Using the QList
-    //foreach(QRadioButton* button, city_buttons) {
-    //    connect(button,SIGNAL(clicked()),this,SLOT(slotButtonClicked()));
-    //}
-    // The list approach has a problem - in theory you can get a pointer to
-    // the signalling button using "sender()", but it gives a pointer of the
-    // wrong type (QObject), which cannot be converted correctly.
 }
 
 
@@ -145,37 +120,62 @@ void movewindow::createRadioButton(QRadioButton* button, int cid, std::string cn
 
 
 void movewindow::slotButtonClicked(int buttonID) {
-    //find out which city button clicked
-    qDebug() << "City button for city " << buttonID << " was clicked.\n";
+    // Get the parent (to get the world)
+    mainWindow* parent = qobject_cast<mainWindow*>(this->parent());
 
-    //when city button clicked, make a check if move valid
+    //Find out which city button was clicked, and set "city_to" pointer to it
+    //qDebug() << "City button for city " << buttonID << " was clicked.\n";
+    city_to = new City();
+
+    std::vector<City>::iterator it;
+    for(it=parent->world->cities.begin();it != parent->world->cities.end();it++) {
+        if(it->city_id==buttonID) {
+            city_to = &(*it);
+            break;
+        }
+        //else {
+            //qDebug() << "No city" << buttonID << " found.\n";
+        //}
+    }
+
+    //Make a check if move valid
     // if not valid, exit the function
+    // NOTE: THE Hero::move() function does a check!
 
-    //open a confirmation window asking to confirm move
+    //Open a confirmation window asking to confirm move
     int conf_win_w = win_wth; int conf_win_h = win_hth;
-    QString infotext = "Confirm move to city "+QString::number(buttonID)+"?";
+    //QString infotext = "Confirm move to city "+QString::number(buttonID)+"?";
+    QString cityname = QString::fromStdString(city_to->name);
+    QString infotext = "Confirm move to city "+cityname+"?";
     confirmwindow* confirm_window = new confirmwindow(this,infotext,conf_win_h,conf_win_w);
     confirm_window->move((win_wth-conf_win_w)/2,(win_hth-conf_win_h)/2);
     confirm_window->show();
     connect(confirm_window,SIGNAL(confirmSignal(bool)),this,SLOT(confirmHandler(bool)));
 
-
-    // move the Hero to the new city (if valid)
-
-
 }
 
 void movewindow::confirmHandler(bool confirm) {
+    // Get the parent (to get the world)
+    mainWindow* parent = qobject_cast<mainWindow*>(this->parent());
     if(confirm) {
       qDebug() << "Move confirmed.\n";
 
-      // Emit signal to close to overlay
+      // move the Hero to the new city (if valid)
+      int player = parent->world->players_turn;
+      parent->world->heroes[player]->move(*city_to,parent->world->heroes[player]);
+
+      //DEBUG PART
+      QString at_city = QString::fromStdString(parent->world->heroes[player]->ptr_city->name);
+      qDebug() << "Hero is now at city" << at_city << ".\n";
+
+      // Update the action display
+      parent->action_lcd->display(parent->world->heroes[parent->world->players_turn]->moves);
+
+      // Emit signal to close the overlay
       emit closeOverlay();
-      // (normal "this->close()" does not inform the move mainwindow correctly)
-      //this->close();
+
     } else {
       qDebug() << "Move cancelled.\n";
-
       // Emit signal to close to overlay
       //emit closeOverlay();
     }
@@ -183,4 +183,7 @@ void movewindow::confirmHandler(bool confirm) {
     city_group->setExclusive(false);
     city_group->checkedButton()->setChecked(false);
     city_group->setExclusive(true);
+
+    // Return city_to to point to null
+    city_to=NULL;
 }

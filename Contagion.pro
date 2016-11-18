@@ -38,6 +38,7 @@ SOURCES += \
     src/gui/specialwindow.cpp \
     src/gui/movewindow.cpp \
     src/gui/confirmwindow.cpp
+    #src/gui/movebuttons.cpp
 
 
 HEADERS += \
@@ -71,6 +72,7 @@ HEADERS += \
     src/gui/specialwindow.h \
     src/gui/movewindow.h \
     src/gui/confirmwindow.h
+    #src/gui/movebuttons.h
 
 RESOURCES +=
 

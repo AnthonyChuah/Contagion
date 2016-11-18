@@ -10,6 +10,8 @@
 #include <string>
 #include <fstream>
 
+#include "city.h"
+
 class QRadioButton; //to add a radio button
 
 class movewindow : public QWidget
@@ -32,6 +34,8 @@ private:
 
     void createRadioButton(QRadioButton* button, int cid, std::string cname, int x, int y);
     void cityListSetup(std::string _filename,QButtonGroup* group);
+
+    City* city_to = NULL;
 
 signals:
     void closeOverlay();

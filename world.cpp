@@ -951,3 +951,30 @@ void World::init()
     disease_blocks[i] = 24;
   }
 }
+
+
+//----------------------------------------------------------------------------//
+// GAME LOOP FOR GUI
+//----------------------------------------------------------------------------//
+/*
+void game_loop_gui() {
+    while (!victory()) {
+      while (heroes[players_turn]->moves > 0) {
+        bool made_move = false;
+        while (!made_move) {
+      // Parse player input here. Once parsed with regex, go to the move-decrementing and turn-handling section.
+      // Empty for now.
+      std::getline(std::cin, input);
+      made_move = handle_input(input);
+        }
+        // Now made_move has been set to true, the above while loop exited.
+        // Moves are decremented inside the heroes' functions.
+        render_world_ascii(); // Render the world again in text for the player to see.
+      }
+      // Now the hero in question has finished its turn. Draw player cards and then infect cities.
+      draw_player_deck(*heroes[players_turn]);
+      draw_infection_deck();
+      next_player_turn();
+    }
+}
+*/

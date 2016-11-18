@@ -99,6 +99,8 @@ public:
   int num_epidemics; // Number of epidemics to be inserted into player card deck.
   int ui_width;
   int ui_height;
+
+  //void game_loop_gui(); // game loop for GUI
 };
 
 #endif
