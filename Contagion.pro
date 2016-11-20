@@ -37,7 +37,10 @@ SOURCES += \
     src/gui/handwindow.cpp \
     src/gui/specialwindow.cpp \
     src/gui/movewindow.cpp \
-    src/gui/confirmwindow.cpp
+    src/gui/confirmwindow.cpp \
+    src/gui/endturnwindow.cpp \
+    src/gui/actioncounter.cpp \
+    src/gui/meeplesprite.cpp
     #src/gui/movebuttons.cpp
 
 
@@ -71,7 +74,10 @@ HEADERS += \
     src/gui/handwindow.h \
     src/gui/specialwindow.h \
     src/gui/movewindow.h \
-    src/gui/confirmwindow.h
+    src/gui/confirmwindow.h \
+    src/gui/endturnwindow.h \
+    src/gui/actioncounter.h \
+    src/gui/meeplesprite.h
     #src/gui/movebuttons.h
 
 RESOURCES +=

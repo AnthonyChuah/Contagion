@@ -51,7 +51,6 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
 }
 
 
-//void movewindow::cityListSetup(std::string _filename) {
 void movewindow::cityListSetup(std::string _filename,QButtonGroup* city_group) {
     //Multipliers for x and y coordinates
     int x_multip=1500;//1600; //1600 is correct size, but projection off
@@ -146,7 +145,7 @@ void movewindow::slotButtonClicked(int buttonID) {
     int conf_win_w = win_wth; int conf_win_h = win_hth;
     //QString infotext = "Confirm move to city "+QString::number(buttonID)+"?";
     QString cityname = QString::fromStdString(city_to->name);
-    QString infotext = "Confirm move to city "+cityname+"?";
+    QString infotext = "Confirm move to "+cityname+"?";
     confirmwindow* confirm_window = new confirmwindow(this,infotext,conf_win_h,conf_win_w);
     confirm_window->move((win_wth-conf_win_w)/2,(win_hth-conf_win_h)/2);
     confirm_window->show();
@@ -157,6 +156,7 @@ void movewindow::slotButtonClicked(int buttonID) {
 void movewindow::confirmHandler(bool confirm) {
     // Get the parent (to get the world)
     mainWindow* parent = qobject_cast<mainWindow*>(this->parent());
+
     if(confirm) {
       qDebug() << "Move confirmed.\n";
 
@@ -169,7 +169,8 @@ void movewindow::confirmHandler(bool confirm) {
       qDebug() << "Hero is now at city" << at_city << ".\n";
 
       // Update the action display
-      parent->action_lcd->display(parent->world->heroes[parent->world->players_turn]->moves);
+      //parent->action_lcd->display(parent->world->heroes[parent->world->players_turn]->moves);
+      parent->action_lcd->check_actions();
 
       // Emit signal to close the overlay
       emit closeOverlay();

@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "macros.h"
+
 /*
 Header file for Hero class.
 1. Heroes can own cards in their hand.

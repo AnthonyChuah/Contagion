@@ -4,7 +4,15 @@
 #include "handwindow.h"
 #include "movewindow.h"
 #include "transpbutton.h"
-#include "world.h"
+#include "actioncounter.h"
+
+#include "meeplesprite.h"
+#include <QGraphicsItem>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsRectItem>
+
+#include "macros.h"
 
 //mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent) {
 mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
@@ -142,6 +150,9 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     // ACTIONS remaining LCD number
     // =========================================================== //
+    action_lcd = new actioncounter(this);
+    action_lcd->show();
+/*
     action_lcd = new QLCDNumber(this);
     action_lcd->display(world->heroes[world->players_turn]->moves);
     action_lcd->setGeometry(win_w/2-25,20,100,50);
@@ -149,7 +160,7 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     //action_lcd->setAutoFillBackground(true);
     action_lcd->setPalette(Qt::transparent);
     action_lcd->show();
-
+*/
 
     // =========================================================== //
     // DISEASES progress bars
@@ -266,6 +277,42 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // where you see the full cards
 
 
+    // =========================================================== //
+    // END-TURN WINDOW OVERLAY
+    // =========================================================== //
+
+    // Overlay Window size
+    int endturn_win_w = 600;
+    int endturn_win_h = endturn_win_w*1.0/1.56; // playing card x/y ratio is 1:1.56
+
+    endturn_window = new endturnwindow(this,endturn_win_h,endturn_win_w);
+    endturn_window->move((win_w-endturn_win_w)/2,(win_h-endturn_win_h)/2);
+    endturn_window->close(); //for some reason the hand is automatically open o/w
+
+    connect(action_lcd,SIGNAL (noActions()), this, SLOT (openEndturn()));
+
+    //connect(endturn_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
+
+
+    // =========================================================== //
+    // GRAPHICS SCENE AND VIEW
+    // =========================================================== //
+
+    // Create a scene, 5px smaller than graphics_view to both dirs (no scroll bars)
+    scene = new QGraphicsScene(0,0,win_w-5,win_h-220-5,this);
+
+    // Create graphics_view to hold the scene
+    graphics_view = new QGraphicsView(scene,this);
+    graphics_view->setGeometry(0,20,win_w,win_h-220);
+    graphics_view->setAlignment(Qt::AlignTop|Qt::AlignLeft);
+    graphics_view->show();
+
+    // =========================================================== //
+    // MEEPLES
+    // =========================================================== //
+
+    create_meeples(meeples);
+
 }
 
 void mainWindow::createActions()
@@ -333,6 +380,35 @@ void mainWindow::status_view()
     infoLabel->setText(tr("Invoked <b>Edit|Status_view</b>"));
 }
 
+
+void mainWindow::create_meeples(QList<meeplesprite*> meeps) {
+
+    // ---- Setting up the QList, meeps ----
+    Hero* a_hero = new Hero();
+
+    for(size_t i=0;i<world->heroes.size();i++) {
+        a_hero = world->heroes[i];
+        meeplesprite* a_meeple = new meeplesprite(a_hero);
+        a_meeple->moveBy(3*i,0);
+        meeps.append(a_meeple);
+    }
+
+
+    // ---- Drawing the meeples ----
+    QPixmap pixmap(30, 30);
+
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+    for(int i=0; i<meeps.size(); i++) {
+        scene->addItem(meeps[i]);
+        meeps[i]->paint(&painter,0,0);
+    }
+    painter.end();
+
+}
+
+
+
 void mainWindow::handButtonClicked(bool checked) {
  if (checked) {
  hand_window->show();
@@ -358,32 +434,43 @@ void mainWindow::overlayClosed() {
 
 void mainWindow::specButtonClicked(bool checked) {
  if (checked) {
- spec_window->show();
- spec_button->setText("CLOSE\nSPECIAL");
+    graphics_view->close();
+    spec_window->show();
+    spec_button->setText("CLOSE\nSPECIAL");
  } else {
- spec_window->close();
- spec_button->setText("SPECIAL");
+    spec_window->close();
+    spec_button->setText("SPECIAL");
+    graphics_view->show();
  }
 }
 
 void mainWindow::moveButtonClicked(bool checked) {
  if (checked) {
- move_window->show();
- move_button->setText("CLOSE\nMOVE\nWINDOW");
+    graphics_view->close();
+    move_window->show();
+    move_button->setText("CLOSE\nMOVE\nWINDOW");
  } else {
- move_window->close();
- move_button->setText("MOVE");
+    move_window->close();
+    move_button->setText("MOVE");
+    graphics_view->show();
  }
 }
 
 void mainWindow::flyButtonClicked(bool checked) {
  if (checked) {
- move_window->show();
- fly_button->setText("CLOSE\nFLY\nWINDOW");
+    graphics_view->close();
+    move_window->show();
+    fly_button->setText("CLOSE\nFLY\nWINDOW");
  } else {
- move_window->close();
- fly_button->setText("FLY");
+    move_window->close();
+    fly_button->setText("FLY");
+    graphics_view->show();
  }
 }
 
+void mainWindow::openEndturn() {
+    qDebug() << "Opening EndTurn window.\n";
+    graphics_view->close();
+    endturn_window->show();
+}
 

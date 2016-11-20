@@ -25,6 +25,10 @@ QProgressBar::chunk {
     margin: 0.5px;
 }
 
+
+QGraphicsView { background-color: transparent; }
+
+
 /* PushButton configuration */
 QPushButton { background-color: cyan }
 

@@ -5,12 +5,19 @@
 #include "handwindow.h"
 #include "specialwindow.h"
 #include "movewindow.h"
+#include "endturnwindow.h"
+#include "actioncounter.h"
 #include "movebuttons.h"
-#include "world.h"
+#include "meeplesprite.h"
+
+#include "macros.h"
 
 #include <QPushButton>
 #include <QLCDNumber>
-
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QList>
+#include <vector>
 
 class QMenu;
 class QLabel;
@@ -24,7 +31,8 @@ public:
 
     World* world;
 
-    QLCDNumber* action_lcd;
+    //QLCDNumber* action_lcd;
+    actioncounter* action_lcd;
 
 
 protected:
@@ -39,6 +47,7 @@ private:
     HandWindow *hand_window;
     specialwindow *spec_window;
     movewindow *move_window;
+    endturnwindow *endturn_window;
     movebuttons *move_buttons;
 
     QMenu *fileMenu;
@@ -58,6 +67,14 @@ private:
     QPushButton *move_button;
     QPushButton *fly_button;
 
+    // Graphics
+    QGraphicsScene *scene;
+    QGraphicsView* graphics_view;
+
+    QList<meeplesprite*> meeples;
+    void create_meeples(QList<meeplesprite*> meeps);
+
+
 signals:
 
 private slots:
@@ -72,6 +89,8 @@ private slots:
     void flyButtonClicked(bool checked);
 
     void overlayClosed(); //for closing move overlay correctly
+
+    void openEndturn();
 
 };
 
