@@ -40,7 +40,9 @@ SOURCES += \
     src/gui/confirmwindow.cpp \
     src/gui/endturnwindow.cpp \
     src/gui/actioncounter.cpp \
-    src/gui/meeplesprite.cpp
+    src/gui/meeplesprite.cpp \
+    src/gui/disinfectwindow.cpp \
+    src/gui/diseasecube.cpp
     #src/gui/movebuttons.cpp
 
 
@@ -77,7 +79,9 @@ HEADERS += \
     src/gui/confirmwindow.h \
     src/gui/endturnwindow.h \
     src/gui/actioncounter.h \
-    src/gui/meeplesprite.h
+    src/gui/meeplesprite.h \
+    src/gui/disinfectwindow.h \
+    src/gui/diseasecube.h
     #src/gui/movebuttons.h
 
 RESOURCES +=

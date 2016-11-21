@@ -67,8 +67,21 @@ void endturnwindow::endturnClicked() {
 
     qDebug() << "Turn ended. \n";
 
+    // Draw cards and infect
+    int player = parent->world->players_turn;
+    parent->world->draw_player_deck(*parent->world->heroes[player]);
+    parent->world->draw_infection_deck();
+
     // Change turn
     parent->world->next_player_turn();
+
+    // Update the disease cubes
+    parent->updateDiseases();
+
+    //qDebug() << "Disease cubes to be updated - STUB \n";
+
+    // Update the progress bars
+    qDebug() << "Progress bars to be updated - STUB \n";
 
     // Update the action LCD
     parent->action_lcd->check_actions();

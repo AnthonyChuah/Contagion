@@ -5,6 +5,7 @@
 #include "handwindow.h"
 #include "specialwindow.h"
 #include "movewindow.h"
+#include "disinfectwindow.h"
 #include "endturnwindow.h"
 #include "actioncounter.h"
 #include "movebuttons.h"
@@ -39,6 +40,8 @@ public:
     void openGraphics();
     void closeGraphics();
 
+    void updateDiseases() { setup_diseasecubes(); }
+
 protected:
 //#ifndef QT_NO_CONTEXTMENU
 //    void contextMenuEvent(QContextMenuEvent *event) Q_DECL_OVERRIDE;
@@ -52,6 +55,7 @@ private:
     specialwindow *spec_window;
     movewindow *move_window;
     endturnwindow *endturn_window;
+    disinfectwindow *disinfect_window;
 
     QMenu *fileMenu;
     QMenu *viewMenu;
@@ -103,6 +107,8 @@ private slots:
     void overlayClosed(); //for closing move overlay correctly
 
     void openEndturn();
+
+    void treatDisease(int d_id);
 
 };
 

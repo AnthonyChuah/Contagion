@@ -1,4 +1,5 @@
 #include "confirmwindow.h"
+#include <QShortcut>
 
 confirmwindow::confirmwindow(QWidget *parent,QString info,int height, int width) : QWidget(parent) {
     //Set the size of the window
@@ -50,7 +51,8 @@ confirmwindow::confirmwindow(QWidget *parent,QString info,int height, int width)
 
     // Connection (signal to slot)
     connect(confirm_button, SIGNAL (clicked()), this, SLOT (slotConfirmClicked()));
-
+    // Shortcut - confirm with Return/Enter key
+    new QShortcut(QKeySequence(Qt::Key_Return), this, SLOT(slotConfirmClicked()));
 
     // =========================================================== //
     // Cancel button

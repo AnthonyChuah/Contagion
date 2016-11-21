@@ -38,7 +38,6 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
     // Set up the QList of Radio Buttons
     city_group = new QButtonGroup(this);
     cityListSetup("../Contagion/cities.dat",city_group);
-    //cityListSetup("../Contagion/cities.dat");
     qDebug() << "City list setup done.\n";
 
 

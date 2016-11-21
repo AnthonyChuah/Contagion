@@ -1,5 +1,5 @@
-#ifndef MEEPLESPRITE_H
-#define MEEPLESPRITE_H
+#ifndef DISEASECUBE_H
+#define DISEASECUBE_H
 
 #include <QObject>
 #include <QGraphicsObject>
@@ -9,20 +9,22 @@
 
 #include "macros.h"
 
-class meeplesprite : public QGraphicsObject {
+class diseasecube : public QGraphicsObject {
     //Q_OBJECT
 public:
-    explicit meeplesprite(Hero *hero);
+    explicit diseasecube(City *a_city,int d_id,int x_coord,int y_coord,int side);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) Q_DECL_OVERRIDE;
 
     void setPosition(int x,int y);
 
-    void moveCity(City* city); //moves the meeple sprite to the city "city"
+    //void moveCity(City* city); //moves the meeple sprite to the city "city"
 
 
 protected:
     QColor colour;
+
+    City* city;
 
     QRectF boundingRect() const Q_DECL_OVERRIDE;
 
@@ -33,11 +35,9 @@ private:
     int wth=30;
     int hth=30;
 
-    //QGraphicsView graphView;
-
 signals:
 
 public slots:
 };
 
-#endif // MEEPLESPRITE_H
+#endif // DISEASECUBE_H

@@ -7,6 +7,7 @@
 #include "actioncounter.h"
 
 #include "meeplesprite.h"
+#include "diseasecube.h"
 #include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -314,11 +315,13 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // DISEASE CUBES
     // =========================================================== //
     // Setup disease colours
+    /*
     QColor dis0, dis1, dis2, dis3;
     dis0.setRgb(242,236,51);    dis1.setRgb(242,51,51);
     dis2.setRgb(51,73,242);     dis3.setRgb(0,0,0);
     dis_colours.append(dis0);    dis_colours.append(dis1);
     dis_colours.append(dis2);    dis_colours.append(dis3);
+*/
 
     // Draw disease cubes
     setup_diseasecubes();
@@ -388,24 +391,24 @@ void mainWindow::createMenus()
 }
 
 
-void mainWindow::new_game()
-{
+void mainWindow::new_game() {
     infoLabel->setText(tr("Invoked <b>File|New</b>"));
+    qDebug() << "New game function - STUB. \n";
 }
 
-void mainWindow::load_game()
-{
+void mainWindow::load_game() {
     infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+    qDebug() << "Load game function - STUB. \n";
 }
 
-void mainWindow::save_game()
-{
+void mainWindow::save_game() {
     infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+    qDebug() << "Save game function - STUB. \n";
 }
 
-void mainWindow::status_view()
-{
+void mainWindow::status_view() {
     infoLabel->setText(tr("Invoked <b>Edit|Status_view</b>"));
+    qDebug() << "Status view function - STUB. \n";
 }
 
 
@@ -435,6 +438,7 @@ void mainWindow::create_meeples(QList<meeplesprite*> *meeps) {
 
 }
 
+
 void mainWindow::setup_diseasecubes() {
     std::vector<City> cities = world->cities;
 
@@ -443,14 +447,10 @@ void mainWindow::setup_diseasecubes() {
     for(it=world->cities.begin();it != world->cities.end();it++) {
         draw_citydiseases(&(*it));
     }
-
-    // need iterator, and iterate through all cities
-    //draw_citydiseases(&(cities[0]));
 }
 
 
 void mainWindow::draw_citydiseases(City* a_city) {
-
     int side = 10;
 
     // City coordinates
@@ -461,21 +461,35 @@ void mainWindow::draw_citydiseases(City* a_city) {
     y = y-15;
 
 
-    // Draw the cubes
-    QBrush brush(Qt::SolidPattern);
-    QPen pen;
-    QRectF rect;
+    // Remove existing cubes
+    QGraphicsItem* removable;
     int mult = 0;
     for (int i=0; i<4; i++) {
-        if(a_city->disease_counters[i]>0) {
-            qDebug() << "Disease " << i << "counter is" << a_city->disease_counters[i] << "\n.";
-            for (int j=0; j<a_city->disease_counters[i]; j++) {
+        for (int j=0; j<3; j++) {
+            removable = scene->itemAt(x+j*(2+side),y+mult*(2+side),QTransform());
+            if(removable->data(0)=="d_cube") {
+                scene->removeItem(removable);
+                delete(removable);
+            }
+        }
+        mult++;
+    }
+
+
+    // Draw the cubes
+    diseasecube* a_cube;
+    mult = 0;
+    int x_coord; int y_coord;
+    for (int i=0; i<4; i++) {
+        if(a_city->get_ncubes(i)>0) {
+            qDebug() << "Disease " << i << "counter is" << a_city->get_ncubes(i) << "\n.";
+            for (int j=0; j<a_city->get_ncubes(i); j++) {
+                x_coord = x+j*(2+side);
+                y_coord = y+mult*(2+side);
                 qDebug() << "In the loop, with i: " << i << "and j:" << j << " \n";
-                brush.setColor(dis_colours[i]);
-                //pen.setBrush(brush);
-                pen.setBrush(dis_colours[i]);
-                rect = *(new QRectF(x+j*(2+side),y+mult*(2+side),side,side));
-                scene->addRect(rect,pen,brush);
+                a_cube = new diseasecube(a_city,i,x_coord,y_coord,side);
+                a_cube->setData(0,"d_cube");
+                scene->addItem(a_cube);
             }
             mult++;
         }
@@ -547,31 +561,55 @@ void mainWindow::flyButtonClicked(bool checked) {
 }
 
 void mainWindow::disinfectButtonClicked() {
+    int player = world->players_turn;
+    City* d_city = world->heroes[player]->ptr_city;
 
-    qDebug() << "Disinfect button clicked -- STUB! \n";
-
-    // CLOSE GRAPHICS VIEW
-    //graphics_view->close();
-
+    // COUNT DISEASES currently in the city
+    std::vector<bool> d_exs; //booleans of wheter disease exists
+    int d_types=0;
+    int last_d=0; //last disease that exists - used in one disease case below
+    for (int i=0; i<4; i++) {
+      if (d_city->get_ncubes(i)>0) {
+          d_exs.push_back(true);
+          d_types++;
+          last_d=i;
+      } else {
+          d_exs.push_back(false);
+      }
+    }
 
     // CHOOSE WHICH DISEASE COLOUR TO REMOVE
-      //int dis_id;
+    if(d_types>1) {
+        // open disease select window
+        disinfect_window->show(d_exs.at(0),d_exs.at(1),d_exs.at(2),d_exs.at(3));
+    } else if (d_types==1) {
+        qDebug() << "Only one disease exists in the city -- treating that. \n";
+        treatDisease(last_d);
+    }
 
+    // Update the action LCD
+    action_lcd->check_actions();
 
-    // OPEN CONFIRM WINDOW
-
-
-    // Disinfect action
-      //int player = world->players_turn;
-      //world->heroes[player]->disinfect(dis_id);
 }
 
 
 void mainWindow::openEndturn() {
     qDebug() << "Opening EndTurn window.\n";
-    closeGraphics();
-    //graphics_view->close();
+    //closeGraphics(); // no need to close graphics view in current version
     endturn_window->show();
+}
+
+
+void mainWindow::treatDisease(int d_id) {
+    int player = world->players_turn;
+    City* d_city = world->heroes[player]->ptr_city;
+
+    // Disinfect action
+    qDebug() << "Disinfect action attempted! \n";
+    world->heroes[player]->disinfect(d_id);
+    qDebug() << "The number of disease cubes is " << d_city->get_ncubes(d_id)<<"\n";
+    draw_citydiseases(d_city);
+    graphics_view->show();
 }
 
 
