@@ -130,18 +130,10 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     action_lcd = new actioncounter(this);
     action_lcd->show();
-/*
-    action_lcd = new QLCDNumber(this);
-    action_lcd->display(world->heroes[world->players_turn]->moves);
-    action_lcd->setGeometry(win_w/2-25,20,100,50);
-    //action_lcd->setSegmentStyle(QLCDNumber::Flat);
-    //action_lcd->setAutoFillBackground(true);
-    action_lcd->setPalette(Qt::transparent);
-    action_lcd->show();
-*/
 
     // =========================================================== //
     // DISEASES progress bars
+    // =========================================================== //
     int dis_prb_wth=50;
     int dis_prb_hth=50;
     int dis_prb_xcoord = oprb_xcoord + oprb_wth + 40;
@@ -249,7 +241,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     connect(move_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
 
-
     // SPECIAL WINDOW
     int spec_win_w = 600;
     int spec_win_h = spec_win_w*1.0/1.56;
@@ -258,26 +249,25 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     spec_window->close(); //for some reason the hand is automatically open o/w
 
     // DISINFECT WINDOW
-
-    //window that provides a choice of which disease to treat,
-    //and then sends treat signal for that disease
+    int disn_win_w = 600;
+    int disn_win_h = disn_win_w*1.0/1.56;
+    disinfect_window = new disinfectwindow(this,disn_win_h,disn_win_w);
+    disinfect_window->move((win_w-disn_win_w)/2,(win_h-disn_win_h)/2);
+    disinfect_window->close();
 
 
     // =========================================================== //
     // PLAYER HAND WINDOW
     // =========================================================== //
 
-    // Sub-Window size
     int hand_win_w = 600;
     int hand_win_h = hand_win_w*1.0/1.56; // playing card x/y ratio is 1:1.56
-
     hand_window = new HandWindow(this,hand_win_h,hand_win_w);
     hand_window->move((win_w-hand_win_w)/2,(win_h-hand_win_h)/2);
     hand_window->close(); //for some reason the hand is automatically open o/w
 
     // Button to show the hand window
     hand_button = new QPushButton("SHOW HAND", this);
-    //hand_button->setGeometry(b_xcoord+5*b_xoffs+30,b_ycoord,b_wth+100,b_hth);
     hand_button->setGeometry(b_xcoord+6*b_xoffs,b_ycoord,b_wth+50,b_hth);
     hand_button->setToolTip("Show the cards in hand");
 

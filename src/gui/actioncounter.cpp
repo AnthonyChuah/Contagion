@@ -10,14 +10,11 @@ actioncounter::actioncounter(QWidget *parent) : QLCDNumber(parent) {
     // =========================================================== //
     // ACTIONS remaining LCD number
     // =========================================================== //
-    //action_lcd = new QLCDNumber(this);
     this->display(par->world->heroes[par->world->players_turn]->moves);
     this->setGeometry(1900/2-25,20,100,50);
     //this->setSegmentStyle(QLCDNumber::Flat);
     //this->setAutoFillBackground(true);
     this->setPalette(Qt::transparent);
-    //this->show();
-
 
 }
 

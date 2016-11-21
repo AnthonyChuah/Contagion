@@ -78,8 +78,6 @@ void endturnwindow::endturnClicked() {
     // Update the disease cubes
     parent->updateDiseases();
 
-    //qDebug() << "Disease cubes to be updated - STUB \n";
-
     // Update the progress bars
     qDebug() << "Progress bars to be updated - STUB \n";
 
