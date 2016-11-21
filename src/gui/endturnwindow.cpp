@@ -1,13 +1,14 @@
 #include "endturnwindow.h"
 #include <QPushButton>
+#include <QDebug>
+
+#include "mainwindow.h"
 
 endturnwindow::endturnwindow(QWidget *parent,int height, int width) : QWidget(parent) {
     //Set the size of the window
     int win_wth=width;//256;
     int win_hth=height;//128;
     setFixedSize(win_wth, win_hth);
-
-
 
     // CONDITIONAL - if too many cards, bring up the card removal window
 
@@ -50,6 +51,28 @@ endturnwindow::endturnwindow(QWidget *parent,int height, int width) : QWidget(pa
     card_button8->setCheckable(true);
 
 
+    // CONFIRM END OF TURN
+    endturn_button = new QPushButton("END TURN", this);
+    endturn_button->setGeometry(but_x+3*but_x_offset, but_y+but_y_offset, but_wth*2, but_hth);
+    endturn_button->setToolTip("Ends the turn");
+
+    connect(endturn_button, SIGNAL (clicked()), this, SLOT (endturnClicked()));
 
 
+}
+
+void endturnwindow::endturnClicked() {
+    // Get the parent (to get the world)
+    mainWindow* parent = qobject_cast<mainWindow*>(this->parent());
+
+    qDebug() << "Turn ended. \n";
+
+    // Change turn
+    parent->world->next_player_turn();
+
+    // Update the action LCD
+    parent->action_lcd->check_actions();
+
+    // Close end-turn window
+    this->close();
 }

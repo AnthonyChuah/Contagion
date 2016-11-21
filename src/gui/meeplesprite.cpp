@@ -1,4 +1,5 @@
 #include "meeplesprite.h"
+#include "movewindow.h"
 #include <string>
 
 #include <QPainter>
@@ -50,6 +51,20 @@ QRectF meeplesprite::boundingRect() const {
     return QRectF(x,y,wth,hth);
 }
 
-void meeplesprite::setPosition(int x, int y) {
-    this->setPos(x,y-20);
+void meeplesprite::setPosition(int x_coo, int y_coo) {
+
+    // Move coords are relative to original position, so have to rebase
+    x_coo = x_coo-x;
+    y_coo = y_coo-y-20;  // -20 correction for menu bar position
+
+    this->setPos(x_coo,y_coo);
+}
+
+void meeplesprite::moveCity(City* city) {
+    double x_to = city->x_coord;
+    double y_to = city->y_coord;
+
+    convertXY(x_to,y_to); // conversion helper function
+
+    this->setPosition(x_to,y_to);
 }

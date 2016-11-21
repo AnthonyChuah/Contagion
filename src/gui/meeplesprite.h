@@ -18,6 +18,8 @@ public:
 
     void setPosition(int x,int y);
 
+    void moveCity(City* city); //moves the meeple sprite to the city "city"
+
 protected:
     QColor colour;
 
@@ -30,7 +32,7 @@ private:
     int wth=30;
     int hth=30;
 
-    QGraphicsView graphView;
+    //QGraphicsView graphView;
 
 signals:
 

@@ -34,6 +34,10 @@ public:
     //QLCDNumber* action_lcd;
     actioncounter* action_lcd;
 
+    QList<meeplesprite*> meeples;
+
+    void openGraphics();
+    void closeGraphics();
 
 protected:
 //#ifndef QT_NO_CONTEXTMENU
@@ -48,7 +52,6 @@ private:
     specialwindow *spec_window;
     movewindow *move_window;
     endturnwindow *endturn_window;
-    movebuttons *move_buttons;
 
     QMenu *fileMenu;
     QMenu *viewMenu;
@@ -57,23 +60,31 @@ private:
     QAction *loadAct;
     QAction *saveAct;
     QAction *quitAct;
-
     QAction *statusAct;
 
     QLabel *infoLabel;
 
+    // ---------------------------------------------- //
+    // Buttons
+    // ---------------------------------------------- //
     QPushButton *hand_button;
     QPushButton *spec_button;
     QPushButton *move_button;
     QPushButton *fly_button;
+    QPushButton *disinfect_button;
 
+    // ---------------------------------------------- //
     // Graphics
+    // ---------------------------------------------- //
     QGraphicsScene *scene;
     QGraphicsView* graphics_view;
 
-    QList<meeplesprite*> meeples;
-    void create_meeples(QList<meeplesprite*> meeps);
-
+    // Meeple creation function
+    void create_meeples(QList<meeplesprite*> *meeps);
+    // Disease cube creation functions
+    QList<QColor> dis_colours;
+    void setup_diseasecubes();
+    void draw_citydiseases(City* a_city);
 
 signals:
 
@@ -87,6 +98,7 @@ private slots:
     void specButtonClicked(bool checked);
     void moveButtonClicked(bool checked);
     void flyButtonClicked(bool checked);
+    void disinfectButtonClicked();
 
     void overlayClosed(); //for closing move overlay correctly
 

@@ -12,6 +12,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 
+#include <QPen>
+#include <QBrush>
+
 #include "macros.h"
 
 //mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -96,32 +99,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
 
     // =========================================================== //
-    // CARD DECK BUTTONS
-    // =========================================================== //
-
-    // Button size and placement
-    int card_wth = 128;
-    int card_hth = 176;
-    int card_xcoord = 975;
-    int card_xoffset = card_wth+20;
-    int card_ycoord = 700;
-
-    // Push button for player card
-    QPushButton *PCard_button = new QPushButton("PLAYER", this);
-    PCard_button->setGeometry(card_xcoord,card_ycoord,card_wth,card_hth);
-    PCard_button->setToolTip("Draws a player card");
-    //PCard_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
-
-    // Push button for infection card
-    QPushButton *ICard_button = new QPushButton("INFECTION", this);
-    ICard_button->setGeometry(card_xcoord+1*card_xoffset,card_ycoord,card_wth,card_hth);
-    ICard_button->setToolTip("Draws an Infection card");
-
-    // Connection (signal to slot)
-    //connect(ICard_button, SIGNAL (clicked()), QApplication::instance(), SLOT (quit()));
-
-
-    // =========================================================== //
     // INFECTION RATE progress bar
     // =========================================================== //
     QProgressBar *iprogBar = new QProgressBar(this);
@@ -200,50 +177,89 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     int b_xoffs = b_wth+20; //button x offset
     int b_ycoord = 750; //button y-coordinate
 
-    // Fly
-    fly_button = new QPushButton("FLY", this);
-    fly_button->setGeometry(b_xcoord+1*b_xoffs,b_ycoord,b_wth,b_hth);
-    fly_button->setToolTip("Fly along the map");
-    fly_button->setCheckable(true);
-
-    // Connection (signal to slot)
-    connect(fly_button, SIGNAL (clicked(bool)), this, SLOT (flyButtonClicked(bool)));
-
-    // Special action
-    int spec_win_w = 600;
-    int spec_win_h = spec_win_w*1.0/1.56;
-
-    spec_window = new specialwindow(this,spec_win_h,spec_win_w);
-    spec_window->move((win_w-spec_win_w)/2,(win_h-spec_win_h)/2);
-    spec_window->close(); //for some reason the hand is automatically open o/w
-
-    spec_button = new QPushButton("SPECIAL", this);
-    spec_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
-    spec_button->setToolTip("Hero's special action");
-    spec_button->setCheckable(true);
-
-    // Connection (signal to slot)
-    connect(spec_button, SIGNAL (clicked(bool)), this, SLOT (specButtonClicked(bool)));
-
     // Move button
-    //QPushButton *move_button = new QPushButton("MOVE", this);
     move_button = new QPushButton("MOVE", this);
     move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
     move_button->setToolTip("Move along the map");
     //move_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
     move_button->setCheckable(true);
 
-    // Connection (signal to slot)
     connect(move_button, SIGNAL (clicked(bool)), this, SLOT (moveButtonClicked(bool)));
 
+    // Fly
+    fly_button = new QPushButton("FLY", this);
+    fly_button->setGeometry(b_xcoord+1*b_xoffs,b_ycoord,b_wth,b_hth);
+    fly_button->setToolTip("Fly along the map");
+    fly_button->setCheckable(true);
+
+    connect(fly_button, SIGNAL (clicked(bool)), this, SLOT (flyButtonClicked(bool)));
+
+    // Special action
+    spec_button = new QPushButton("SPECIAL", this);
+    spec_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
+    spec_button->setToolTip("Hero's special action");
+    spec_button->setCheckable(true);
+
+    connect(spec_button, SIGNAL (clicked(bool)), this, SLOT (specButtonClicked(bool)));
+
+    // Disinfect button
+    disinfect_button = new QPushButton("DISINFECT", this);
+    disinfect_button->setGeometry(b_xcoord+3*b_xoffs,b_ycoord,b_wth,b_hth);
+    disinfect_button->setToolTip("Disinfect");
+
+    connect(disinfect_button, SIGNAL (clicked()), this, SLOT (disinfectButtonClicked()));
+
+
     // =========================================================== //
-    // MOVE WINDOW OVERLAY
+    // CARD DECK BUTTONS
     // =========================================================== //
 
+    // Button size and placement
+    int card_wth = 128;
+    int card_hth = 176;
+    //int card_xcoord = 1075;//975;
+    //int card_xoffset = card_wth+20;
+    int card_ycoord = 700;
+
+    // Push button for player card
+    QPushButton *PCard_button = new QPushButton("PLAYER", this);
+    //PCard_button->setGeometry(card_xcoord,card_ycoord,card_wth,card_hth);
+    PCard_button->setGeometry(b_xcoord+4*b_xoffs,card_ycoord,card_wth,card_hth);
+    PCard_button->setToolTip("Draws a player card");
+    //PCard_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
+
+    // Push button for infection card
+    QPushButton *ICard_button = new QPushButton("INFECTION", this);
+    //ICard_button->setGeometry(card_xcoord+1*card_xoffset,card_ycoord,card_wth,card_hth);
+    ICard_button->setGeometry(b_xcoord+5*b_xoffs,card_ycoord,card_wth,card_hth);
+    ICard_button->setToolTip("Draws an Infection card");
+
+    // Connection (signal to slot)
+    //connect(ICard_button, SIGNAL (clicked()), QApplication::instance(), SLOT (quit()));
+
+
+    // =========================================================== //
+    // WINDOW OVERLAYS
+    // =========================================================== //
+
+    // MOVE WINDOW
     move_window = new movewindow(this,win_h-150,win_w);
     move_window->close(); //for some reason the hand is automatically open o/w
 
     connect(move_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
+
+
+    // SPECIAL WINDOW
+    int spec_win_w = 600;
+    int spec_win_h = spec_win_w*1.0/1.56;
+    spec_window = new specialwindow(this,spec_win_h,spec_win_w);
+    spec_window->move((win_w-spec_win_w)/2,(win_h-spec_win_h)/2);
+    spec_window->close(); //for some reason the hand is automatically open o/w
+
+    // DISINFECT WINDOW
+
+    //window that provides a choice of which disease to treat,
+    //and then sends treat signal for that disease
 
 
     // =========================================================== //
@@ -260,39 +276,21 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     // Button to show the hand window
     hand_button = new QPushButton("SHOW HAND", this);
-    hand_button->setGeometry(b_xcoord+5*b_xoffs+30,b_ycoord,b_wth+100,b_hth);
-    //hand_button->setGeometry(200,200,100,100);
+    //hand_button->setGeometry(b_xcoord+5*b_xoffs+30,b_ycoord,b_wth+100,b_hth);
+    hand_button->setGeometry(b_xcoord+6*b_xoffs,b_ycoord,b_wth+50,b_hth);
     hand_button->setToolTip("Show the cards in hand");
 
     hand_button->setCheckable(true);
 
-
-    // Connection (signal to slot)
     connect(hand_button, SIGNAL (clicked(bool)), this, SLOT (handButtonClicked(bool)));
-
+    // Shortcut
+    //new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_H), hand_window, SLOT(show()));
+    //SOME BUG EXISTS IN THE ABOVE SHORTCUT!
 
     // need to also view other players' hands, so can plan trades
     // there could e.g. be a quick-view pane that shows colours reflecting
     // the disease-ares of the cities etc., and a button to open a window
     // where you see the full cards
-
-
-    // =========================================================== //
-    // END-TURN WINDOW OVERLAY
-    // =========================================================== //
-
-    // Overlay Window size
-    int endturn_win_w = 600;
-    int endturn_win_h = endturn_win_w*1.0/1.56; // playing card x/y ratio is 1:1.56
-
-    endturn_window = new endturnwindow(this,endturn_win_h,endturn_win_w);
-    endturn_window->move((win_w-endturn_win_w)/2,(win_h-endturn_win_h)/2);
-    endturn_window->close(); //for some reason the hand is automatically open o/w
-
-    connect(action_lcd,SIGNAL (noActions()), this, SLOT (openEndturn()));
-
-    //connect(endturn_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
-
 
     // =========================================================== //
     // GRAPHICS SCENE AND VIEW
@@ -310,10 +308,42 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     // MEEPLES
     // =========================================================== //
+    create_meeples(&meeples);
 
-    create_meeples(meeples);
+    // =========================================================== //
+    // DISEASE CUBES
+    // =========================================================== //
+    // Setup disease colours
+    QColor dis0, dis1, dis2, dis3;
+    dis0.setRgb(242,236,51);    dis1.setRgb(242,51,51);
+    dis2.setRgb(51,73,242);     dis3.setRgb(0,0,0);
+    dis_colours.append(dis0);    dis_colours.append(dis1);
+    dis_colours.append(dis2);    dis_colours.append(dis3);
+
+    // Draw disease cubes
+    setup_diseasecubes();
+
+    // =========================================================== //
+    // END-TURN WINDOW OVERLAY
+    // =========================================================== //
+
+    // Overlay Window size
+    int endturn_win_w = 600;
+    int endturn_win_h = endturn_win_w*1.0/1.56; // playing card x/y ratio is 1:1.56
+
+    //endturn_window = new endturnwindow(graphics_view,endturn_win_h,endturn_win_w);
+    endturn_window = new endturnwindow(this,endturn_win_h,endturn_win_w);
+    endturn_window->move((win_w-endturn_win_w)/2,(win_h-endturn_win_h)/2);
+    endturn_window->close(); //for some reason the hand is automatically open o/w
+
+    connect(action_lcd,SIGNAL (noActions()), this, SLOT (openEndturn()));
+
+    //connect(endturn_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
 
 }
+
+
+
 
 void mainWindow::createActions()
 {
@@ -340,8 +370,6 @@ void mainWindow::createActions()
     statusAct = new QAction(tr("&Status view"), this);
     statusAct->setStatusTip(tr("Show status view"));
     connect(saveAct, &QAction::triggered, this, &mainWindow::status_view);
-
-
 }
 
 
@@ -381,7 +409,7 @@ void mainWindow::status_view()
 }
 
 
-void mainWindow::create_meeples(QList<meeplesprite*> meeps) {
+void mainWindow::create_meeples(QList<meeplesprite*> *meeps) {
 
     // ---- Setting up the QList, meeps ----
     Hero* a_hero = new Hero();
@@ -390,7 +418,7 @@ void mainWindow::create_meeples(QList<meeplesprite*> meeps) {
         a_hero = world->heroes[i];
         meeplesprite* a_meeple = new meeplesprite(a_hero);
         a_meeple->moveBy(3*i,0);
-        meeps.append(a_meeple);
+        meeps->append(a_meeple);
     }
 
 
@@ -399,14 +427,61 @@ void mainWindow::create_meeples(QList<meeplesprite*> meeps) {
 
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
-    for(int i=0; i<meeps.size(); i++) {
-        scene->addItem(meeps[i]);
-        meeps[i]->paint(&painter,0,0);
+    for(int i=0; i<meeps->size(); i++) {
+        scene->addItem((*meeps)[i]);
+        (*meeps)[i]->paint(&painter,0,0);
     }
     painter.end();
 
 }
 
+void mainWindow::setup_diseasecubes() {
+    std::vector<City> cities = world->cities;
+
+    // for each city, add cubes
+    std::vector<City>::iterator it;
+    for(it=world->cities.begin();it != world->cities.end();it++) {
+        draw_citydiseases(&(*it));
+    }
+
+    // need iterator, and iterate through all cities
+    //draw_citydiseases(&(cities[0]));
+}
+
+
+void mainWindow::draw_citydiseases(City* a_city) {
+
+    int side = 10;
+
+    // City coordinates
+    double x = a_city->x_coord;
+    double y = a_city->y_coord;
+    convertXY(x,y);
+    x = x+15;
+    y = y-15;
+
+
+    // Draw the cubes
+    QBrush brush(Qt::SolidPattern);
+    QPen pen;
+    QRectF rect;
+    int mult = 0;
+    for (int i=0; i<4; i++) {
+        if(a_city->disease_counters[i]>0) {
+            qDebug() << "Disease " << i << "counter is" << a_city->disease_counters[i] << "\n.";
+            for (int j=0; j<a_city->disease_counters[i]; j++) {
+                qDebug() << "In the loop, with i: " << i << "and j:" << j << " \n";
+                brush.setColor(dis_colours[i]);
+                //pen.setBrush(brush);
+                pen.setBrush(dis_colours[i]);
+                rect = *(new QRectF(x+j*(2+side),y+mult*(2+side),side,side));
+                scene->addRect(rect,pen,brush);
+            }
+            mult++;
+        }
+    }
+
+}
 
 
 void mainWindow::handButtonClicked(bool checked) {
@@ -428,6 +503,9 @@ void mainWindow::overlayClosed() {
  // TEMPORARY - to handle fly-button (as it also connects to move_window)
  fly_button->setChecked(false);
  fly_button->setText("FLY");
+
+ // Show the graphics view
+ graphics_view->show();
 }
 
 
@@ -468,9 +546,43 @@ void mainWindow::flyButtonClicked(bool checked) {
  }
 }
 
+void mainWindow::disinfectButtonClicked() {
+
+    qDebug() << "Disinfect button clicked -- STUB! \n";
+
+    // CLOSE GRAPHICS VIEW
+    //graphics_view->close();
+
+
+    // CHOOSE WHICH DISEASE COLOUR TO REMOVE
+      //int dis_id;
+
+
+    // OPEN CONFIRM WINDOW
+
+
+    // Disinfect action
+      //int player = world->players_turn;
+      //world->heroes[player]->disinfect(dis_id);
+}
+
+
 void mainWindow::openEndturn() {
     qDebug() << "Opening EndTurn window.\n";
-    graphics_view->close();
+    closeGraphics();
+    //graphics_view->close();
     endturn_window->show();
+}
+
+
+
+// PUBLIC FUNCTIONS
+void mainWindow::openGraphics() {
+    graphics_view->show();
+}
+
+void mainWindow::closeGraphics() {
+    qDebug() << "Closing graphics view.\n";
+    graphics_view->close();
 }
 

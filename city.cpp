@@ -29,6 +29,10 @@ City::City(int _id, std::string _name, int _did, double _xcoord, double _ycoord,
   std::string substring = _name.substr(0, 4);
   std::strncpy(shortname, substring.c_str(), 4);
   neighbours = _neighbour;
+
+  for (int i = 0; i < 4; i++) {
+    disease_counters[i] = 0;
+  }
 }
 
 City::City(const City& _copy_from)

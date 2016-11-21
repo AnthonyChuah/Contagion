@@ -14,8 +14,7 @@
 
 class QRadioButton; //to add a radio button
 
-class movewindow : public QWidget
-{
+class movewindow : public QWidget {
     Q_OBJECT
 public:
     explicit movewindow(QWidget *parent = 0,int height = 180, int width = 180);
@@ -42,5 +41,12 @@ signals:
 
 public slots:
 };
+
+
+// =========================================================== //
+// HELPER FUNCTION FOR CONVERTING COORDINATES
+// =========================================================== //
+void convertXY(double& x_coord, double& y_coord);
+
 
 #endif // MOVEWINDOW_H

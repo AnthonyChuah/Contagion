@@ -17,6 +17,12 @@ private:
     QPushButton *card_button1; //card button 1 (placeholders for cards)
     QPushButton *card_button7; //card button 7 (placeholders for cards)
 
+    QPushButton *endturn_button;
+
+private slots:
+    void endturnClicked();
+
+
 };
 
 #endif // ENDTURNWINDOW_H

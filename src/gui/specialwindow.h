@@ -5,8 +5,7 @@
 #include <QPushButton>
 #include <QPoint>
 
-class specialwindow : public QWidget
-{
+class specialwindow : public QWidget {
     Q_OBJECT
 public:
     explicit specialwindow(QWidget *parent = 0,int height = 180, int width = 180);

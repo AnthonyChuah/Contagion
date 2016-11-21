@@ -52,17 +52,11 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
 
 
 void movewindow::cityListSetup(std::string _filename,QButtonGroup* city_group) {
-    //Multipliers for x and y coordinates
-    int x_multip=1500;//1600; //1600 is correct size, but projection off
-    int y_multip=900;
-    int x_conv,y_conv; //converted x and y coords
 
     std::ifstream ins;
     ins.open(_filename);
     if (ins.fail()) {
-    qDebug() << "Failed to open city input file.\n";
-    //  std::cerr << "Failed to open city input file.\n";
-    //  exit(1);
+     qDebug() << "Failed to open city input file.\n";
     }
 
     std::string rowdata;
@@ -90,11 +84,12 @@ void movewindow::cityListSetup(std::string _filename,QButtonGroup* city_group) {
       double xcoord, ycoord;
       cityid = std::stoi(elems[0]);  cityname = elems[1];
       xcoord = std::stod(elems[2]);  ycoord = std::stod(elems[3]);
-      x_conv = x_multip*xcoord;      y_conv = y_multip*(1-ycoord)-35;
+      convertXY(xcoord,ycoord); //convert to window coordinates
 
       // Create the QList of RadioButtons
       QRadioButton* a_city_button = new QRadioButton(this);
-      createRadioButton(a_city_button,cityid,cityname,x_conv,y_conv);
+      //createRadioButton(a_city_button,cityid,cityname,x_conv,y_conv);
+      createRadioButton(a_city_button,cityid,cityname,xcoord,ycoord);
       city_buttons.append(a_city_button);
 
       // Add the city to the group
@@ -123,7 +118,6 @@ void movewindow::slotButtonClicked(int buttonID) {
     mainWindow* parent = qobject_cast<mainWindow*>(this->parent());
 
     //Find out which city button was clicked, and set "city_to" pointer to it
-    //qDebug() << "City button for city " << buttonID << " was clicked.\n";
     city_to = new City();
 
     std::vector<City>::iterator it;
@@ -131,10 +125,9 @@ void movewindow::slotButtonClicked(int buttonID) {
         if(it->city_id==buttonID) {
             city_to = &(*it);
             break;
+        } else {
+            qDebug() << "No city" << buttonID << " found.\n";
         }
-        //else {
-            //qDebug() << "No city" << buttonID << " found.\n";
-        //}
     }
 
     //Make a check if move valid
@@ -143,7 +136,6 @@ void movewindow::slotButtonClicked(int buttonID) {
 
     //Open a confirmation window asking to confirm move
     int conf_win_w = win_wth; int conf_win_h = win_hth;
-    //QString infotext = "Confirm move to city "+QString::number(buttonID)+"?";
     QString cityname = QString::fromStdString(city_to->name);
     QString infotext = "Confirm move to "+cityname+"?";
     confirmwindow* confirm_window = new confirmwindow(this,infotext,conf_win_h,conf_win_w);
@@ -162,14 +154,14 @@ void movewindow::confirmHandler(bool confirm) {
 
       // move the Hero to the new city (if valid)
       int player = parent->world->players_turn;
-      parent->world->heroes[player]->move(*city_to,parent->world->heroes[player]);
+      if(parent->world->heroes[player]->move(*city_to,parent->world->heroes[player]))
+        parent->meeples[player]->moveCity(city_to); //meeple moved if move successful
 
       //DEBUG PART
       QString at_city = QString::fromStdString(parent->world->heroes[player]->ptr_city->name);
       qDebug() << "Hero is now at city" << at_city << ".\n";
 
       // Update the action display
-      //parent->action_lcd->display(parent->world->heroes[parent->world->players_turn]->moves);
       parent->action_lcd->check_actions();
 
       // Emit signal to close the overlay
@@ -177,8 +169,6 @@ void movewindow::confirmHandler(bool confirm) {
 
     } else {
       qDebug() << "Move cancelled.\n";
-      // Emit signal to close to overlay
-      //emit closeOverlay();
     }
     // Uncheck the selected city button
     city_group->setExclusive(false);
@@ -187,4 +177,18 @@ void movewindow::confirmHandler(bool confirm) {
 
     // Return city_to to point to null
     city_to=NULL;
+}
+
+
+// =========================================================== //
+// HELPER FUNCTION TO CONVERT COORDINATES
+// =========================================================== //
+void convertXY(double& x_coord, double& y_coord) {
+    //Multipliers for x and y coordinates
+    int x_multip=1500;//1600; //1600 is correct size, but projection off
+    int y_multip=950;//900;  //900 is correct, but projection is bad
+
+    x_coord = x_multip*x_coord;
+    //y_coord = y_multip*(1-y_coord)-35;
+    y_coord = y_multip*(1-y_coord)-60;
 }
