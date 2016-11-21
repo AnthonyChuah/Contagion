@@ -58,6 +58,7 @@ public:
   bool research_centre; // Indicates if a research centre exists in that city.
   std::vector<int> neighbours; // Vector containing the IDs of neighbouring cities.
   std::vector<int> heroes; // Vector containing the IDs of Heroes (players) present in the City.
+  bool outbreak_flag;
 };
 
 #endif

@@ -225,6 +225,7 @@ void World::setup()
   else if (num_players < 2) {std::cout << "You cannot have fewer than 2 players.\n"; exit(1);}
   std::cout << "Found " << num_players << " players and " << num_cities << " cities.\n";
   int starting_hand = 6 - num_players; // 4 for 2 players, 3 for 3 players, 2 for 4 players.
+  // starting_hand = 25; // For debugging.
   // First shuffle the PCard deck. Make sure this includes event cards.
   std::random_shuffle(player_deck.begin(),player_deck.end()); // <algorithm>'s function shuffles cards.
   // Note: do not use draw_player_deck because that will perform 2 draws and discard cards above 7.
@@ -656,9 +657,16 @@ void World::render_world_gui()
   // We do not yet know how exactly we will render the world graphically.
 }
 
+void World::clear_outbreak_flags()
+{
+  for (int i = 0; i < cities.size(); i++) {
+    cities[i].outbreak_flag = false;
+  }
+}
+
 void World::draw_infection_deck()
 {
-  std::cout << "Calling World::draw_infection_deck().\n";
+  std::cout << "Calling World::draw_infection_deck() with infection_rate of " << calculate_infection_rate() << ".\n";
   // If One Quiet Night event card has been played, do nothing and set skip_next_infect_cities back to false.
   if (skip_next_infect_cities)
     {
@@ -677,6 +685,7 @@ void World::draw_infection_deck()
 	  int cid_to_infect = chosen_card.city_id;
 	  cities[cid_to_infect].infect(cities[cid_to_infect].get_disease_id(), 1);
 	  infection_discard.push_back(chosen_card);
+	  clear_outbreak_flags();
 	}
       std::cout << "\n";
     }
@@ -685,20 +694,32 @@ void World::draw_infection_deck()
 void World::draw_player_deck(Hero& _hero)
 {
   std::cout << "Calling World::draw_player_deck().\n";
-  for (int i = 0; i < 2; i++)
-    {
-      if (player_deck.empty()) death("Lost game because you ran out of player cards to draw!\n");
-      PCard chosen_card = player_deck.back();
-      player_deck.pop_back();
-      if (chosen_card.epidemic) {
-	std::cout << "Player has drawn an EPIDEMIC!\n";
-	epidemic();
-	continue;
-      } else {
-	_hero.hand.push_back(chosen_card);
-	std::cout << "Player " << players_turn << " has drawn card: " << chosen_card.name << "\n";
+  for (int i = 0; i < 2; i++) {
+    if (player_deck.empty()) death("Lost game because you ran out of player cards to draw!\n");
+    PCard chosen_card = player_deck.back();
+    player_deck.pop_back();
+    if (chosen_card.epidemic) {
+      std::cout << "Player has drawn an EPIDEMIC!\n";
+      epidemic();
+      continue;
+    } else {
+      _hero.hand.push_back(chosen_card);
+      std::cout << "Player " << players_turn << " has drawn card: " << chosen_card.name << "\n";
+    }
+  }
+  while (_hero.hand.size() > 7) {
+    std::string discard;
+    std::cout << "You have more than 7 cards in your hand. Choose one to remove by typing its name.\n";
+    std::getline(std::cin, discard);
+    std::vector<PCard>::iterator it;
+    for (it = _hero.hand.begin(); it != _hero.hand.end(); it++) {
+      if (it->name == discard) {
+	std::cout << "Found the card you wanted to discard: " << discard << ".\n";
+	_hero.hand.erase(it);
+	break; // Avoid segmentation fault, because once you erase your iterator could be in wrong memory loc.
       }
     }
+  }
 }
 
 int World::calculate_infection_rate()
@@ -710,7 +731,7 @@ int World::calculate_infection_rate()
 
 void World::epidemic()
 {
-  std::cout << "Epidemic!\n";
+  std::cout << "Epidemic\n";
   infection_rate_base++;
   int infection_rate = calculate_infection_rate();
   std::cout << "The infection rate is now: " << infection_rate << ".\n";
@@ -721,6 +742,7 @@ void World::epidemic()
   std::cout << "This card has been added to the infection discard pile and then the pile is shuffled.\n";
   infection_deck.pop_front();
   cities[cid_target].infect(cities[cid_target].get_disease_id(), 3);
+  clear_outbreak_flags();
   std::random_shuffle(infection_discard.begin(), infection_discard.end());
   for (int i = 0; i < infection_discard.size(); i++) {
     std::cout << infection_discard[i].name << "  ";
@@ -745,104 +767,82 @@ bool World::check_eradication(int _did)
 bool World::play_event_card(Hero& _hero, std::string _event, std::string _arguments)
 {
   // Use iterator to find the relevant card in the player's hand, then pop it, then make the event happen.
-  if (_event == "Government Grant")
-    {
-      // Check that hero's hand contains that card.
-      PCard govgrant("Government Grant", -1, -1, true, false);
-      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), govgrant);
-      if (iter != _hero.hand.end())
-	{
-	  // Call event_grant function: if it returns true, it's worked, so return true here too.
-	  if (event_grant(_arguments))
-	    {
-	      int index_to_delete = iter - _hero.hand.begin();
-	      _hero.hand.erase(_hero.hand.begin() + index_to_delete);
-	      return true;
-	    }
-	  else
-	    return false;
-	}
-      else
-	{
-	  std::cout << "No Government Grant event card in that hero's hand.\n";
-	  return false;
-	}
-    }
-  else if (_event == "One Quiet Night")
-    {
-      if (skip_next_infect_cities)
-	{
-	  std::cout << "We are already skipping the next infect cities.\n";
-	  return false;
-	}
-      else
-	skip_next_infect_cities = true;
-    }
-  else if (_event == "Forecast")
-    {
-      PCard forecast("Forecast", -1, -1, true, false);
-      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), forecast);
-      if (iter != _hero.hand.end())
-	{
-	  event_forecast(); // INTERACTIVE function, tricky to program.
-	  int index_to_delete = iter - _hero.hand.begin();
-	  _hero.hand.erase(_hero.hand.begin() + index_to_delete);
-	  return true;
-	}
-      else
-	{
-	  std::cout << "No Forecast event card in that hero's hand.\n";
-	  return false;
-	}
-    }
-  else if (_event == "Resilient Population")
-    {
-      PCard resilpop("Resilient Population", -1, -1, true, false);
-      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), resilpop);
-      /* std::string string_name = _event;
-	 iter = std::find_if(infection_discard.begin(), infection_discard.end(),
-	 [&string_name] (const PCard& obj) {return obj.name == string_name}); 
-	 This code above does something very smart: it passes a lambda (like R's anon functions) into find_if that
-	 can find the iterator matching Resilient Population. You MUST use C++11 to use lambdas.
-	 But it's easier at the moment to use std::find() since I have an overloaded == operator for PCard.
-      */
-      if (iter != _hero.hand.end())
-	{
-	  if (event_resilient(_arguments))
-	    {
-	      int index_to_delete = iter - _hero.hand.begin();
-	      _hero.hand.erase(_hero.hand.begin() + index_to_delete);
-	      return true;
-	    }
-	  else
-	    return false;
-	}
-      else
-	{
-	  std::cout << "No Resilient Population event card in that hero's hand.\n";
-	  return false;
-	}
-    }
-  else if (_event == "Airlift")
-    {
-      // Arguments should look like this: 0:0 means move hero 0 to Atlanta, which is city_id 0.
-      PCard airlift("Airlift", -1, -1, true, false);
-      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), airlift);
-      if (iter != _hero.hand.end())
-	{
-	  int index_to_delete = iter - _hero.hand.begin();
-	  _hero.hand.erase(_hero.hand.begin() + index_to_delete);
-	  event_airlift(_arguments);
-	  return true;
-	}
-      else
-	return false;
-    }
-  else
-    {
-      std::cout << "Event is not recognized.";
+  if (_event == "Government Grant") {
+    // Check that hero's hand contains that card.
+    PCard govgrant("Government Grant", -1, -1, true, false);
+    std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), govgrant);
+    if (iter != _hero.hand.end()) {
+      // Call event_grant function: if it returns true, it's worked, so return true here too.
+      if (event_grant(_arguments)) {
+	int index_to_delete = iter - _hero.hand.begin();
+	_hero.hand.erase(_hero.hand.begin() + index_to_delete);
+	return true;
+      } else return false;
+    } else {
+      std::cout << "No Government Grant event card in that hero's hand.\n";
       return false;
     }
+  }
+  else if (_event == "One Quiet Night") {
+    if (skip_next_infect_cities) {
+      std::cout << "We are already skipping the next infect cities.\n";
+      return false;
+    } else {
+      PCard quietnight("One Quiet Night", -1, -1, true, false);
+      std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), quietnight);
+      if (iter != _hero.hand.end()) {
+	skip_next_infect_cities = true;
+	int index_to_delete = iter - _hero.hand.begin();
+	_hero.hand.erase(_hero.hand.begin() + index_to_delete);
+	return true;
+      } else {
+	return false;
+      }
+    }
+  }
+  else if (_event == "Forecast") {
+    PCard forecast("Forecast", -1, -1, true, false);
+    std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), forecast);
+    if (iter != _hero.hand.end()) {
+      event_forecast(); // INTERACTIVE function, tricky to program.
+      int index_to_delete = iter - _hero.hand.begin();
+      _hero.hand.erase(_hero.hand.begin() + index_to_delete);
+      return true;
+    } else {
+      std::cout << "No Forecast event card in that hero's hand.\n";
+      return false;
+    }
+  }
+  else if (_event == "Resilient Population") {
+    std::cout << "Doing the Resilient Population Event Card.\n";
+    PCard resilpop("Resilient Population", -1, -1, true, false);
+    std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), resilpop);
+    if (iter != _hero.hand.end()) {
+      if (event_resilient(_arguments)) {
+	int index_to_delete = iter - _hero.hand.begin();
+	_hero.hand.erase(_hero.hand.begin() + index_to_delete);
+	return true;
+      } else return false;
+    }
+    else {
+      std::cout << "No Resilient Population event card in that hero's hand.\n";
+      return false;
+    }
+  }
+  else if (_event == "Airlift") {
+    // Arguments should look like this: 0:0 means move hero 0 to Atlanta, which is city_id 0.
+    PCard airlift("Airlift", -1, -1, true, false);
+    std::vector<PCard>::iterator iter = std::find(_hero.hand.begin(), _hero.hand.end(), airlift);
+    if (iter != _hero.hand.end()) {
+      int index_to_delete = iter - _hero.hand.begin();
+      _hero.hand.erase(_hero.hand.begin() + index_to_delete);
+      event_airlift(_arguments);
+      return true;
+    } else return false;
+  } else {
+    std::cout << "Event is not recognized.";
+    return false;
+  }
 }
 
 bool World::event_grant(std::string _arguments)
