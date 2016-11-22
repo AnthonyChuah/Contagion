@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/World_map_concept_coloured.png</file>
+    <file>cities.dat</file>
+    <file>resources/style.qss</file>
+</qresource>
+</RCC>

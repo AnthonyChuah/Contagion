@@ -27,7 +27,8 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
     // =========================================================== //
     // Load the style sheet
     // =========================================================== //
-    QFile file("../Contagion/resources/style.qss");
+    //QFile file("../Contagion/resources/style.qss");
+    QFile file(":/resources/style.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QString::fromLatin1(file.readAll());
     this->setStyleSheet(styleSheet);
@@ -37,7 +38,8 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
     // =========================================================== //
     // Set up the QList of Radio Buttons
     city_group = new QButtonGroup(this);
-    cityListSetup("../Contagion/cities.dat",city_group);
+    //cityListSetup("../Contagion/cities.dat",city_group);
+    cityListSetup(":/cities.dat",city_group);
     qDebug() << "City list setup done.\n";
 
 

@@ -70,7 +70,8 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     resize(win_w, win_h);
 
     // Background picture
-    QPixmap bkgnd("../Contagion/images/World_map_concept_coloured.png");
+    //QPixmap bkgnd("../Contagion/images/World_map_concept_coloured.png");
+    QPixmap bkgnd(":/images/World_map_concept_coloured.png");
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
     QPalette palette;
     palette.setBrush(QPalette::Background, bkgnd);
@@ -93,7 +94,8 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     // Load the style sheet
     // =========================================================== //
-    QFile file("../Contagion/resources/style.qss");
+    //QFile file("../Contagion/resources/style.qss");
+    QFile file(":/resources/style.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QString::fromLatin1(file.readAll());
     this->setStyleSheet(styleSheet);
@@ -174,7 +176,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     move_button = new QPushButton("MOVE", this);
     move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
     move_button->setToolTip("Move along the map");
-    //move_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
     move_button->setCheckable(true);
 
     connect(move_button, SIGNAL (clicked(bool)), this, SLOT (moveButtonClicked(bool)));
@@ -219,7 +220,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     //PCard_button->setGeometry(card_xcoord,card_ycoord,card_wth,card_hth);
     PCard_button->setGeometry(b_xcoord+4*b_xoffs,card_ycoord,card_wth,card_hth);
     PCard_button->setToolTip("Draws a player card");
-    //PCard_button->setStyleSheet("border-image:url(../Contagion/images/pcard.jpg);");
 
     // Push button for infection card
     QPushButton *ICard_button = new QPushButton("INFECTION", this);

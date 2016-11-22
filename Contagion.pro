@@ -1,7 +1,11 @@
 TEMPLATE = app
 TARGET = Contagion
 
+#DESTDIR = $$_PRO_FILE_PWD_
+
 QT = core gui
+
+CONFIG += debug_and_release
 
 greaterThan(QT_MAJOR_VERSION,4): QT += widgets
 
@@ -84,6 +88,7 @@ HEADERS += \
     src/gui/diseasecube.h
     #src/gui/movebuttons.h
 
-RESOURCES +=
+RESOURCES += \
+    resources.qrc
 
 FORMS +=
