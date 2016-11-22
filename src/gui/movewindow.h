@@ -5,6 +5,7 @@
 #include <QRadioButton>
 #include <QPoint>
 #include <QList>
+#include <QFile>
 #include <QButtonGroup>
 
 #include <string>
@@ -32,7 +33,8 @@ private:
     QButtonGroup* city_group;
 
     void createRadioButton(QRadioButton* button, int cid, std::string cname, int x, int y);
-    void cityListSetup(std::string _filename,QButtonGroup* group);
+
+    void cityListSetup(QButtonGroup* city_group);
 
     City* city_to = NULL;
 

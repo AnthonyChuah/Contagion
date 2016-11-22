@@ -27,19 +27,17 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
     // =========================================================== //
     // Load the style sheet
     // =========================================================== //
-    //QFile file("../Contagion/resources/style.qss");
     QFile file(":/resources/style.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QString::fromLatin1(file.readAll());
     this->setStyleSheet(styleSheet);
 
     // =========================================================== //
-    // BUTTON CREATION FROM DATA FILE
+    // BUTTON CREATION FROM CITY DATA
     // =========================================================== //
     // Set up the QList of Radio Buttons
     city_group = new QButtonGroup(this);
-    //cityListSetup("../Contagion/cities.dat",city_group);
-    cityListSetup(":/cities.dat",city_group);
+    cityListSetup(city_group);
     qDebug() << "City list setup done.\n";
 
 
@@ -52,55 +50,35 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
 }
 
 
-void movewindow::cityListSetup(std::string _filename,QButtonGroup* city_group) {
+void movewindow::cityListSetup(QButtonGroup* city_group) {
+    // Get the parent (to get the world)
+    mainWindow* parent = qobject_cast<mainWindow*>(this->parent());
 
-    std::ifstream ins;
-    ins.open(_filename);
-    if (ins.fail()) {
-     qDebug() << "Failed to open city input file.\n";
+    double xcoord, ycoord;
+    int cityid;
+    std::string cityname;
+    std::vector<City>::iterator it;
+
+    for(it=parent->world->cities.begin();it != parent->world->cities.end();it++) {
+        xcoord=it->x_coord;
+        ycoord=it->y_coord;
+        cityid=it->city_id;
+        cityname=it->name;
+        convertXY(xcoord,ycoord); //convert to window coordinates
+
+        // Create the QList of RadioButtons
+        QRadioButton* a_city_button = new QRadioButton(this);
+        createRadioButton(a_city_button,cityid,cityname,xcoord,ycoord);
+        city_buttons.append(a_city_button);
+
+        // Add the city to the group
+        city_group->addButton(a_city_button);
+        city_group->setId(a_city_button, cityid);
     }
-
-    std::string rowdata;
-
-    // First line of data file is just headers, drop them.
-    std::getline(ins, rowdata);
-
-    while(ins.good()) {
-      std::getline(ins, rowdata);
-
-      // If rowdata is simply empty (last line) then continue.
-      if (rowdata.empty()) continue;
-
-      // Split by comma delimiter to get data, split neighbours by colon delimiter.
-      std::stringstream ss(rowdata);
-      std::string item;
-      std::vector<std::string> elems;
-      while (std::getline(ss, item, ','))
-        elems.push_back(item);
-
-      // CityID,CityName,XCoordinate,YCoordinate,DiseaseID,Neighbours
-      // 0,Atlanta,0.196666666666667,0.617196702002356,2,4:8:10
-      int cityid;
-      std::string cityname;
-      double xcoord, ycoord;
-      cityid = std::stoi(elems[0]);  cityname = elems[1];
-      xcoord = std::stod(elems[2]);  ycoord = std::stod(elems[3]);
-      convertXY(xcoord,ycoord); //convert to window coordinates
-
-      // Create the QList of RadioButtons
-      QRadioButton* a_city_button = new QRadioButton(this);
-      //createRadioButton(a_city_button,cityid,cityname,x_conv,y_conv);
-      createRadioButton(a_city_button,cityid,cityname,xcoord,ycoord);
-      city_buttons.append(a_city_button);
-
-      // Add the city to the group
-      city_group->addButton(a_city_button);
-      city_group->setId(a_city_button, cityid);
-    }
-    ins.close();
     qDebug() << "Button list creation finished.\n";
 
 }
+
 
 void movewindow::createRadioButton(QRadioButton* button, int cid, std::string cname, int x, int y) {
     // Radio button rectangle (background) size

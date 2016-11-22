@@ -70,7 +70,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     resize(win_w, win_h);
 
     // Background picture
-    //QPixmap bkgnd("../Contagion/images/World_map_concept_coloured.png");
     QPixmap bkgnd(":/images/World_map_concept_coloured.png");
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
     QPalette palette;
@@ -94,7 +93,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     // Load the style sheet
     // =========================================================== //
-    //QFile file("../Contagion/resources/style.qss");
     QFile file(":/resources/style.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QString::fromLatin1(file.readAll());

@@ -16,7 +16,6 @@ diseasecube::diseasecube(City* a_city,int d_id,int x_coord,int y_coord,int side)
     hth=wth;
 
     // SET COLOUR
-
     if(d_id==0) {
         colour.setRgb(242,236,51);
     }
