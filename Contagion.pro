@@ -46,7 +46,8 @@ SOURCES += \
     src/gui/actioncounter.cpp \
     src/gui/meeplesprite.cpp \
     src/gui/disinfectwindow.cpp \
-    src/gui/diseasecube.cpp
+    src/gui/diseasecube.cpp \
+    src/gui/cardwindow.cpp
     #src/gui/movebuttons.cpp
 
 
@@ -85,7 +86,8 @@ HEADERS += \
     src/gui/actioncounter.h \
     src/gui/meeplesprite.h \
     src/gui/disinfectwindow.h \
-    src/gui/diseasecube.h
+    src/gui/diseasecube.h \
+    src/gui/cardwindow.h
     #src/gui/movebuttons.h
 
 RESOURCES += \

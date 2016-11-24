@@ -64,8 +64,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     createMenus();
 
     setWindowTitle(tr("Menus"));
-    int win_w = 1600;
-    int win_h =900;
     //setMinimumSize(160, 160);
     resize(win_w, win_h);
 
@@ -257,12 +255,15 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     // PLAYER HAND WINDOW
     // =========================================================== //
-
     int hand_win_w = 600;
     int hand_win_h = hand_win_w*1.0/1.56; // playing card x/y ratio is 1:1.56
     hand_window = new HandWindow(this,hand_win_h,hand_win_w);
     hand_window->move((win_w-hand_win_w)/2,(win_h-hand_win_h)/2);
     hand_window->close(); //for some reason the hand is automatically open o/w
+
+    connect(hand_window,SIGNAL (handButtonUp()), this, SLOT (handOverlayClosed()));
+    connect(hand_window->card_window,SIGNAL (cardOverlayClosed()), this, SLOT (cardOverlayClosed()));
+
 
     // Button to show the hand window
     hand_button = new QPushButton("SHOW HAND", this);
@@ -302,15 +303,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     // DISEASE CUBES
     // =========================================================== //
-    // Setup disease colours
-    /*
-    QColor dis0, dis1, dis2, dis3;
-    dis0.setRgb(242,236,51);    dis1.setRgb(242,51,51);
-    dis2.setRgb(51,73,242);     dis3.setRgb(0,0,0);
-    dis_colours.append(dis0);    dis_colours.append(dis1);
-    dis_colours.append(dis2);    dis_colours.append(dis3);
-*/
-
     // Draw disease cubes
     setup_diseasecubes();
 
@@ -487,14 +479,16 @@ void mainWindow::draw_citydiseases(City* a_city) {
 
 
 void mainWindow::handButtonClicked(bool checked) {
- if (checked) {
- hand_window->show();
- hand_button->setText("CLOSE HAND");
- } else {
- hand_window->close();
- hand_button->setText("SHOW HAND");
-     //QApplication::instance()->quit();
- }
+    if (checked) {
+        graphics_view->close();
+        hand_window->show();
+        hand_button->setText("CLOSE HAND");
+    } else {
+        hand_window->close();
+        hand_button->setText("SHOW HAND");
+        // Show the graphics view
+        graphics_view->show();
+    }
 }
 
 void mainWindow::overlayClosed() {
@@ -510,6 +504,19 @@ void mainWindow::overlayClosed() {
  graphics_view->show();
 }
 
+
+void mainWindow::handOverlayClosed() {
+ hand_window->close();
+ hand_button->setChecked(false);
+ hand_button->setText("SHOW HAND");
+ // Set the button down, as card overlay is open
+ hand_button->setDown(true);
+}
+
+void mainWindow::cardOverlayClosed() {
+    graphics_view->show();
+    hand_button->setDown(false);
+}
 
 
 void mainWindow::specButtonClicked(bool checked) {

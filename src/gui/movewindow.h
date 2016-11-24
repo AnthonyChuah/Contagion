@@ -41,7 +41,6 @@ private:
 signals:
     void closeOverlay();
 
-public slots:
 };
 
 

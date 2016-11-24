@@ -4,6 +4,10 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QPoint>
+#include <QList>
+
+#include "cardwindow.h"
+#include "macros.h"
 
 class QPushButton; //to add a push button
 
@@ -12,19 +16,36 @@ class HandWindow : public QWidget {
 public:
     explicit HandWindow(QWidget *parent = 0,int height = 180, int width = 180);
 
+    // Function to update the hand to show the situation for a particular hero
+    void update_window(Hero* hero);
+
+    cardwindow* card_window;
+
 private slots:
-    void slotButtonClicked(bool checked);
+    void slotButtonClicked(int buttonID);
+
+    void discardCard(PCard* card);
+    void useCard(PCard* card);
+    void giveCard(PCard* card, Hero* to);
 
     //void showContextMenu(const QPoint& pos);
 
 private:
-    QPushButton *card_button1; //card button 1 (placeholders for cards)
-    QPushButton *card_button7; //card button 7 (placeholders for cards)
-    QPushButton *exit_button; //exit
 
-//signals:
+    QList<QPushButton*> card_buttons;
+    QButtonGroup* card_group;
 
-//public slots:
+    Hero* current_hero; //currently selected hero (may differ from current turn)
+
+    void setupCardbuttons(int win_wth,int win_hth);
+
+    //void discardCard(PCard* card, Hero* hero);
+    //void useCard(PCard* card, Hero* hero);
+    //void giveCard(PCard* card, Hero* from, Hero* to);
+
+signals:
+    void handButtonUp();
+
 };
 
 #endif // HANDWINDOW_H

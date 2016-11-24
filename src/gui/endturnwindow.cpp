@@ -12,7 +12,6 @@ endturnwindow::endturnwindow(QWidget *parent,int height, int width) : QWidget(pa
 
     // CONDITIONAL - if too many cards, bring up the card removal window
 
-
     // =========================================================== //
     // Create and position the CARD buttons
     // =========================================================== //
@@ -83,6 +82,10 @@ void endturnwindow::endturnClicked() {
 
     // Update the action LCD
     parent->action_lcd->check_actions();
+
+    // Update the hand window
+    player = parent->world->players_turn;
+    parent->getHandWindow()->update_window(parent->world->heroes[player]);
 
     // Close end-turn window
     this->close();

@@ -1,11 +1,12 @@
 #include "handwindow.h"
 #include <QApplication>
 #include <QPushButton>
-
-
+#include <QDebug>
 #include <QProgressBar>
 #include <QSlider>
 #include <QMenu>
+
+#include "mainwindow.h"
 
 
 HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent) {
@@ -14,6 +15,15 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent) 
     int win_hth=height;//128;
     setFixedSize(win_wth, win_hth);
 
+    // Get the parent (to get the world)
+    mainWindow* par = qobject_cast<mainWindow*>(this->parent());
+
+
+    // Set up the card window
+    int cw_hth=180;     int cw_wth=180;
+    card_window = new cardwindow(par,cw_hth,cw_wth);
+    card_window->move((par->win_w-cw_wth)/2,(par->win_h-cw_hth)/2);
+    card_window->close();
 
     // =========================================================== //
     // Create and position the CARD buttons
@@ -21,6 +31,26 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent) 
 
     // NOTE: should they be buttons? If so, would need to dynamically
     // determine the potential actions, so dynamically assign slots!
+
+    // Set up the QList of Radio Buttons
+    card_group = new QButtonGroup(this);
+    setupCardbuttons(win_wth,win_hth);
+
+    // Initialize the buttons to show the first player's cards
+    int player = par->world->players_turn;
+    update_window(par->world->heroes[player]);
+
+
+    // =========================================================== //
+    // SIGNAL HANDLING
+    // =========================================================== //
+    // Using group, as provides button ID as parameter
+    connect(card_group,SIGNAL(buttonClicked(int)),this,SLOT(slotButtonClicked(int)));
+
+}
+
+
+void HandWindow::setupCardbuttons(int win_wth,int win_hth) {
     int but_x=10;  // first button x-coord
     int but_y=20;  //button y-coord
     int but_gap=5; //gap between buttons
@@ -29,57 +59,84 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent) 
     int but_x_offset=but_wth+but_gap; //button x-offset
     int but_y_offset=(win_hth-but_y)/2.0; //button y-offset (2nd row)
 
-    // PLACEHOLDER "CARDS"
+    int n_buttons=14; //number of buttons created
+    int row_len=7;    // length of a button row
 
-    // First card
-    card_button1 = new QPushButton("CARD 1", this);
-    card_button1->setGeometry(but_x, but_y, but_wth, but_hth);
-    card_button1->setToolTip("Opens a menu for special actions");
-    card_button1->setCheckable(true);
+    qDebug() << "Setting up card buttons";
 
-    // Connection (signal to slot)
-    connect(card_button1, SIGNAL (clicked(bool)), this, SLOT (slotButtonClicked(bool)));
+    for(int i=0; i<n_buttons; i++) {
+        QPushButton* a_button = new QPushButton(this);
+        if(i<row_len) {
+            a_button->setGeometry(but_x+i*but_x_offset,but_y,but_wth,but_hth);
+        } else {
+            a_button->setGeometry(but_x+(i-row_len)*but_x_offset,but_y+but_y_offset,but_wth,but_hth);
+        }
+        a_button->setText("Button");
+        card_buttons.append(a_button);
 
-
-    // Seventh card
-    card_button7 = new QPushButton("CARD 7", this);
-    card_button7->setGeometry(but_x+6*but_x_offset, but_y, but_wth, but_hth);
-    card_button7->setToolTip("Opens a menu for special actions");
-    card_button7->setCheckable(true);
-
-    // Connection (signal to slot)
-    connect(card_button7, SIGNAL (clicked(bool)), this, SLOT (slotButtonClicked(bool)));
-
-
-    // Eighth card (new row)
-    QPushButton *card_button8 = new QPushButton("CARD 8", this);
-    card_button8->setGeometry(but_x, but_y+but_y_offset, but_wth, but_hth);
-    card_button8->setToolTip("Opens a menu for special actions");
-    card_button8->setCheckable(true);
-
-    /*
-    // =========================================================== //
-    // Create and position the Exit button
-    // =========================================================== //
-
-    exit_button = new QPushButton("X", this);
-    QFont font ("Courier");
-    exit_button->setFont(font);
-    //exit_button->setGeometry(win_wth/2-but_wth/2, win_hth/2+but_hth, but_wth, but_hth);
-    exit_button->setGeometry(win_wth-22, 2, 18, 12);
-    exit_button->setToolTip("Exits the application");
-
-    // Connection (signal to slot)
-    //connect(exit_button, SIGNAL (clicked()), QApplication::instance(), SLOT (quit()));
-    connect(exit_button, SIGNAL (clicked()), this, SLOT (close()));
-    */
+        // Add the button to the group, and set button ID
+        card_group->addButton(a_button);
+        card_group->setId(a_button, i);
+    }
 }
 
-void HandWindow::slotButtonClicked(bool checked) {
- if (checked) {
- card_button1->setText("Checked");
- } else {
- card_button1->setText("CARD 1");
- }
+void HandWindow::update_window(Hero* hero) {
+
+    // Update the current_hero pointer
+    current_hero=hero;
+
+    std::vector<PCard>::iterator it;
+    int count=0;
+    QString card_name;
+    for(it=hero->hand.begin(); it != hero->hand.end(); it++) {
+        card_name = QString::fromStdString(it->name);
+        card_buttons[count]->setText(card_name);
+        // ADD A CARD PICTURE (add from resources)
+        if(!it->event) { //if not an event card, i.e. is a city card
+            card_buttons[count]->setDown(true); //cities non-clickable
+          //  it->city_id;
+        }
+        count++;
+    }
+
+    for(int i=count; i!=card_buttons.length();i++) {
+        card_buttons[i]->setVisible(false);
+    }
+
+}
+
+//void HandWindow::discardCard(PCard* card, Hero* hero) {
+void HandWindow::discardCard(PCard* card) {
+    qDebug() << QString::fromStdString(card->name) << " : Discard card function -- STUB \n";
+}
+
+//void HandWindow::useCard(PCard* card, Hero* hero) {
+void HandWindow::useCard(PCard* card) {
+    qDebug() << QString::fromStdString(card->name) << " : Use card function -- STUB \n";
+}
+
+//void HandWindow::giveCard(PCard *card, Hero *from, Hero *to) {
+void HandWindow::giveCard(PCard *card, Hero *to) {
+    qDebug() << QString::fromStdString(card->name) << " : Give card function -- STUB \n";
+}
+
+
+void HandWindow::slotButtonClicked(int buttonID) {
+    // Get the parent (to get the world)
+    //mainWindow* parent = qobject_cast<mainWindow*>(this->parent());
+
+    //Find out which card button was clicked, and set "a_card" pointer to it
+    //QPushButton* a_button = card_buttons[buttonID];
+    PCard a_card = current_hero->hand[buttonID];
+
+    // Update the card window
+    card_window->update_window(current_hero,&a_card);
+
+    // Open the card window
+    qDebug() << "Open the card selection window";
+    card_window->show();
+
+    // Emit signal to raise the HAND button again
+    emit handButtonUp();
 }
 

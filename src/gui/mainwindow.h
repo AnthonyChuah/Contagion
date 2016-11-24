@@ -32,7 +32,6 @@ public:
 
     World* world;
 
-    //QLCDNumber* action_lcd;
     actioncounter* action_lcd;
 
     QList<meeplesprite*> meeples;
@@ -41,6 +40,11 @@ public:
     void closeGraphics();
 
     void updateDiseases() { setup_diseasecubes(); }
+    HandWindow* getHandWindow() { return hand_window; }
+
+    // Window width and height
+    int win_w = 1600;
+    int win_h =900;
 
 protected:
 //#ifndef QT_NO_CONTEXTMENU
@@ -105,6 +109,8 @@ private slots:
     void disinfectButtonClicked();
 
     void overlayClosed(); //for closing move overlay correctly
+    void handOverlayClosed(); // for closing hand overlay correctly
+    void cardOverlayClosed();
 
     void openEndturn();
 
