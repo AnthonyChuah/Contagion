@@ -12,6 +12,9 @@ endturnwindow::endturnwindow(QWidget *parent,int height, int width) : QWidget(pa
 
     // CONDITIONAL - if too many cards, bring up the card removal window
 
+
+
+
     // =========================================================== //
     // Create and position the CARD buttons
     // =========================================================== //
@@ -66,9 +69,23 @@ void endturnwindow::endturnClicked() {
 
     qDebug() << "Turn ended. \n";
 
+    // Close end-turn window
+    this->close();
+
     // Draw cards and infect
     int player = parent->world->players_turn;
     parent->world->draw_player_deck(*parent->world->heroes[player]);
+    /*
+     * HAND LIMIT CHECK - should be done, but then would need to be
+     * careful that we don't exit this function and end-up drawing
+     * extra cards -- would need to exit to allow for the selection --
+     * otherwise the turn will change and the hand window is for the
+     * wrong player!
+    if(parent->world->heroes[player]->hand.size() > 7) {
+        emit handLimit();
+        return;
+    }
+    */
     parent->world->draw_infection_deck();
 
     // Change turn
@@ -87,6 +104,4 @@ void endturnwindow::endturnClicked() {
     player = parent->world->players_turn;
     parent->getHandWindow()->update_window(parent->world->heroes[player]);
 
-    // Close end-turn window
-    this->close();
 }

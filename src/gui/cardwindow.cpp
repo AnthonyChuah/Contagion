@@ -45,14 +45,12 @@ cardwindow::cardwindow(QWidget *parent,int height, int width) : QWidget(parent) 
     discard_button->setToolTip("Discard the card");
     connect(discard_button, SIGNAL (clicked()), this, SLOT (discardButtonSlot()));
 
-
     // Close window button
     QPushButton* close_window = new QPushButton("X",this);
     close_window->setGeometry(win_wth-30,10,20,20);
-    connect(close_window, SIGNAL (clicked()), this, SLOT (close()));
+    connect(close_window, SIGNAL (clicked()), this, SLOT (closeWindow()));
 
 }
-
 
 void cardwindow::discardButtonSlot() {
     emit discardButtonSignal(current_card);
@@ -81,6 +79,11 @@ void cardwindow::useButtonSlot() {
     this->close();
 }
 
+void cardwindow::closeWindow() {
+    emit cardOverlayClosed();
+    this->close();
+}
+
 void cardwindow::update_window(Hero *hero, PCard *card) {
     current_hero = hero;
     current_card = card;
@@ -94,13 +97,18 @@ void cardwindow::update_window(Hero *hero, PCard *card) {
         use_button->setVisible(true);
     }
 
-    // Give button only clickable if more than one hero in city
-    if(hero->ptr_city->heroes.size()==1) {
-        //give_button->setDown(true);
-        give_button->setVisible(false);
+    // Give button only clickable if more than one hero in city,
+    // and the card is the same as the city
+    if(hero->ptr_city->heroes.size()>1) {
+        if(card->city_id == hero->ptr_city->city_id) {
+            give_button->setVisible(true);
+        }
+        else if (hero->get_spec()=="Researcher" && card->event==false) {
+            give_button->setVisible(true);
+        } else
+            give_button->setVisible(false);
     } else {
-        //give_button->setDown(false);
-        give_button->setVisible(true);
+        give_button->setVisible(false);
     }
 
     qDebug() << "Card window updated \n";

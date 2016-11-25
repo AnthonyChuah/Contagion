@@ -96,7 +96,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     QString styleSheet = QString::fromLatin1(file.readAll());
     this->setStyleSheet(styleSheet);
 
-
     // =========================================================== //
     // INFECTION RATE progress bar
     // =========================================================== //
@@ -281,6 +280,20 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // there could e.g. be a quick-view pane that shows colours reflecting
     // the disease-ares of the cities etc., and a button to open a window
     // where you see the full cards
+
+    // =========================================================== //
+    // MESSAGE BOX TO TELL A PLAYER TO DISCARD
+    // =========================================================== //
+    discard_message = new QMessageBox(this);
+    discard_message->setText("Too many cards in hand.");
+    discard_message->setInformativeText("Please discard cards until the hand contains seven cards.");
+    discard_message->setStandardButtons(QMessageBox::Ok);
+
+    // Hand limit signals: action_lcd checks when updating if limit exceeded
+    //                     hand_window checks when the window is closed
+    connect(action_lcd,SIGNAL (handLimit()), discard_message, SLOT (exec()));
+    connect(hand_window,SIGNAL (handLimit()), discard_message, SLOT (exec()));
+    connect(discard_message->button(QMessageBox::Ok), SIGNAL (clicked()), this, SLOT (discardCards()));
 
     // =========================================================== //
     // GRAPHICS SCENE AND VIEW
@@ -506,7 +519,7 @@ void mainWindow::overlayClosed() {
 
 
 void mainWindow::handOverlayClosed() {
- hand_window->close();
+ hand_window->QWidget::close(); //must use the QWidget version
  hand_button->setChecked(false);
  hand_button->setText("SHOW HAND");
  // Set the button down, as card overlay is open
@@ -585,6 +598,15 @@ void mainWindow::disinfectButtonClicked() {
     // Update the action LCD
     action_lcd->check_actions();
 
+}
+
+//void mainWindow::discardCards(Hero* hero) {
+void mainWindow::discardCards() {
+    graphics_view->close();
+    qDebug() << "Showing hand window for discarding cards \n";
+    hand_window->update_window(this->world->heroes[this->world->players_turn]);
+    hand_button->setChecked(true);
+    handButtonClicked(true);
 }
 
 

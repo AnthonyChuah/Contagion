@@ -21,14 +21,14 @@ public:
 
     cardwindow* card_window;
 
+    //void close(); //overloaded close function
+
 private slots:
     void slotButtonClicked(int buttonID);
 
     void discardCard(PCard* card);
     void useCard(PCard* card);
     void giveCard(PCard* card, Hero* to);
-
-    //void showContextMenu(const QPoint& pos);
 
 private:
 
@@ -45,6 +45,7 @@ private:
 
 signals:
     void handButtonUp();
+    void handLimit();
 
 };
 

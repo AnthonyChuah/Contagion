@@ -105,6 +105,31 @@ void HandWindow::update_window(Hero* hero) {
 
 }
 
+/*
+// Overloaded close() function
+// NOTE: The QWidget::close() version has to be used when card window opened!
+//       This is because the hand limit would be checked again, before there
+//       is a chance to discard any cards.
+void HandWindow::close() {
+
+    // Close the window
+    this->QWidget::close();
+    qDebug() << "Hand window closed. \n";
+
+    // Check hand limit, and emit signal if too many cards
+    qDebug() << "Checking hand limit. \n";
+    if(current_hero->hand.size() > 7) {
+        emit handLimit();
+    }
+
+    // Test
+    emit handLimit();
+}
+// SOME BUGS REMAIN, with regard to the graphics view opening on top after
+   handLimit() is emitted...
+   -- REVIEW IF IT'S IMPORTANT TO CHECK HAND LIMIT AFTER CLOSE
+*/
+
 //void HandWindow::discardCard(PCard* card, Hero* hero) {
 void HandWindow::discardCard(PCard* card) {
     qDebug() << QString::fromStdString(card->name) << " : Discard card function -- STUB \n";
@@ -118,6 +143,7 @@ void HandWindow::useCard(PCard* card) {
 //void HandWindow::giveCard(PCard *card, Hero *from, Hero *to) {
 void HandWindow::giveCard(PCard *card, Hero *to) {
     qDebug() << QString::fromStdString(card->name) << " : Give card function -- STUB \n";
+    //current_hero->give_card(card->name,*to);
 }
 
 

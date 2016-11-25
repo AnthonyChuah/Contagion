@@ -23,10 +23,18 @@ void actioncounter::check_actions() {
     // Get the parent (to get the world)
     mainWindow* par = qobject_cast<mainWindow*>(this->parent());
 
+
+    // Updating the LCD
     this->display(par->world->heroes[par->world->players_turn]->moves);
 
     if(this->intValue()==0) {
         qDebug() << "Emitting 'noActions'.\n";
         emit noActions();
+    }
+
+    // Checking hand limit, and emit signal if too many cards
+    qDebug() << "Checking hand limit. \n";
+    if(par->world->heroes[par->world->players_turn]->hand.size() > 7) {
+        emit handLimit();
     }
 }

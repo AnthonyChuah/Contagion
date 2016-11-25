@@ -104,8 +104,8 @@ void movewindow::slotButtonClicked(int buttonID) {
         if(it->city_id==buttonID) {
             city_to = &(*it);
             break;
-        } else {
-            qDebug() << "No city" << buttonID << " found.\n";
+        //} else {
+            //qDebug() << "No city" << buttonID << " found.\n";
         }
     }
 
@@ -140,11 +140,12 @@ void movewindow::confirmHandler(bool confirm) {
       QString at_city = QString::fromStdString(parent->world->heroes[player]->ptr_city->name);
       qDebug() << "Hero is now at city" << at_city << ".\n";
 
+      // Emit signal to close the overlay
+      emit closeOverlay();
+
       // Update the action display
       parent->action_lcd->check_actions();
 
-      // Emit signal to close the overlay
-      emit closeOverlay();
 
     } else {
       qDebug() << "Move cancelled.\n";

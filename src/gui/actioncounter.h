@@ -11,6 +11,7 @@ public:
 
 signals:
     void noActions();
+    void handLimit();
 
 public slots:
     void check_actions();

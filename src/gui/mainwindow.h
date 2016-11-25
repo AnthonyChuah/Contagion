@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QMessageBox>
 #include "handwindow.h"
 #include "specialwindow.h"
 #include "movewindow.h"
@@ -45,6 +46,9 @@ public:
     // Window width and height
     int win_w = 1600;
     int win_h =900;
+
+    // Message box telling a player to discard cards
+    QMessageBox* discard_message;
 
 protected:
 //#ifndef QT_NO_CONTEXTMENU
@@ -111,6 +115,8 @@ private slots:
     void overlayClosed(); //for closing move overlay correctly
     void handOverlayClosed(); // for closing hand overlay correctly
     void cardOverlayClosed();
+
+    void discardCards();
 
     void openEndturn();
 

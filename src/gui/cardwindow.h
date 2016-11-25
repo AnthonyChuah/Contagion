@@ -31,6 +31,7 @@ private slots:
     void discardButtonSlot();
     void giveButtonSlot();
     void useButtonSlot();
+    void closeWindow();
 
 };
 

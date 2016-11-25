@@ -10,6 +10,7 @@ public:
     explicit endturnwindow(QWidget *parent = 0,int height = 180, int width = 180);
 
 signals:
+    void handLimit();
 
 public slots:
 
