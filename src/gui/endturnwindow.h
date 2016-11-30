@@ -16,8 +16,6 @@ signals:
 public slots:
 
 private:
-    //QPushButton *card_button1; //card button 1 (placeholders for cards)
-    //QPushButton *card_button7; //card button 7 (placeholders for cards)
     QLabel *info_text;
     QPushButton *endturn_button;
 

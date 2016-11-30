@@ -198,34 +198,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     connect(disinfect_button, SIGNAL (clicked()), this, SLOT (disinfectButtonClicked()));
 
-
-    // =========================================================== //
-    // CARD DECK BUTTONS
-    // =========================================================== //
-
-    // Button size and placement
-    int card_wth = 128;
-    int card_hth = 176;
-    //int card_xcoord = 1075;//975;
-    //int card_xoffset = card_wth+20;
-    int card_ycoord = 700;
-
-    // Push button for player card
-    QPushButton *PCard_button = new QPushButton("PLAYER", this);
-    //PCard_button->setGeometry(card_xcoord,card_ycoord,card_wth,card_hth);
-    PCard_button->setGeometry(b_xcoord+4*b_xoffs,card_ycoord,card_wth,card_hth);
-    PCard_button->setToolTip("Draws a player card");
-
-    // Push button for infection card
-    QPushButton *ICard_button = new QPushButton("INFECTION", this);
-    //ICard_button->setGeometry(card_xcoord+1*card_xoffset,card_ycoord,card_wth,card_hth);
-    ICard_button->setGeometry(b_xcoord+5*b_xoffs,card_ycoord,card_wth,card_hth);
-    ICard_button->setToolTip("Draws an Infection card");
-
-    // Connection (signal to slot)
-    //connect(ICard_button, SIGNAL (clicked()), QApplication::instance(), SLOT (quit()));
-
-
     // =========================================================== //
     // WINDOW OVERLAYS
     // =========================================================== //
@@ -266,7 +238,7 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     // Button to show the hand window
     hand_button = new QPushButton("SHOW HAND", this);
-    hand_button->setGeometry(b_xcoord+6*b_xoffs,b_ycoord,b_wth+50,b_hth);
+    hand_button->setGeometry(b_xcoord+5*b_xoffs,b_ycoord,b_wth+50,b_hth);
     hand_button->setToolTip("Show the cards in hand");
 
     hand_button->setCheckable(true);
@@ -327,14 +299,11 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     int endturn_win_w = 600;
     int endturn_win_h = endturn_win_w*1.0/1.56; // playing card x/y ratio is 1:1.56
 
-    //endturn_window = new endturnwindow(graphics_view,endturn_win_h,endturn_win_w);
     endturn_window = new endturnwindow(this,endturn_win_h,endturn_win_w);
     endturn_window->move((win_w-endturn_win_w)/2,(win_h-endturn_win_h)/2);
     endturn_window->close(); //for some reason the hand is automatically open o/w
 
     connect(action_lcd,SIGNAL (noActions()), this, SLOT (openEndturn()));
-
-    //connect(endturn_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
 
 }
 
@@ -616,14 +585,14 @@ void mainWindow::discardCards() {
 
 
 void mainWindow::openEndturn() {
-    // CONDITIONAL - if too many cards, bring up the card removal window
     // Checking hand limit, and pop-up discard message if too many cards
     if(this->world->heroes[this->world->players_turn]->hand.size() > 7) {
         discard_message->exec();
-        // If
+        // End-turn window is not showed here yet, as it would interfere with
+        // the discard message and hand window. The end-turn check is
+        // done again after cards discarded
     } else {
         qDebug() << "Opening EndTurn window.\n";
-        //closeGraphics(); // no need to close graphics view in current version
         endturn_window->show();
     }
 }
