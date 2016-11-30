@@ -30,6 +30,7 @@ void actioncounter::check_actions() {
     if(this->intValue()==0) {
         qDebug() << "Emitting 'noActions'.\n";
         emit noActions();
+        return; // exit so hand limit box is not popped on top
     }
 
     // Checking hand limit, and emit signal if too many cards
@@ -37,4 +38,5 @@ void actioncounter::check_actions() {
     if(par->world->heroes[par->world->players_turn]->hand.size() > 7) {
         emit handLimit();
     }
+
 }

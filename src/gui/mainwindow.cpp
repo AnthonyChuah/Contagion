@@ -501,6 +501,9 @@ void mainWindow::handButtonClicked(bool checked) {
         hand_button->setText("SHOW HAND");
         // Show the graphics view
         graphics_view->show();
+
+        // CHECK END TURN: Check number of actions - check LCD, and open end-turn window if needed
+        action_lcd->check_actions();
     }
 }
 
@@ -524,6 +527,9 @@ void mainWindow::handOverlayClosed() {
  hand_button->setText("SHOW HAND");
  // Set the button down, as card overlay is open
  hand_button->setDown(true);
+
+ // CHECK END TURN: Check number of actions - update LCD, and open end-turn window if needed
+ action_lcd->check_actions();
 }
 
 void mainWindow::cardOverlayClosed() {
@@ -600,7 +606,6 @@ void mainWindow::disinfectButtonClicked() {
 
 }
 
-//void mainWindow::discardCards(Hero* hero) {
 void mainWindow::discardCards() {
     graphics_view->close();
     qDebug() << "Showing hand window for discarding cards \n";
@@ -611,9 +616,16 @@ void mainWindow::discardCards() {
 
 
 void mainWindow::openEndturn() {
-    qDebug() << "Opening EndTurn window.\n";
-    //closeGraphics(); // no need to close graphics view in current version
-    endturn_window->show();
+    // CONDITIONAL - if too many cards, bring up the card removal window
+    // Checking hand limit, and pop-up discard message if too many cards
+    if(this->world->heroes[this->world->players_turn]->hand.size() > 7) {
+        discard_message->exec();
+        // If
+    } else {
+        qDebug() << "Opening EndTurn window.\n";
+        //closeGraphics(); // no need to close graphics view in current version
+        endturn_window->show();
+    }
 }
 
 
