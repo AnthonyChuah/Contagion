@@ -103,10 +103,11 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     int iprb_wth=300;
     int iprb_hth=40;
     iprogBar->setRange(1,7); //ranges from 1 to 7
-    iprogBar->setValue(1);
+    //iprogBar->setRange(0,4); //ranges from 0 to 4
+    iprogBar->setValue(this->world->calculate_infection_rate());
     iprogBar->setGeometry(win_w-iprb_wth-20,20,iprb_wth,iprb_hth);
-    //NEED TO ADD THE THING THAT TAKES THE INFECTION RATE IN...
 
+    // Better as a number! - NEED TO FIGURE OUT IF CAN SET THE NUMBER IN THE BAR
 
     // =========================================================== //
     // OUTBREAKS progress bar
@@ -304,6 +305,9 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     endturn_window->close(); //for some reason the hand is automatically open o/w
 
     connect(action_lcd,SIGNAL (noActions()), this, SLOT (openEndturn()));
+
+    connect(endturn_window,SIGNAL(outbreaksProgress(int)),oprogBar,SLOT(setValue(int)));
+    connect(endturn_window,SIGNAL(infectionProgress(int)),iprogBar,SLOT(setValue(int)));
 
 }
 
@@ -609,7 +613,6 @@ void mainWindow::treatDisease(int d_id) {
     draw_citydiseases(d_city);
     graphics_view->show();
 }
-
 
 
 // PUBLIC FUNCTIONS

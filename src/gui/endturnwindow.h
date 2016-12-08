@@ -12,6 +12,8 @@ public:
 
 signals:
     void handLimit();
+    void infectionProgress(int);
+    void outbreaksProgress(int);
 
 public slots:
 

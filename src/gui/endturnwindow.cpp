@@ -82,7 +82,10 @@ void endturnwindow::endturnClicked() {
     parent->updateDiseases();
 
     // Update the progress bars
-    qDebug() << "Progress bars to be updated - STUB \n";
+    int inf_rate = parent->world->calculate_infection_rate();
+    emit infectionProgress(inf_rate);
+    int outbreaks = parent->world->outbreaks;
+    emit outbreaksProgress(outbreaks);
 
     // Update the action LCD
     parent->action_lcd->check_actions();
