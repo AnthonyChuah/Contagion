@@ -38,5 +38,4 @@ void actioncounter::check_actions() {
     if(par->world->heroes[par->world->players_turn]->hand.size() > 7) {
         emit handLimit();
     }
-
 }

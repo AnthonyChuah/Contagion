@@ -1,6 +1,14 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>images/World_map_concept_coloured.png</file>
+    <file>images/turn_picture.png</file>
+    <file>images/cont_planner_turn_bevel.png</file>
+    <file>images/dispatcher_turn_bevel.png</file>
+    <file>images/medic_turn_bevel.png</file>
+    <file>images/op_exp_turn_bevel.png</file>
+    <file>images/quar_spec_turn_bevel.png</file>
+    <file>images/researcher_turn_bevel.png</file>
+    <file>images/scientist_turn_bevel.png</file>
     <file>cities.dat</file>
     <file>resources/style.qss</file>
 </qresource>

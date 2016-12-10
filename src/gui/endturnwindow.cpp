@@ -78,6 +78,9 @@ void endturnwindow::endturnClicked() {
     // Change turn
     parent->world->next_player_turn();
 
+    // Update the turn indicator picture
+    parent->setTurnPicture();
+
     // Update the disease cubes
     parent->updateDiseases();
 

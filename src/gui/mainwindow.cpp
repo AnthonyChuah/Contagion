@@ -86,7 +86,14 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     //  - how many actions the player has left
     //  - etc
 
-
+    // =========================================================== //
+    // Turn label
+    // =========================================================== //
+    turnLabel = new QLabel(this);
+    turnLabel->setGeometry(1900/2-250,20,250,50);
+    turnPicture = new QPixmap();
+    this->setTurnPicture();
+    //turnLabel->setPixmap(*turnPicture);
 
     // =========================================================== //
     // Load the style sheet
@@ -198,6 +205,16 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     disinfect_button->setToolTip("Disinfect");
 
     connect(disinfect_button, SIGNAL (clicked()), this, SLOT (disinfectButtonClicked()));
+
+    // Cure button (find cure)
+    cure_button = new QPushButton("FIND\nA CURE", this);
+    cure_button->setGeometry(b_xcoord-2*b_xoffs,b_ycoord,b_wth,b_hth);
+    cure_button->setToolTip("Find a cure");
+
+    // CURE BUTTON FUNCTIONALITY TO BE ADDED
+    // Alternatively, CURE could be done via the hand window
+    //connect(cure_button, SIGNAL (clicked()), this, SLOT (cureButtonClicked()));
+
 
     // =========================================================== //
     // WINDOW OVERLAYS
@@ -357,29 +374,59 @@ void mainWindow::createMenus()
 }
 
 
-void mainWindow::new_game() {
+void mainWindow::new_game()
+{
     infoLabel->setText(tr("Invoked <b>File|New</b>"));
     qDebug() << "New game function - STUB. \n";
 }
 
-void mainWindow::load_game() {
+void mainWindow::load_game()
+{
     infoLabel->setText(tr("Invoked <b>File|Open</b>"));
     qDebug() << "Load game function - STUB. \n";
 }
 
-void mainWindow::save_game() {
+void mainWindow::save_game()
+{
     infoLabel->setText(tr("Invoked <b>File|Save</b>"));
     qDebug() << "Save game function - STUB. \n";
 }
 
-void mainWindow::status_view() {
+void mainWindow::status_view()
+{
     infoLabel->setText(tr("Invoked <b>Edit|Status_view</b>"));
     qDebug() << "Status view function - STUB. \n";
 }
 
+/* Function that sets the turn indicator picture */
+void mainWindow::setTurnPicture()
+{
+    int player = this->world->players_turn;
+    Hero* hero = this->world->heroes[player];
+    std::string type = hero->get_spec();
 
-void mainWindow::create_meeples(QList<meeplesprite*> *meeps) {
+    // SET PICTURE
+    if(!type.compare("Contingency Planner"))
+        turnPicture->load(":/images/cont_planner_turn_bevel.png");
+    else if(!type.compare("Dispatcher"))
+        turnPicture->load(":/images/dispatcher_turn_bevel.png");
+    else if(!type.compare("Medic"))
+        turnPicture->load(":/images/medic_turn_bevel.png");
+    else if(!type.compare("Operations Expert"))
+        turnPicture->load(":/images/op_exp_turn_bevel.png");
+    else if(!type.compare("Quarantine Specialist"))
+        turnPicture->load(":/images/quar_spec_turn_bevel.png");
+    else if(!type.compare("Researcher"))
+        turnPicture->load(":/images/researcher_turn_bevel.png");
+    else //if(!type.compare("Scientist"))
+        turnPicture->load(":/images/scientist_turn_bevel.png");
 
+    this->turnLabel->setPixmap(*turnPicture);
+}
+
+
+void mainWindow::create_meeples(QList<meeplesprite*> *meeps)
+{
     // ---- Setting up the QList, meeps ----
     Hero* a_hero = new Hero();
 
@@ -452,7 +499,6 @@ void mainWindow::draw_citydiseases(City* a_city) {
             for (int j=0; j<a_city->get_ncubes(i); j++) {
                 x_coord = x+j*(2+side);
                 y_coord = y+mult*(2+side);
-                qDebug() << "In the loop, with i: " << i << "and j:" << j << " \n";
                 a_cube = new diseasecube(a_city,i,x_coord,y_coord,side);
                 a_cube->setData(0,"d_cube");
                 scene->addItem(a_cube);

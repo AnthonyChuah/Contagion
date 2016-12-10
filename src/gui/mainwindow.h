@@ -50,6 +50,9 @@ public:
     // Message box telling a player to discard cards
     QMessageBox* discard_message;
 
+    // Set the turn picture
+    void setTurnPicture();
+
 protected:
 //#ifndef QT_NO_CONTEXTMENU
 //    void contextMenuEvent(QContextMenuEvent *event) Q_DECL_OVERRIDE;
@@ -76,6 +79,9 @@ private:
 
     QLabel *infoLabel;
 
+    QLabel *turnLabel; //graphic label indicating whose turn it is
+    QPixmap* turnPicture;
+
     // ---------------------------------------------- //
     // Buttons
     // ---------------------------------------------- //
@@ -84,6 +90,7 @@ private:
     QPushButton *move_button;
     QPushButton *fly_button;
     QPushButton *disinfect_button;
+    QPushButton *cure_button;
 
     // ---------------------------------------------- //
     // Graphics
