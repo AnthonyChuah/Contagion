@@ -29,17 +29,13 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent) 
     // Create and position the CARD buttons
     // =========================================================== //
 
-    // NOTE: should they be buttons? If so, would need to dynamically
-    // determine the potential actions, so dynamically assign slots!
-
-    // Set up the QList of Radio Buttons
+    // Set up the QList of Buttons
     card_group = new QButtonGroup(this);
     setupCardbuttons(win_wth,win_hth);
 
     // Initialize the buttons to show the first player's cards
     int player = par->world->players_turn;
     update_window(par->world->heroes[player]);
-
 
     // =========================================================== //
     // SIGNAL HANDLING

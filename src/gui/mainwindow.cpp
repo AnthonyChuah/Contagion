@@ -559,14 +559,15 @@ void mainWindow::cardOverlayClosed() {
 
 void mainWindow::specButtonClicked(bool checked) {
  if (checked) {
-    graphics_view->close();
-    spec_window->show();
-    spec_button->setText("CLOSE\nSPECIAL");
+     spec_window->update();
+     graphics_view->close();
+     spec_window->show();
+     spec_button->setText("CLOSE\nSPECIAL");
  } else {
     spec_window->close();
     spec_button->setText("SPECIAL");
     graphics_view->show();
- }
+ } 
 }
 
 void mainWindow::moveButtonClicked(bool checked) {

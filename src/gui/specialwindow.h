@@ -9,10 +9,11 @@ class specialwindow : public QWidget {
     Q_OBJECT
 public:
     explicit specialwindow(QWidget *parent = 0,int height = 180, int width = 180);
+    void update();
 
 private slots:
-    void slotSpec1Clicked(bool checked);
-    void slotSpec2Clicked(bool checked);
+    void slotSpec1Clicked();
+    void slotSpec2Clicked();
 
 private:
     QPushButton *button1; //action button 1 (placeholders for cards)
