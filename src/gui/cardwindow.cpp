@@ -1,7 +1,8 @@
 #include "cardwindow.h"
 #include <QDebug>
 
-cardwindow::cardwindow(QWidget *parent,int height, int width) : QWidget(parent) {
+cardwindow::cardwindow(QWidget *parent,int height, int width) : QWidget(parent)
+{
     //Set the size of the window
     int win_wth=width;//256;
     int win_hth=height;//128;
@@ -15,7 +16,6 @@ cardwindow::cardwindow(QWidget *parent,int height, int width) : QWidget(parent) 
     // =========================================================== //
 
     qDebug() << "CARD PICTURE TO BE ADDED \n";
-
 
     // =========================================================== //
     // BUTTONS
@@ -52,15 +52,17 @@ cardwindow::cardwindow(QWidget *parent,int height, int width) : QWidget(parent) 
 
 }
 
-void cardwindow::discardButtonSlot() {
-    emit discardButtonSignal(current_card);
+void cardwindow::discardButtonSlot()
+{
+    emit discardButtonSignal(curr_card);
     qDebug() << "Discard button signal emitted \n";
 
     emit cardOverlayClosed();
     this->close();
 }
 
-void cardwindow::giveButtonSlot() {
+void cardwindow::giveButtonSlot()
+{
     qDebug() << "Give button pressed -- STUB \n";
 
     // Need to implement a selection of players to give it to
@@ -71,7 +73,8 @@ void cardwindow::giveButtonSlot() {
     this->close();
 }
 
-void cardwindow::useButtonSlot() {
+void cardwindow::useButtonSlot()
+{
     emit useButtonSignal(current_card);
     qDebug() << "Use button signal emitted \n";
 
@@ -79,14 +82,17 @@ void cardwindow::useButtonSlot() {
     this->close();
 }
 
-void cardwindow::closeWindow() {
+void cardwindow::closeWindow()
+{
     emit cardOverlayClosed();
     this->close();
 }
 
-void cardwindow::update_window(Hero *hero, PCard *card) {
+void cardwindow::update_window(Hero *hero, PCard *card)
+{
     current_hero = hero;
     current_card = card;
+    curr_card = card->name;
 
     // Use button only usable if card is an event card
     if(card->event==false) {
@@ -112,5 +118,5 @@ void cardwindow::update_window(Hero *hero, PCard *card) {
     }
 
     qDebug() << "Card window updated \n";
-
+    qDebug() << "Current card is " << QString::fromStdString(current_card->name) <<"\n";
 }

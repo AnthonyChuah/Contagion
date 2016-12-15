@@ -17,6 +17,9 @@ specialwindow::specialwindow(QWidget *parent,int height, int width) : QWidget(pa
     int win_hth=height;//128;
     setFixedSize(win_wth, win_hth);
 
+    // Set the world pointer
+    mainWindow* par = qobject_cast<mainWindow*>(this->parent());
+    world = par->world;
 
     // =========================================================== //
     // Create and position the CARD buttons
@@ -54,11 +57,9 @@ specialwindow::specialwindow(QWidget *parent,int height, int width) : QWidget(pa
 
 void specialwindow::update()
 {
-    // Get the parent (to get the world)
-    mainWindow* par = qobject_cast<mainWindow*>(this->parent());
+    int player = world->players_turn;
+    Hero* hero = world->heroes[player];
 
-    int player = par->world->players_turn;
-    Hero* hero = par->world->heroes[player];
     std::string type = hero->get_spec();
 
     // SET BUTTON TEXT
@@ -71,14 +72,12 @@ void specialwindow::update()
     else if(!type.compare("Dispatcher")) {
         button1->setText("MOVE ANY MEEPLE\nTO A CITY CONTAINING\nANOTHER MEEPLE");
         button1->setToolTip("Opens a menu to select a meeple to move.");
-
         button2->setText("MOVE ANOTHER\nMEEPLE");
         button2->setToolTip("Opens a menu to select which meeple to move.");
     }
     else if(!type.compare("Operations Expert")) {
         button1->setText("BUILD RESEARCH\nSTATION FOR FREE");
         button1->setToolTip("Builds a research station to current city.");
-
         button2->setText("MOVE FROM RESEARCH\nSTATION TO ANY CITY");
         button2->setToolTip("Opens a menu to select city to move to, and card to discard.");
     } else {
@@ -90,20 +89,26 @@ void specialwindow::update()
 }
 
 
-void specialwindow::slotSpec1Clicked() {
-    // Get the parent (to get the world)
-    mainWindow* par = qobject_cast<mainWindow*>(this->parent());
+void specialwindow::slotSpec1Clicked()
+{
+    int player = world->players_turn;
+    Hero* hero = world->heroes[player];
 
-    int player = par->world->players_turn;
-    Hero* hero = par->world->heroes[player];
     std::string type = hero->get_spec();
 
     // SET ACTIONS
     if(!type.compare("Contingency Planner")) {
         qDebug() << "Cont Planner Spec 1 -- STUB\n";
+        // OPEN SELECTION WINDOW - SHOW EVENT CARDS IN DISCARD PILE,
+        // AND ALLOW SELECTION
     }
     else if(!type.compare("Dispatcher")) {
         qDebug() << "Dispatcher Spec 1 -- STUB\n";
+        // PICK A MEEPLE TO MOVE TO A CITY WITH ANOTHER MEEPLE
+        // -> window allowing selection of a meeple, and city
+        //    + half of the window could have meeple selection,
+        //      and the other half cities, updating based on
+        //      the meeple selection
     }
     else if(!type.compare("Operations Expert")) {
         qDebug() << "Op Exp Spec 1 -- STUB\n";
@@ -114,13 +119,11 @@ void specialwindow::slotSpec1Clicked() {
     }
 }
 
-void specialwindow::slotSpec2Clicked() {
+void specialwindow::slotSpec2Clicked()
+{
+    int player = world->players_turn;
+    Hero* hero = world->heroes[player];
 
-    // Get the parent (to get the world)
-    mainWindow* par = qobject_cast<mainWindow*>(this->parent());
-
-    int player = par->world->players_turn;
-    Hero* hero = par->world->heroes[player];
     std::string type = hero->get_spec();
 
     // SET ACTIONS

@@ -26,7 +26,8 @@ public:
 private slots:
     void slotButtonClicked(int buttonID);
 
-    void discardCard(PCard* card);
+    void discardCard(std::string cardname);
+
     void useCard(PCard* card);
     void giveCard(PCard* card, Hero* to);
 

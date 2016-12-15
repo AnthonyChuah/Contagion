@@ -5,6 +5,8 @@
 #include <QPushButton>
 #include <QPoint>
 
+#include "macros.h"
+
 class specialwindow : public QWidget {
     Q_OBJECT
 public:
@@ -18,6 +20,7 @@ private slots:
 private:
     QPushButton *button1; //action button 1 (placeholders for cards)
     QPushButton *button2; //action button 2 (only for Dispatcher)
+    World *world;
 
 signals:
 

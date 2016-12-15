@@ -19,9 +19,11 @@ private:
 
     Hero *current_hero;
     PCard *current_card;
+    std::string curr_card;
 
 signals:
-    void discardButtonSignal(PCard* card);
+    void discardButtonSignal(std::string str);
+
     void giveButtonSignal(PCard* card, Hero* to);
     void useButtonSignal(PCard* card);
 

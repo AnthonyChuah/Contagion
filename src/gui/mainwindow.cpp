@@ -325,7 +325,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     connect(endturn_window,SIGNAL(outbreaksProgress(int)),oprogBar,SLOT(setValue(int)));
     connect(endturn_window,SIGNAL(infectionProgress(int)),iprogBar,SLOT(setValue(int)));
-
 }
 
 
@@ -452,7 +451,8 @@ void mainWindow::create_meeples(QList<meeplesprite*> *meeps)
 }
 
 
-void mainWindow::setup_diseasecubes() {
+void mainWindow::setup_diseasecubes()
+{
     std::vector<City> cities = world->cities;
 
     // for each city, add cubes
@@ -463,7 +463,8 @@ void mainWindow::setup_diseasecubes() {
 }
 
 
-void mainWindow::draw_citydiseases(City* a_city) {
+void mainWindow::draw_citydiseases(City* a_city)
+{
     int side = 10;
 
     // City coordinates
@@ -510,7 +511,8 @@ void mainWindow::draw_citydiseases(City* a_city) {
 }
 
 
-void mainWindow::handButtonClicked(bool checked) {
+void mainWindow::handButtonClicked(bool checked)
+{
     if (checked) {
         graphics_view->close();
         hand_window->show();
@@ -526,21 +528,24 @@ void mainWindow::handButtonClicked(bool checked) {
     }
 }
 
-void mainWindow::overlayClosed() {
- move_window->close();
- move_button->setChecked(false);
- move_button->setText("MOVE");
 
- // TEMPORARY - to handle fly-button (as it also connects to move_window)
- fly_button->setChecked(false);
- fly_button->setText("FLY");
+void mainWindow::overlayClosed()
+{
+    move_window->close();
+    move_button->setChecked(false);
+    move_button->setText("MOVE");
 
- // Show the graphics view
- graphics_view->show();
+    // TEMPORARY - to handle fly-button (as it also connects to move_window)
+    fly_button->setChecked(false);
+    fly_button->setText("FLY");
+
+    // Show the graphics view
+    graphics_view->show();
 }
 
 
-void mainWindow::handOverlayClosed() {
+void mainWindow::handOverlayClosed()
+{
  hand_window->QWidget::close(); //must use the QWidget version
  hand_button->setChecked(false);
  hand_button->setText("SHOW HAND");
@@ -551,13 +556,16 @@ void mainWindow::handOverlayClosed() {
  action_lcd->check_actions();
 }
 
-void mainWindow::cardOverlayClosed() {
+
+void mainWindow::cardOverlayClosed()
+{
     graphics_view->show();
     hand_button->setDown(false);
 }
 
 
-void mainWindow::specButtonClicked(bool checked) {
+void mainWindow::specButtonClicked(bool checked)
+{
  if (checked) {
      spec_window->update();
      graphics_view->close();
@@ -570,7 +578,9 @@ void mainWindow::specButtonClicked(bool checked) {
  } 
 }
 
-void mainWindow::moveButtonClicked(bool checked) {
+
+void mainWindow::moveButtonClicked(bool checked)
+{
  if (checked) {
     graphics_view->close();
     move_window->show();
@@ -582,7 +592,9 @@ void mainWindow::moveButtonClicked(bool checked) {
  }
 }
 
-void mainWindow::flyButtonClicked(bool checked) {
+
+void mainWindow::flyButtonClicked(bool checked)
+{
  if (checked) {
     graphics_view->close();
     move_window->show();
@@ -594,7 +606,9 @@ void mainWindow::flyButtonClicked(bool checked) {
  }
 }
 
-void mainWindow::disinfectButtonClicked() {
+
+void mainWindow::disinfectButtonClicked()
+{
     int player = world->players_turn;
     City* d_city = world->heroes[player]->ptr_city;
 
@@ -626,7 +640,9 @@ void mainWindow::disinfectButtonClicked() {
 
 }
 
-void mainWindow::discardCards() {
+
+void mainWindow::discardCards()
+{
     graphics_view->close();
     qDebug() << "Showing hand window for discarding cards \n";
     hand_window->update_window(this->world->heroes[this->world->players_turn]);
@@ -635,7 +651,8 @@ void mainWindow::discardCards() {
 }
 
 
-void mainWindow::openEndturn() {
+void mainWindow::openEndturn()
+{
     // Checking hand limit, and pop-up discard message if too many cards
     if(this->world->heroes[this->world->players_turn]->hand.size() > 7) {
         discard_message->exec();
@@ -649,7 +666,8 @@ void mainWindow::openEndturn() {
 }
 
 
-void mainWindow::treatDisease(int d_id) {
+void mainWindow::treatDisease(int d_id)
+{
     int player = world->players_turn;
     City* d_city = world->heroes[player]->ptr_city;
 
@@ -663,11 +681,14 @@ void mainWindow::treatDisease(int d_id) {
 
 
 // PUBLIC FUNCTIONS
-void mainWindow::openGraphics() {
+void mainWindow::openGraphics()
+{
     graphics_view->show();
 }
 
-void mainWindow::closeGraphics() {
+
+void mainWindow::closeGraphics()
+{
     qDebug() << "Closing graphics view.\n";
     graphics_view->close();
 }
