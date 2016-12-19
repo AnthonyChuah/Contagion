@@ -97,4 +97,6 @@ void endturnwindow::endturnClicked() {
     player = parent->world->players_turn;
     parent->getHandWindow()->update_window(parent->world->heroes[player]);
 
+    // Update the flight selection
+    parent->updateFlightSelection();
 }

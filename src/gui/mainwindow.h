@@ -12,6 +12,7 @@
 #include "actioncounter.h"
 #include "movebuttons.h"
 #include "meeplesprite.h"
+#include "flightselector.h"
 
 #include "macros.h"
 
@@ -53,6 +54,9 @@ public:
     // Set the turn picture
     void setTurnPicture();
 
+    // Update flight selection
+    void updateFlightSelection() { flight_selector->updateSelection(); }
+
 protected:
 //#ifndef QT_NO_CONTEXTMENU
 //    void contextMenuEvent(QContextMenuEvent *event) Q_DECL_OVERRIDE;
@@ -65,6 +69,7 @@ private:
     HandWindow *hand_window;
     specialwindow *spec_window;
     movewindow *move_window;
+    flightselector* flight_selector;
     flywindow *fly_window;
     endturnwindow *endturn_window;
     disinfectwindow *disinfect_window;
@@ -118,6 +123,7 @@ private slots:
     void specButtonClicked(bool checked);
     void moveButtonClicked(bool checked);
     void flyButtonClicked(bool checked);
+    void flightSelection(std::string);
     void disinfectButtonClicked();
 
     void overlayClosed(); //for closing move overlay correctly

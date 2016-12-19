@@ -180,7 +180,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
     move_button->setToolTip("Move along the map");
     move_button->setCheckable(true);
-
     connect(move_button, SIGNAL (clicked(bool)), this, SLOT (moveButtonClicked(bool)));
 
     // Fly
@@ -188,7 +187,6 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     fly_button->setGeometry(b_xcoord+1*b_xoffs,b_ycoord,b_wth,b_hth);
     fly_button->setToolTip("Fly along the map");
     fly_button->setCheckable(true);
-
     connect(fly_button, SIGNAL (clicked(bool)), this, SLOT (flyButtonClicked(bool)));
 
     // Special action
@@ -196,14 +194,12 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     spec_button->setGeometry(b_xcoord+2*b_xoffs,b_ycoord,b_wth,b_hth);
     spec_button->setToolTip("Hero's special action");
     spec_button->setCheckable(true);
-
     connect(spec_button, SIGNAL (clicked(bool)), this, SLOT (specButtonClicked(bool)));
 
     // Disinfect button
     disinfect_button = new QPushButton("DISINFECT", this);
     disinfect_button->setGeometry(b_xcoord+3*b_xoffs,b_ycoord,b_wth,b_hth);
     disinfect_button->setToolTip("Disinfect");
-
     connect(disinfect_button, SIGNAL (clicked()), this, SLOT (disinfectButtonClicked()));
 
     // Cure button (find cure)
@@ -225,7 +221,13 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     move_window->close(); //for some reason the window is automatically open o/w
     connect(move_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
 
-    // FLY WINDOW
+    // FLIGHT SELECTOR AND FLY WINDOW
+    flight_selector = new flightselector(this);
+    flight_selector->setGeometry(b_xcoord+b_xoffs-16,b_ycoord-60,220,50);
+    flight_selector->updateSelection();
+    flight_selector->close();
+    connect(flight_selector,SIGNAL (flightSelection(std::string)), this, SLOT (flightSelection(std::string)));
+
     fly_window = new flywindow(this,win_h-150,win_w);
     fly_window->close(); //for some reason this is automatically open o/w
     connect(fly_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
@@ -370,7 +372,6 @@ void mainWindow::createMenus()
     fileMenu->addAction(saveAct);
     fileMenu->addSeparator();
     fileMenu->addAction(quitAct);
-
 
     viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(statusAct);
@@ -600,16 +601,24 @@ void mainWindow::moveButtonClicked(bool checked)
 
 void mainWindow::flyButtonClicked(bool checked)
 {
-    fly_window->update_cities();
-    if (checked) {
-        graphics_view->close();
-        fly_window->show();
+    if(checked) {
+        flight_selector->show();
         fly_button->setText("CLOSE\nFLY\nWINDOW");
     } else {
         fly_window->close();
+        flight_selector->close();
         fly_button->setText("FLY");
         graphics_view->show();
     }
+}
+
+
+void mainWindow::flightSelection(std::string flight_type)
+{
+    fly_window->update_cities(flight_type);
+    graphics_view->close();
+    flight_selector->close();
+    fly_window->show();
 }
 
 

@@ -48,7 +48,8 @@ SOURCES += \
     src/gui/disinfectwindow.cpp \
     src/gui/diseasecube.cpp \
     src/gui/cardwindow.cpp \
-    src/gui/flywindow.cpp
+    src/gui/flywindow.cpp \
+    src/gui/flightselector.cpp
     #src/gui/movebuttons.cpp
 
 
@@ -89,7 +90,8 @@ HEADERS += \
     src/gui/disinfectwindow.h \
     src/gui/diseasecube.h \
     src/gui/cardwindow.h \
-    src/gui/flywindow.h
+    src/gui/flywindow.h \
+    src/gui/flightselector.h
     #src/gui/movebuttons.h
 
 RESOURCES += \
