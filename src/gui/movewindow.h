@@ -24,7 +24,7 @@ private slots:
     void slotButtonClicked(int buttonID);
     void confirmHandler(bool confirm);
 
-private:
+protected:
     int win_wth;
     int win_hth;
 

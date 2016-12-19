@@ -222,16 +222,20 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     // MOVE WINDOW
     move_window = new movewindow(this,win_h-150,win_w);
-    move_window->close(); //for some reason the hand is automatically open o/w
-
+    move_window->close(); //for some reason the window is automatically open o/w
     connect(move_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
+
+    // FLY WINDOW
+    fly_window = new flywindow(this,win_h-150,win_w);
+    fly_window->close(); //for some reason this is automatically open o/w
+    connect(fly_window,SIGNAL (closeOverlay()), this, SLOT (overlayClosed()));
 
     // SPECIAL WINDOW
     int spec_win_w = 600;
     int spec_win_h = spec_win_w*1.0/1.56;
     spec_window = new specialwindow(this,spec_win_h,spec_win_w);
     spec_window->move((win_w-spec_win_w)/2,(win_h-spec_win_h)/2);
-    spec_window->close(); //for some reason the hand is automatically open o/w
+    spec_window->close(); //for some reason this is automatically open o/w
 
     // DISINFECT WINDOW
     int disn_win_w = 600;
@@ -252,7 +256,7 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     connect(hand_window,SIGNAL (handButtonUp()), this, SLOT (handOverlayClosed()));
     connect(hand_window->card_window,SIGNAL (cardOverlayClosed()), this, SLOT (cardOverlayClosed()));
-
+    connect(fly_window, SIGNAL (flightSuccess()), this, SLOT (flightHandUpdate()));
 
     // Button to show the hand window
     hand_button = new QPushButton("SHOW HAND", this);
@@ -536,6 +540,7 @@ void mainWindow::overlayClosed()
     move_button->setText("MOVE");
 
     // TEMPORARY - to handle fly-button (as it also connects to move_window)
+    fly_window->close();
     fly_button->setChecked(false);
     fly_button->setText("FLY");
 
@@ -595,15 +600,22 @@ void mainWindow::moveButtonClicked(bool checked)
 
 void mainWindow::flyButtonClicked(bool checked)
 {
- if (checked) {
-    graphics_view->close();
-    move_window->show();
-    fly_button->setText("CLOSE\nFLY\nWINDOW");
- } else {
-    move_window->close();
-    fly_button->setText("FLY");
-    graphics_view->show();
- }
+    fly_window->update_cities();
+    if (checked) {
+        graphics_view->close();
+        fly_window->show();
+        fly_button->setText("CLOSE\nFLY\nWINDOW");
+    } else {
+        fly_window->close();
+        fly_button->setText("FLY");
+        graphics_view->show();
+    }
+}
+
+
+void mainWindow::flightHandUpdate()
+{
+    hand_window->update_window(this->world->heroes[this->world->players_turn]);
 }
 
 

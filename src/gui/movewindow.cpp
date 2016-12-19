@@ -40,7 +40,6 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
     cityListSetup(city_group);
     qDebug() << "City list setup done.\n";
 
-
     // =========================================================== //
     // SIGNAL HANDLING
     // =========================================================== //

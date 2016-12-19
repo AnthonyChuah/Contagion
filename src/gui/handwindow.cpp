@@ -103,8 +103,8 @@ void HandWindow::update_window(Hero* hero)
     for(int i=count; i!=card_buttons.length();i++) {
         card_buttons[i]->setVisible(false);
     }
-
 }
+
 
 /*
 // Overloaded close() function

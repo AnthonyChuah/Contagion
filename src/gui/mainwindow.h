@@ -6,6 +6,7 @@
 #include "handwindow.h"
 #include "specialwindow.h"
 #include "movewindow.h"
+#include "flywindow.h"
 #include "disinfectwindow.h"
 #include "endturnwindow.h"
 #include "actioncounter.h"
@@ -28,7 +29,6 @@ class mainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    //explicit mainWindow(QWidget *parent = 0); //if parent needed
     explicit mainWindow(World* wrld);
 
     World* world;
@@ -65,6 +65,7 @@ private:
     HandWindow *hand_window;
     specialwindow *spec_window;
     movewindow *move_window;
+    flywindow *fly_window;
     endturnwindow *endturn_window;
     disinfectwindow *disinfect_window;
 
@@ -124,6 +125,7 @@ private slots:
     void cardOverlayClosed();
 
     void discardCards();
+    void flightHandUpdate();
 
     void openEndturn();
 
