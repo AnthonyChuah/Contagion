@@ -708,6 +708,7 @@ void mainWindow::buildRcButtonClicked()
     if(world->heroes[player]->build_centre(*rc_city)) {
         qDebug() << "Successfully built a research centre.\n";
         setup_research_centres();
+        action_lcd->check_actions();
     } else {
         qDebug() << "Research centre build unsuccessful.\n";
     }
