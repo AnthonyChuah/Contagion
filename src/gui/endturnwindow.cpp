@@ -29,7 +29,6 @@ endturnwindow::endturnwindow(QWidget *parent,int height, int width) : QWidget(pa
     info_text->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
     info_text->setText("All four actions taken.\nEnd turn.");
     info_text->setWordWrap(true);
-    //info_text->setText("first line\nsecond line");
     info_text->setAlignment(Qt::AlignTop | Qt::AlignCenter);
 
 

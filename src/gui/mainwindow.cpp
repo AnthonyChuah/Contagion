@@ -175,6 +175,12 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     int b_xoffs = b_wth+20; //button x offset
     int b_ycoord = 750; //button y-coordinate
 
+    // Build-research-centre button
+    build_rc_button = new QPushButton("BUILD A\nRESEARCH\nCENTRE", this);
+    build_rc_button->setGeometry(b_xcoord-1.4*b_xoffs,b_ycoord+0.4*b_hth,b_wth*0.6,b_hth*0.6);
+    build_rc_button->setToolTip("Build a research centre in current city.");
+    connect(build_rc_button, SIGNAL (clicked()), this, SLOT (buildRcButtonClicked()));
+
     // Move button
     move_button = new QPushButton("MOVE", this);
     move_button->setGeometry(b_xcoord,b_ycoord,b_wth,b_hth);
@@ -204,7 +210,7 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     // Cure button (find cure)
     cure_button = new QPushButton("FIND\nA CURE", this);
-    cure_button->setGeometry(b_xcoord-2*b_xoffs,b_ycoord,b_wth,b_hth);
+    cure_button->setGeometry(b_xcoord-2*b_xoffs,b_ycoord+0.4*b_hth,b_wth*0.6,b_hth*0.6);
     cure_button->setToolTip("Find a cure");
 
     // CURE BUTTON FUNCTIONALITY TO BE ADDED
@@ -262,7 +268,7 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     // Button to show the hand window
     hand_button = new QPushButton("SHOW HAND", this);
-    hand_button->setGeometry(b_xcoord+5*b_xoffs,b_ycoord,b_wth+50,b_hth);
+    hand_button->setGeometry(b_xcoord+4.7*b_xoffs,b_ycoord+0.4*b_hth,b_wth+50,b_hth*0.6);
     hand_button->setToolTip("Show the cards in hand");
 
     hand_button->setCheckable(true);
@@ -314,6 +320,12 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     // =========================================================== //
     // Draw disease cubes
     setup_diseasecubes();
+
+    // =========================================================== //
+    // RESEARCH CENTRES
+    // =========================================================== //
+    // Draw research centres
+    setup_research_centres();
 
     // =========================================================== //
     // END-TURN WINDOW OVERLAY
@@ -458,9 +470,7 @@ void mainWindow::create_meeples(QList<meeplesprite*> *meeps)
 
 void mainWindow::setup_diseasecubes()
 {
-    std::vector<City> cities = world->cities;
-
-    // for each city, add cubes
+    // For each city, add cubes
     std::vector<City>::iterator it;
     for(it=world->cities.begin();it != world->cities.end();it++) {
         draw_citydiseases(&(*it));
@@ -479,7 +489,6 @@ void mainWindow::draw_citydiseases(City* a_city)
     x = x+15;
     y = y-15;
 
-
     // Remove existing cubes
     QGraphicsItem* removable;
     int mult = 0;
@@ -493,7 +502,6 @@ void mainWindow::draw_citydiseases(City* a_city)
         }
         mult++;
     }
-
 
     // Draw the cubes
     diseasecube* a_cube;
@@ -512,7 +520,38 @@ void mainWindow::draw_citydiseases(City* a_city)
             mult++;
         }
     }
+}
 
+
+void mainWindow::setup_research_centres()
+{
+    // For each city, add RC if applicable
+    std::vector<City>::iterator it;
+    for(it=world->cities.begin();it != world->cities.end();it++) {
+        if(it->has_rc())
+            draw_cityRC(&(*it));
+    }
+}
+
+
+void mainWindow::draw_cityRC(City *a_city)
+{
+    qDebug() << "Draw city RC -- Temporarily using diseasecube class.\n";
+    int side = 15;
+
+    // City coordinates
+    double x = a_city->x_coord;
+    double y = a_city->y_coord;
+    convertXY(x,y);
+    x = x-20;
+    y = y-15;
+
+    // Draw the RC cubes
+    diseasecube* a_cube = new diseasecube(a_city,-1,x,y,side);
+    scene->addItem(a_cube);
+    // TEMPORARILY using the diseasecube class -- change to a
+    // specific implementation when decide what the RCs should
+    // look like.
 }
 
 
@@ -658,7 +697,20 @@ void mainWindow::disinfectButtonClicked()
 
     // Update the action LCD
     action_lcd->check_actions();
+}
 
+
+void mainWindow::buildRcButtonClicked()
+{
+    int player = world->players_turn;
+    City* rc_city = world->heroes[player]->ptr_city;
+
+    if(world->heroes[player]->build_centre(*rc_city)) {
+        qDebug() << "Successfully built a research centre.\n";
+        setup_research_centres();
+    } else {
+        qDebug() << "Research centre build unsuccessful.\n";
+    }
 }
 
 

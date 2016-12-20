@@ -96,6 +96,7 @@ private:
     QPushButton *move_button;
     QPushButton *fly_button;
     QPushButton *disinfect_button;
+    QPushButton *build_rc_button;
     QPushButton *cure_button;
 
     // ---------------------------------------------- //
@@ -110,6 +111,9 @@ private:
     QList<QColor> dis_colours;
     void setup_diseasecubes();
     void draw_citydiseases(City* a_city);
+    // Research centres
+    void setup_research_centres();
+    void draw_cityRC(City* a_city);
 
 signals:
 
@@ -125,6 +129,7 @@ private slots:
     void flyButtonClicked(bool checked);
     void flightSelection(std::string);
     void disinfectButtonClicked();
+    void buildRcButtonClicked();
 
     void overlayClosed(); //for closing move overlay correctly
     void handOverlayClosed(); // for closing hand overlay correctly
