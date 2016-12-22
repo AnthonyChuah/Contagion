@@ -7,6 +7,7 @@
 #include <QList>
 
 #include "cardwindow.h"
+#include "cardsharewindow.h"
 #include "macros.h"
 
 class QPushButton; //to add a push button
@@ -20,11 +21,14 @@ public:
     void update_window(Hero* hero);
 
     cardwindow* card_window;
+    cardsharewindow* cardshare_window;
 
+    void closeOverlays();
     //void close(); //overloaded close function
 
 private slots:
     void slotButtonClicked(int buttonID);
+    void shareClicked();
 
     void discardCard(std::string cardname);
 
@@ -35,6 +39,8 @@ private:
 
     QList<QPushButton*> card_buttons;
     QButtonGroup* card_group;
+
+    QPushButton* share_button;
 
     Hero* current_hero; //currently selected hero (may differ from current turn)
 

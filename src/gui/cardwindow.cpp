@@ -104,7 +104,7 @@ void cardwindow::update_window(Hero *hero, PCard *card)
     }
 
     // Give button only clickable if more than one hero in city,
-    // and the card is the same as the city
+    // and the card is the same as the city, OR the player is the Researcher
     if(hero->ptr_city->heroes.size()>1) {
         if(card->city_id == hero->ptr_city->city_id) {
             give_button->setVisible(true);

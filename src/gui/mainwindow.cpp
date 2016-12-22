@@ -264,6 +264,7 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     connect(hand_window,SIGNAL (handButtonUp()), this, SLOT (handOverlayClosed()));
     connect(hand_window->card_window,SIGNAL (cardOverlayClosed()), this, SLOT (cardOverlayClosed()));
+    connect(hand_window->cardshare_window,SIGNAL (cardshareOverlayClosed()), this, SLOT (cardOverlayClosed()));
     connect(fly_window, SIGNAL (flightSuccess()), this, SLOT (flightHandUpdate()));
 
     // Button to show the hand window
@@ -562,6 +563,7 @@ void mainWindow::handButtonClicked(bool checked)
         hand_window->show();
         hand_button->setText("CLOSE HAND");
     } else {
+        hand_window->closeOverlays();
         hand_window->close();
         hand_button->setText("SHOW HAND");
         // Show the graphics view

@@ -12,28 +12,32 @@ flightselector::flightselector(QWidget *parent) : QWidget(parent)
     // Charter flight button
     charter_button = new QPushButton("Charter\nflight", this);
     charter_button->setGeometry(but_x, but_y, but_wth, but_hth);
-    charter_button->setToolTip("Opens charter flight destinations");
+    charter_button->setToolTip("Charter flight: discard the city card matching\n"
+                               "your current city to fly anywhere.");
     connect(charter_button, SIGNAL (clicked()), this, SLOT (charterClicked()));
 
     // Direct flight button
     direct_button = new QPushButton("Direct\nflight", this);
     direct_button->setGeometry(but_x+x_off, but_y, but_wth, but_hth);
-    direct_button->setToolTip("Opens available direct flight destinations");
+    direct_button->setToolTip("Direct flight: fly to a city matching a card in your\n"
+                              "hand, discarding that city card in the process.");
     connect(direct_button, SIGNAL (clicked()), this, SLOT (directClicked()));
 
     // Shuttle flight button
     shuttle_button = new QPushButton("Shuttle\nflight", this);
     shuttle_button->setGeometry(but_x+2*x_off, but_y, but_wth, but_hth);
-    shuttle_button->setToolTip("Opens available shuttle flight destinations");
+    shuttle_button->setToolTip("Shuttle flight: fly between cities with research centres.");
     connect(shuttle_button, SIGNAL (clicked()), this, SLOT (shuttleClicked()));
 
     // Operations Expert flight button
     opexflight_button = new QPushButton("OpEx\nflight", this);
     opexflight_button->setGeometry(but_x+2*x_off, but_y, but_wth, but_hth);
-    opexflight_button->setToolTip("Opens available OpEx flight destinations");
+    opexflight_button->setToolTip("OpEx flight: once per turn, fly from a research centre\n"
+                                  "to any destination by discarding any City card.");
     opexflight_button->setVisible(false);
     connect(opexflight_button, SIGNAL (clicked()), this, SLOT (opexflightClicked()));
 }
+
 
 void flightselector::charterClicked()
 {

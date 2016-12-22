@@ -76,10 +76,10 @@ void specialwindow::update()
         button2->setToolTip("Opens a menu to select which meeple to move.");
     }
     else if(!type.compare("Operations Expert")) {
-        button1->setText("BUILD RESEARCH\nSTATION FOR FREE");
-        button1->setToolTip("Builds a research station to current city.");
-        button2->setText("MOVE FROM RESEARCH\nSTATION TO ANY CITY");
-        button2->setToolTip("Opens a menu to select city to move to, and card to discard.");
+        button1->setText("MOVE FROM RESEARCH\nSTATION TO ANY CITY");
+        button1->setToolTip("Opens a menu to select city to move to, and card to discard.");
+        button2->setText("NOT\nAPPLICABLE FOR\n"+QString::fromStdString(type));
+        button2->setToolTip("No action available.");
     } else {
         button1->setText("NOT\nAPPLICABLE FOR\n"+QString::fromStdString(type));
         button1->setToolTip("No action available.");

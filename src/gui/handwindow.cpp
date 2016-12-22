@@ -1,4 +1,3 @@
-#include "handwindow.h"
 #include <QApplication>
 #include <QPushButton>
 #include <QDebug>
@@ -6,30 +5,29 @@
 #include <QSlider>
 #include <QMenu>
 
+#include "handwindow.h"
 #include "mainwindow.h"
 
-
-HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent) {
+HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent)
+{
     //Set the size of the window
-    int win_wth=width;//256;
+    int win_wth=width; //256;
     int win_hth=height;//128;
     setFixedSize(win_wth, win_hth);
 
-    // Get the parent (to get the world)
+    // Get the parent (to get the world object)
     mainWindow* par = qobject_cast<mainWindow*>(this->parent());
 
-
+    // =========================================================== //
+    // Card window and card buttons
+    // =========================================================== //
     // Set up the card window
     int cw_hth=180;     int cw_wth=180;
     card_window = new cardwindow(par,cw_hth,cw_wth);
     card_window->move((par->win_w-cw_wth)/2,(par->win_h-cw_hth)/2);
     card_window->close();
 
-    // =========================================================== //
-    // Create and position the CARD buttons
-    // =========================================================== //
-
-    // Set up the QList of Buttons
+    // Set up the QList of Buttons for cards
     card_group = new QButtonGroup(this);
     setupCardbuttons(win_wth,win_hth);
 
@@ -37,16 +35,26 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent) 
     int player = par->world->players_turn;
     update_window(par->world->heroes[player]);
 
-    // Add contingency planner's special card slot here?
+    // TODO: Add contingency planner's special card slot here?
 
-    // =========================================================== //
     // SIGNAL HANDLING
-    // =========================================================== //
     // Using group, as provides button ID as parameter
     connect(card_group,SIGNAL(buttonClicked(int)),this,SLOT(slotButtonClicked(int)));
-
-    //connect(card_window,SIGNAL(discardButtonSignal(PCard*)),this,SLOT(discardCard(PCard*)));
     connect(card_window,SIGNAL(discardButtonSignal(std::string)),this,SLOT(discardCard(std::string)));
+
+    // =========================================================== //
+    // Card share window and share cards - button
+    // =========================================================== //
+    int cs_wth=640; int cs_hth=300;
+    cardshare_window = new cardsharewindow(par,cs_wth,cs_hth);
+    cardshare_window->move((par->win_w-cs_wth)/2,(par->win_h-cs_hth)/2);
+    cardshare_window->close();
+
+    int but_wth = 150;
+    share_button = new QPushButton("SHARE CARDS",this);
+    share_button->setGeometry((win_wth-but_wth)/2,win_hth-50,but_wth,40);
+    share_button->setToolTip("Share cards with other players in the same city.");
+    connect(share_button,SIGNAL(clicked()),this,SLOT(shareClicked()));
 }
 
 
@@ -81,6 +89,7 @@ void HandWindow::setupCardbuttons(int win_wth,int win_hth)
     }
 }
 
+
 void HandWindow::update_window(Hero* hero)
 {
     // Update the current_hero pointer
@@ -93,9 +102,6 @@ void HandWindow::update_window(Hero* hero)
         card_name = QString::fromStdString(it->name);
         card_buttons[count]->setText(card_name);
         // ADD A CARD PICTURE (add from resources)
-        if(!it->event) { //if not an event card, i.e. is a city card
-            card_buttons[count]->setDown(true); //cities non-clickable
-        }
         card_buttons[count]->setVisible(true);
         count++;
     }
@@ -139,32 +145,35 @@ void HandWindow::discardCard(std::string cardname)
 
     // Push the card to discard pile, and remove from hand
     std::vector<PCard>::iterator it = par->world->heroes[player]->hand.begin();
-    int idx=0;
     while(it != par->world->heroes[player]->hand.end()) {
         if(!cardname.compare(it->name)) {
             par->world->player_discard.push_back(*it);
             par->world->heroes[player]->hand.erase(it);
-            card_buttons[idx]->setVisible(false); //hides the card button
             break;
         }
-        idx++;
         it++;
     }
+    update_window(par->world->heroes[player]);
 }
 
 
-//void HandWindow::useCard(PCard* card, Hero* hero) {
 void HandWindow::useCard(PCard* card)
 {
     qDebug() << QString::fromStdString(card->name) << " : Use card function -- STUB \n";
 }
 
 
-//void HandWindow::giveCard(PCard *card, Hero *from, Hero *to) {
 void HandWindow::giveCard(PCard *card, Hero *to)
 {
     qDebug() << QString::fromStdString(card->name) << " : Give card function -- STUB \n";
     //current_hero->give_card(card->name,*to);
+}
+
+
+void HandWindow::closeOverlays()
+{
+    card_window->close();
+    cardshare_window->close();
 }
 
 
@@ -185,3 +194,17 @@ void HandWindow::slotButtonClicked(int buttonID)
     emit handButtonUp();
 }
 
+
+void HandWindow::shareClicked()
+{
+    // Update the card share window
+    cardshare_window->updateHeroes(current_hero);
+    cardshare_window->updateCards(current_hero);
+
+    // Open the card window
+    qDebug() << "Open the card share window";
+    cardshare_window->show();
+
+    // Emit signal to raise the HAND button again
+    emit handButtonUp();
+}
