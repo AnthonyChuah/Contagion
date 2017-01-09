@@ -20,6 +20,8 @@ public:
     void updateHeroes(Hero* hero);
 
 private:
+    Hero* selected_hero;
+
     QList<QPushButton*> hero_buttons;
     QButtonGroup* hero_group;
 
@@ -31,8 +33,13 @@ private:
 
     QString setHeroPicture(Hero* hero);
 
+private slots:
+    void heroButtonSlot(int buttonID);
+    void cardButtonSlot(int buttonID);
+
 signals:
     void cardshareOverlayClosed();
+    void takeButtonSignal(PCard* card, Hero* from);
 
 public slots:
     void closeWindow();

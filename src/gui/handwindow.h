@@ -35,6 +35,8 @@ private slots:
     void useCard(PCard* card);
     void giveCard(PCard* card, Hero* to);
 
+    void takeCardSlot(PCard* card,Hero* from);
+
 private:
 
     QList<QPushButton*> card_buttons;

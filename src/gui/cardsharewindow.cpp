@@ -17,7 +17,7 @@ cardsharewindow::cardsharewindow(QWidget *parent,int height, int width) : QWidge
     // Set up the QList of Buttons for heroes
     hero_group = new QButtonGroup(this);
     setupHeroButtons();
-    //connect(hero_group,SIGNAL(buttonClicked(int)),this,SLOT(slotButtonClicked(int)));
+    connect(hero_group,SIGNAL(buttonClicked(int)),this,SLOT(heroButtonSlot(int)));
 
     /* Card buttons */
     // Set up the QList of Buttons for cards
@@ -29,14 +29,13 @@ cardsharewindow::cardsharewindow(QWidget *parent,int height, int width) : QWidge
     updateCards(par->world->heroes[player]);
 
     // Connect signals -- using group, as provides button ID as parameter
-    connect(card_group,SIGNAL(buttonClicked(int)),this,SLOT(slotButtonClicked(int)));
+    connect(card_group,SIGNAL(buttonClicked(int)),this,SLOT(cardButtonSlot(int)));
 
 
     /* Close window button */
     QPushButton* close_window = new QPushButton("X",this);
     close_window->setGeometry(win_wth-30,10,20,20);
     connect(close_window, SIGNAL (clicked()), this, SLOT (closeWindow()));
-
 }
 
 
@@ -108,20 +107,30 @@ void cardsharewindow::setupCardButtons()
 
 void cardsharewindow::updateCards(Hero* hero)
 {
-    std::vector<PCard>::iterator it;
+    std::vector<PCard>::iterator card;
     int count=0;
     QString card_name;
-    for(it=hero->hand.begin(); it != hero->hand.end(); it++) {
-        card_name = QString::fromStdString(it->name);
+    for(card=hero->hand.begin(); card != hero->hand.end(); card++) {
+        card_name = QString::fromStdString(card->name);
         card_buttons[count]->setText(card_name);
         // ADD A CARD PICTURE (add from resources)
-        card_buttons[count]->setVisible(true);
+
+        // Card button only visible if the card is the same as the city,
+        // OR the player is the Researcher
+        if(card->city_id == hero->ptr_city->city_id) {
+            card_buttons[count]->setVisible(true);
+        } else if (hero->get_spec()=="Researcher" && card->event==false) {
+            card_buttons[count]->setVisible(true);
+        } else {
+            card_buttons[count]->setVisible(false);
+        }
         count++;
     }
 
     for(int i=count; i!=card_buttons.length();i++) {
         card_buttons[i]->setVisible(false);
     }
+
 }
 
 
@@ -180,4 +189,27 @@ void cardsharewindow::closeWindow()
 {
     emit cardshareOverlayClosed();
     this->close();
+}
+
+
+void cardsharewindow::heroButtonSlot(int buttonID)
+{
+    // Get the parent (to get the world object)
+    mainWindow* par = qobject_cast<mainWindow*>(this->parent());
+
+    //Find out which hero button was clicked, and set "a_card" pointer to it
+    selected_hero = par->world->heroes[buttonID];
+
+    updateCards(selected_hero);
+}
+
+
+void cardsharewindow::cardButtonSlot(int buttonID)
+{
+    //Find out which card button was clicked, and set "a_card" pointer to it
+    PCard a_card = selected_hero->hand[buttonID];
+
+    //Emit a signal to take the card
+    emit takeButtonSignal(&a_card, selected_hero);
+    this->closeWindow();
 }

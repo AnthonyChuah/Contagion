@@ -51,10 +51,11 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent)
     cardshare_window->close();
 
     int but_wth = 150;
-    share_button = new QPushButton("SHARE CARDS",this);
+    share_button = new QPushButton("TAKE CARDS",this);
     share_button->setGeometry((win_wth-but_wth)/2,win_hth-50,but_wth,40);
-    share_button->setToolTip("Share cards with other players in the same city.");
+    share_button->setToolTip("Take cards from another player in the same city.");
     connect(share_button,SIGNAL(clicked()),this,SLOT(shareClicked()));
+    connect(cardshare_window,SIGNAL(takeButtonSignal(PCard*, Hero*)),this,SLOT(takeCardSlot(PCard*,Hero*)));
 }
 
 
@@ -207,4 +208,13 @@ void HandWindow::shareClicked()
 
     // Emit signal to raise the HAND button again
     emit handButtonUp();
+}
+
+
+void HandWindow::takeCardSlot(PCard* card,Hero* from)
+{
+    // Get the parent (to get the world object)
+    //mainWindow* par = qobject_cast<mainWindow*>(this->parent());
+    from->give_card(card->name,*current_hero);
+    update_window(current_hero);
 }
