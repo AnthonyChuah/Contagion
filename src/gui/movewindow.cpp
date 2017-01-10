@@ -5,6 +5,7 @@
 #include <QList>
 #include <QButtonGroup>
 #include <QDebug>
+#include <QShortcut>
 #include "mainwindow.h"
 
 #include "confirmwindow.h"
@@ -46,6 +47,8 @@ movewindow::movewindow(QWidget *parent, int height, int width) : QWidget(parent)
     // Using group
     connect(city_group,SIGNAL(buttonClicked(int)),this,SLOT(slotButtonClicked(int)));
 
+    QShortcut *closeshortcut = new QShortcut(QKeySequence("x"),this);
+    connect(closeshortcut,SIGNAL(activated()),this,SLOT(closeShortcut()));
 }
 
 
@@ -108,10 +111,6 @@ void movewindow::slotButtonClicked(int buttonID) {
         }
     }
 
-    //Make a check if move valid
-    // if not valid, exit the function
-    // NOTE: THE Hero::move() function does a check!
-
     //Open a confirmation window asking to confirm move
     int conf_win_w = win_wth; int conf_win_h = win_hth;
     QString cityname = QString::fromStdString(city_to->name);
@@ -120,8 +119,8 @@ void movewindow::slotButtonClicked(int buttonID) {
     confirm_window->move((win_wth-conf_win_w)/2,(win_hth-conf_win_h)/2);
     confirm_window->show();
     connect(confirm_window,SIGNAL(confirmSignal(bool)),this,SLOT(confirmHandler(bool)));
-
 }
+
 
 void movewindow::confirmHandler(bool confirm) {
     // Get the parent (to get the world)
@@ -156,6 +155,13 @@ void movewindow::confirmHandler(bool confirm) {
 
     // Return city_to to point to null
     city_to=NULL;
+}
+
+
+void movewindow::closeShortcut()
+{
+    this->close();
+    emit moveShortcutClose();
 }
 
 

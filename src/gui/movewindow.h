@@ -23,6 +23,7 @@ public:
 private slots:
     void slotButtonClicked(int buttonID);
     void confirmHandler(bool confirm);
+    void closeShortcut();
 
 protected:
     int win_wth;
@@ -40,7 +41,7 @@ protected:
 
 signals:
     void closeOverlay();
-
+    void moveShortcutClose();
 };
 
 

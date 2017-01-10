@@ -1,6 +1,8 @@
 #include "cardwindow.h"
 #include <QDebug>
 
+#include "mainwindow.h"
+
 cardwindow::cardwindow(QWidget *parent,int height, int width) : QWidget(parent)
 {
     //Set the size of the window
@@ -50,7 +52,19 @@ cardwindow::cardwindow(QWidget *parent,int height, int width) : QWidget(parent)
     close_window->setGeometry(win_wth-30,10,20,20);
     connect(close_window, SIGNAL (clicked()), this, SLOT (closeWindow()));
 
+    // =========================================================== //
+    // Card share window and share cards - button
+    // =========================================================== //
+    // Get the parent (to get the world object)
+    mainWindow* par = qobject_cast<mainWindow*>(this->parent());
+
+    int cs_wth=640; int cs_hth=300;
+    cardshare_window = new cardsharewindow(par,cs_wth,cs_hth);
+    cardshare_window->move((par->win_w-cs_wth)/2,(par->win_h-cs_hth)/2);
+    cardshare_window->close();
+    connect(cardshare_window,SIGNAL(heroClickedSignal(Hero*)),this,SLOT(giveHeroSlot(Hero*)));
 }
+
 
 void cardwindow::discardButtonSlot()
 {
@@ -61,17 +75,33 @@ void cardwindow::discardButtonSlot()
     this->close();
 }
 
+
 void cardwindow::giveButtonSlot()
 {
     qDebug() << "Give button pressed -- STUB \n";
 
-    // Need to implement a selection of players to give it to
+    // Update the card share window
+    cardshare_window->updateHeroes(current_hero);
+    cardshare_window->hideCards();
 
-    //emit giveButtonSignal(current_card, hero_to);
+    // Open the card window
+    qDebug() << "Open the card share window";
+    cardshare_window->show();
 
-    emit cardOverlayClosed();
     this->close();
 }
+
+
+void cardwindow::giveHeroSlot(Hero* hero)
+{
+    qDebug() << "Giving card to hero\n";
+    qDebug() << "Current card is " << QString::fromStdString(curr_card) << "\n";
+
+    emit giveButtonSignal(curr_card,hero);
+    cardshare_window->closeWindow();
+    closeWindow();
+}
+
 
 void cardwindow::useButtonSlot()
 {
@@ -81,6 +111,7 @@ void cardwindow::useButtonSlot()
     emit cardOverlayClosed();
     this->close();
 }
+
 
 void cardwindow::closeWindow()
 {

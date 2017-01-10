@@ -5,6 +5,8 @@
 #include <QPushButton>
 #include "macros.h"
 
+#include "cardsharewindow.h"
+
 class cardwindow : public QWidget {
     Q_OBJECT
 public:
@@ -21,10 +23,12 @@ private:
     PCard *current_card;
     std::string curr_card;
 
+    cardsharewindow* cardshare_window;
+
 signals:
     void discardButtonSignal(std::string str);
 
-    void giveButtonSignal(PCard* card, Hero* to);
+    void giveButtonSignal(std::string card_name, Hero* to);
     void useButtonSignal(PCard* card);
 
     void cardOverlayClosed();
@@ -34,7 +38,7 @@ private slots:
     void giveButtonSlot();
     void useButtonSlot();
     void closeWindow();
-
+    void giveHeroSlot(Hero* hero);
 };
 
 #endif // CARDWINDOW_H

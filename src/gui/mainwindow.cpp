@@ -274,10 +274,8 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
 
     hand_button->setCheckable(true);
 
-    connect(hand_button, SIGNAL (clicked(bool)), this, SLOT (handButtonClicked(bool)));
-    // Shortcut
-    //new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_H), hand_window, SLOT(show()));
-    //SOME BUG EXISTS IN THE ABOVE SHORTCUT!
+    connect(hand_button,SIGNAL(clicked(bool)),this,SLOT(handButtonClicked(bool)));
+    connect(hand_button,SIGNAL(clicked()),hand_window,SLOT(closeOverlays()));
 
     // need to also view other players' hands, so can plan trades
     // there could e.g. be a quick-view pane that shows colours reflecting
@@ -310,6 +308,27 @@ mainWindow::mainWindow(World* wrld) : world(wrld) { //with no parent
     graphics_view->setGeometry(0,20,win_w,win_h-220);
     graphics_view->setAlignment(Qt::AlignTop|Qt::AlignLeft);
     graphics_view->show();
+
+    // =========================================================== //
+    // KEYBOARD SHORTCUTS
+    // =========================================================== //
+    QShortcut *moveshortcut = new QShortcut(QKeySequence("m"),this);
+    connect(moveshortcut, SIGNAL(activated()), move_window, SLOT(show()));
+
+    QShortcut *handshortcut = new QShortcut(QKeySequence("h"),this);
+    connect(handshortcut, SIGNAL(activated()), hand_window, SLOT(show()));
+
+    // Connect keyboard shortcuts to closing the graphics view
+    connect(moveshortcut, SIGNAL(activated()), graphics_view, SLOT(close()));
+    connect(handshortcut, SIGNAL(activated()), graphics_view, SLOT(close()));
+
+    // Connect shortcut close signals to showing the graphics view again
+    connect(move_window,SIGNAL(moveShortcutClose()),graphics_view,SLOT(show()));
+    connect(hand_window,SIGNAL(handShortcutClose()),graphics_view,SLOT(show()));
+
+    // Ensure shortcuts close other windows (if fired at the same time)
+    connect(moveshortcut, SIGNAL(activated()), hand_window, SLOT(close()));
+    connect(handshortcut, SIGNAL(activated()), move_window, SLOT(close()));
 
     // =========================================================== //
     // MEEPLES
@@ -608,6 +627,9 @@ void mainWindow::cardOverlayClosed()
 {
     graphics_view->show();
     hand_button->setDown(false);
+
+    // Check number of actions
+    action_lcd->check_actions();
 }
 
 

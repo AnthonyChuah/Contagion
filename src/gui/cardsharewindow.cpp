@@ -136,30 +136,35 @@ void cardsharewindow::updateCards(Hero* hero)
 
 void cardsharewindow::updateHeroes(Hero* hero)
 {
+    qDebug() << "Updating heroes in same city for hero" << QString::fromStdString(hero->get_spec()) <<"\n";
+
     mainWindow* par = qobject_cast<mainWindow*>(this->parent());
     City *city = hero->ptr_city;
     std::vector<int>::iterator it_hero = city->heroes.begin();
-    int n_heroes = city->heroes.size();
-    int count=0;
-    //QString hero_name;
+    int n_heroes = par->world->heroes.size();//city->heroes.size();
+    int unresolved_idx=0; //next unresolved button
     while(it_hero!=city->heroes.end()) {
-        for(int i=0; i<n_heroes; i++) {
+        for(int i=unresolved_idx; i<n_heroes; i++) {
             if(par->world->heroes[i]->hero_id == *it_hero) {
-                //hero_name = QString::fromStdString(par->world->heroes[i]->spec);
-                hero_buttons[count]->setText("");
-                hero_buttons[count]->setIcon(QIcon(setHeroPicture(par->world->heroes[i])));
-                hero_buttons[count]->setIconSize(QSize(250,50));
-                hero_buttons[count]->setContentsMargins(0,0,0,0);
-                if(hero==par->world->heroes[i])
-                    hero_buttons[count]->setVisible(false);
-                else
-                    hero_buttons[count]->setVisible(true);
-                count++;
+                hero_buttons[i]->setText("");
+                hero_buttons[i]->setIcon(QIcon(setHeroPicture(par->world->heroes[i])));
+                hero_buttons[i]->setIconSize(QSize(250,50));
+                hero_buttons[i]->setContentsMargins(0,0,0,0);
+                if(hero==par->world->heroes[i]) {
+                    hero_buttons[i]->setVisible(false);
+                    qDebug() << "Hiding hero button " << i << "(1)\n";
+                } else {
+                    hero_buttons[i]->setVisible(true);
+                    qDebug() << "Showing hero button " << i << "\n";
+                }
+                unresolved_idx=i+1;
+            } else {
+                hero_buttons[i]->setVisible(false);
+                qDebug() << "Hiding hero button " << i << "(2)\n";
             }
         }
         it_hero++;
     }
-    qDebug() << "Updating heroes in same city for hero" << QString::fromStdString(hero->get_spec()) <<"-- STUB\n";
 }
 
 
@@ -185,6 +190,14 @@ QString cardsharewindow::setHeroPicture(Hero* hero)
 }
 
 
+void cardsharewindow::hideCards()
+{
+    for(int i=0; i!=card_buttons.length();i++) {
+        card_buttons[i]->setVisible(false);
+    }
+}
+
+
 void cardsharewindow::closeWindow()
 {
     emit cardshareOverlayClosed();
@@ -201,6 +214,8 @@ void cardsharewindow::heroButtonSlot(int buttonID)
     selected_hero = par->world->heroes[buttonID];
 
     updateCards(selected_hero);
+
+    emit heroClickedSignal(selected_hero);
 }
 
 

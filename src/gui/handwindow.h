@@ -23,8 +23,8 @@ public:
     cardwindow* card_window;
     cardsharewindow* cardshare_window;
 
+public slots:
     void closeOverlays();
-    //void close(); //overloaded close function
 
 private slots:
     void slotButtonClicked(int buttonID);
@@ -33,9 +33,11 @@ private slots:
     void discardCard(std::string cardname);
 
     void useCard(PCard* card);
-    void giveCard(PCard* card, Hero* to);
+    void giveCard(std::string card_name, Hero* to);
 
     void takeCardSlot(PCard* card,Hero* from);
+
+    void closeShortcut();
 
 private:
 
@@ -55,7 +57,7 @@ private:
 signals:
     void handButtonUp();
     void handLimit();
-
+    void handShortcutClose();
 };
 
 #endif // HANDWINDOW_H

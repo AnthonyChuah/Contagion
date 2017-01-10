@@ -18,6 +18,7 @@ public:
 
     void updateCards(Hero* hero);
     void updateHeroes(Hero* hero);
+    void hideCards();
 
 private:
     Hero* selected_hero;
@@ -40,6 +41,7 @@ private slots:
 signals:
     void cardshareOverlayClosed();
     void takeButtonSignal(PCard* card, Hero* from);
+    void heroClickedSignal(Hero* hero);
 
 public slots:
     void closeWindow();

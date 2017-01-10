@@ -1,9 +1,7 @@
 #include <QApplication>
 #include <QPushButton>
 #include <QDebug>
-#include <QProgressBar>
-#include <QSlider>
-#include <QMenu>
+#include <QShortcut>
 
 #include "handwindow.h"
 #include "mainwindow.h"
@@ -41,6 +39,7 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent)
     // Using group, as provides button ID as parameter
     connect(card_group,SIGNAL(buttonClicked(int)),this,SLOT(slotButtonClicked(int)));
     connect(card_window,SIGNAL(discardButtonSignal(std::string)),this,SLOT(discardCard(std::string)));
+    connect(card_window,SIGNAL(giveButtonSignal(std::string,Hero*)),this,SLOT(giveCard(std::string,Hero*)));
 
     // =========================================================== //
     // Card share window and share cards - button
@@ -56,6 +55,10 @@ HandWindow::HandWindow(QWidget *parent,int height, int width) : QWidget(parent)
     share_button->setToolTip("Take cards from another player in the same city.");
     connect(share_button,SIGNAL(clicked()),this,SLOT(shareClicked()));
     connect(cardshare_window,SIGNAL(takeButtonSignal(PCard*, Hero*)),this,SLOT(takeCardSlot(PCard*,Hero*)));
+
+
+    QShortcut *closeshortcut = new QShortcut(QKeySequence("x"),this);
+    connect(closeshortcut,SIGNAL(activated()),this,SLOT(closeShortcut()));
 }
 
 
@@ -113,32 +116,6 @@ void HandWindow::update_window(Hero* hero)
 }
 
 
-/*
-// Overloaded close() function
-// NOTE: The QWidget::close() version has to be used when card window opened!
-//       This is because the hand limit would be checked again, before there
-//       is a chance to discard any cards.
-void HandWindow::close() {
-
-    // Close the window
-    this->QWidget::close();
-    qDebug() << "Hand window closed. \n";
-
-    // Check hand limit, and emit signal if too many cards
-    qDebug() << "Checking hand limit. \n";
-    if(current_hero->hand.size() > 7) {
-        emit handLimit();
-    }
-
-    // Test
-    emit handLimit();
-}
-// SOME BUGS REMAIN, with regard to the graphics view opening on top after
-   handLimit() is emitted...
-   -- REVIEW IF IT'S IMPORTANT TO CHECK HAND LIMIT AFTER CLOSE
-*/
-
-
 void HandWindow::discardCard(std::string cardname)
 {
     mainWindow* par = qobject_cast<mainWindow*>(this->parent());
@@ -164,10 +141,11 @@ void HandWindow::useCard(PCard* card)
 }
 
 
-void HandWindow::giveCard(PCard *card, Hero *to)
+void HandWindow::giveCard(std::string card_name, Hero *to)
 {
-    qDebug() << QString::fromStdString(card->name) << " : Give card function -- STUB \n";
-    //current_hero->give_card(card->name,*to);
+    qDebug() << QString::fromStdString(card_name) << " : Give card function -- STUB \n";
+    current_hero->give_card(card_name,*to);
+    update_window(current_hero);
 }
 
 
@@ -200,7 +178,7 @@ void HandWindow::shareClicked()
 {
     // Update the card share window
     cardshare_window->updateHeroes(current_hero);
-    cardshare_window->updateCards(current_hero);
+    cardshare_window->hideCards();
 
     // Open the card window
     qDebug() << "Open the card share window";
@@ -213,8 +191,13 @@ void HandWindow::shareClicked()
 
 void HandWindow::takeCardSlot(PCard* card,Hero* from)
 {
-    // Get the parent (to get the world object)
-    //mainWindow* par = qobject_cast<mainWindow*>(this->parent());
-    from->give_card(card->name,*current_hero);
+    current_hero->take_card(card->name,*from);
     update_window(current_hero);
+}
+
+
+void HandWindow::closeShortcut()
+{
+    this->close();
+    emit handShortcutClose();
 }
